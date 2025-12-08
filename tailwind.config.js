@@ -13,6 +13,13 @@ export default {
                     yellow: '#f7b801',
                     purple: '#7678ed',
                     'purple-dark': '#3d348b',
+                },
+                custom: {
+                    celadon: '#b8d8ba',
+                    beige: '#d9dbbc',
+                    'soft-apricot': '#fcddbc',
+                    'cotton-candy': '#ef959d',
+                    'taupe-grey': '#69585f',
                 }
             }
         },

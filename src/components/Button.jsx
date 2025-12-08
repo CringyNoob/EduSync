@@ -13,11 +13,11 @@ const Button = ({
     const baseStyles = "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
 
     const variants = {
-        primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
-        secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500",
-        outline: "border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-700 focus:ring-gray-500",
-        ghost: "bg-transparent hover:bg-gray-100 text-gray-700 focus:ring-gray-500",
-        danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
+        primary: "bg-custom-taupe-grey text-white hover:bg-custom-taupe-grey/90 hover:shadow-lg hover:shadow-custom-taupe-grey/20 focus:ring-custom-taupe-grey border border-transparent shadow-sm",
+        secondary: "bg-white text-custom-taupe-grey hover:bg-custom-beige/30 hover:text-custom-taupe-grey border border-gray-200 shadow-sm",
+        outline: "bg-white/50 backdrop-blur-sm text-custom-taupe-grey border-2 border-custom-taupe-grey/20 hover:border-custom-taupe-grey hover:text-custom-taupe-grey hover:bg-custom-beige/30",
+        ghost: "bg-transparent text-custom-taupe-grey hover:bg-custom-celadon/20 hover:text-custom-taupe-grey",
+        danger: "bg-custom-cotton-candy/20 text-red-600 hover:bg-custom-cotton-candy/40 border border-transparent"
     };
 
     const sizes = {

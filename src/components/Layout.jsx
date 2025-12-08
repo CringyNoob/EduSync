@@ -5,11 +5,11 @@ import Navbar from './Navbar/Navbar';
 
 const Layout = () => {
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gradient-to-br from-custom-beige/40 via-white to-custom-celadon/20">
             <Sidebar />
             <Navbar />
-            <main className="pl-64 pt-20">
-                <div className="container mx-auto p-6">
+            <main className="pl-64 pt-16">
+                <div className="container mx-auto">
                     <Outlet />
                 </div>
             </main>
