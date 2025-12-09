@@ -1,5 +1,6 @@
 // src/controllers/authController.js
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 const otpService = require('../utils/otpService');
 const emailService = require('../utils/emailService');
@@ -181,6 +182,19 @@ async function login(req, res) {
 
         const user = result.rows[0];
 
+         // 1. Generate the Token (Make sure this part exists)
+            const token = jwt.sign(
+            { 
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                department: user.department,
+                batch: user.batch
+            }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '1d' }
+            );
+
         // Compare password
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -195,6 +209,7 @@ async function login(req, res) {
         return res.status(200).json({
             success: true,
             message: 'Login successful',
+            token: token,
             user: {
                 id: user.id,
                 name: user.name,

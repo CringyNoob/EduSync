@@ -30,6 +30,19 @@ app.use('/api/auth', createProxyMiddleware({
     },
 }));
 
+// 2. Marketplace Proxy (New)
+app.use('/api/market', createProxyMiddleware({
+    target: 'http://localhost:3002', // Marketplace Service Port
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api/market': '/', // Rewrites /api/market/vendors -> /vendors
+    },
+    onError: (err, req, res) => {
+        console.error('Market Proxy Error:', err);
+        res.status(500).send('Proxy Error: Could not reach Marketplace Service');
+    },
+}));
+
 app.listen(PORT, () => {
     console.log(`🚀 Gateway running on http://localhost:${PORT}`);
 });
