@@ -9,8 +9,14 @@ const app = express();
 app.use(express.json()); // Allow JSON data
 app.use(cors());         // Allow Frontend to talk to us
 
+// --- THE SPY LOGGER ---
+app.use((req, res, next) => {
+    console.log(`[Auth Service] Received Request: ${req.method} ${req.url}`);
+    next();
+});
+
 // --- AUTH ROUTES ---
-app.use('/auth', authRoutes);
+app.use('/', authRoutes);
 
 // --- TEST ROUTE ---
 // Go to http://localhost:3001/health to see if it works

@@ -21,7 +21,7 @@ async function sendOtp(req, res) {
             });
         }
 
-        // Validation: Email must end with @uiu.ac.bd
+        // Validation: Email must end with uiu.ac.bd
         if (!email.endsWith('uiu.ac.bd')) {
             return res.status(400).json({ 
                 success: false,
@@ -81,11 +81,11 @@ async function register(req, res) {
             });
         }
 
-        // Validation: Email must end with @uiu.ac.bd
-        if (!email.endsWith('@uiu.ac.bd')) {
+        // Validation: Email must end with uiu.ac.bd
+        if (!email.endsWith('uiu.ac.bd')) {
             return res.status(400).json({ 
                 success: false,
-                error: 'Only UIU email addresses (@uiu.ac.bd) are allowed' 
+                error: 'Only UIU email addresses (uiu.ac.bd) are allowed' 
             });
         }
 
