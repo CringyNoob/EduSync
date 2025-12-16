@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
@@ -8,7 +9,6 @@ import {
     MessageCircle,
     AlertCircle,
     LogOut,
-    GraduationCap,
     User,
     Settings,
     ChevronRight,
@@ -36,12 +36,12 @@ const Sidebar = () => {
     };
 
     const navItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', color: 'from-custom-celadon to-custom-taupe-grey/60' },
-        { icon: ShoppingBag, label: 'Marketplace', path: '/marketplace', color: 'from-custom-soft-apricot to-orange-300' },
-        { icon: MessageSquare, label: 'Forum', path: '/forum', color: 'from-custom-cotton-candy to-pink-300' },
-        { icon: Bell, label: 'Notices', path: '/notices', color: 'from-custom-beige to-yellow-200', badge: 3 },
-        { icon: MessageCircle, label: 'Chat', path: '/chat', color: 'from-custom-celadon to-green-300', badge: 5 },
-        { icon: AlertCircle, label: 'Issues', path: '/issues', color: 'from-custom-cotton-candy to-red-300' },
+        { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', activeClass: 'text-primary bg-primary/5 border-primary' },
+        { icon: ShoppingBag, label: 'Marketplace', path: '/marketplace', activeClass: 'text-indigo-600 bg-indigo-50 border-indigo-600' },
+        { icon: MessageSquare, label: 'Forum', path: '/forum', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
+        { icon: Bell, label: 'Notices', path: '/notices', activeClass: 'text-yellow-600 bg-yellow-50 border-yellow-600', badge: 3 },
+        { icon: MessageCircle, label: 'Chat', path: '/chat', activeClass: 'text-green-600 bg-green-50 border-green-600', badge: 5 },
+        { icon: AlertCircle, label: 'Issues', path: '/issues', activeClass: 'text-red-600 bg-red-50 border-red-600' },
     ];
 
     const getInitials = (name) => {
@@ -54,65 +54,63 @@ const Sidebar = () => {
     };
 
     return (
-        <aside className="fixed left-0 top-0 z-40 h-screen w-64 transition-transform">
-            {/* Sidebar Background with Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-b from-custom-beige/30 via-white to-custom-beige/30"></div>
+        <aside className="fixed left-4 top-4 z-50 h-[calc(100vh-2rem)] w-[246px] transition-transform">
+            {/* Sidebar Card - Floating Glass Effect */}
+            <div className="absolute inset-0 overflow-hidden rounded-[2rem] border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)] bg-white/70 backdrop-blur-3xl">
+                {/* Subtle Inner Gradient for Depth */}
+                <div className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-white/60 to-transparent z-0"></div>
 
-            {/* Decorative Elements */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-custom-celadon/40 to-custom-soft-apricot/40 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-20 left-0 w-20 h-20 bg-gradient-to-tr from-custom-cotton-candy/30 to-custom-taupe-grey/20 rounded-full blur-2xl"></div>
+                {/* Subtle Noise Texture */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:16px_16px] opacity-20 z-0"></div>
+            </div>
 
-            <div className="relative flex h-full flex-col px-3 py-4">
-                {/* Logo Section - Compact */}
-                <div className="mb-4">
-                    <div className="flex items-center p-2 rounded-xl bg-white/60 backdrop-blur-sm border border-white/60 shadow-md shadow-custom-taupe-grey/5">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-custom-celadon to-custom-taupe-grey text-white shadow-md shadow-custom-taupe-grey/20">
-                            <GraduationCap size={20} strokeWidth={2.5} />
+            <div className="relative z-10 flex h-full flex-col px-5 py-6">
+                {/* Logo Section */}
+                <div className="mb-8 px-1">
+                    <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
+                        <div className="p-1.5 rounded-xl bg-white shadow-sm border border-gray-100 group-hover:scale-110 transition-transform duration-300">
+                            <img src="/logo.png" alt="EduSync" className="h-6 w-6 object-contain" />
                         </div>
-                        <div className="ml-2.5 flex-1">
-                            <span className="block text-base font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-custom-taupe-grey to-custom-cotton-candy">
+                        <div>
+                            <span className="block text-xl font-extrabold text-gray-900 leading-none tracking-tight">
                                 EduSync
                             </span>
-                            <span className="block text-[10px] text-gray-500 font-medium leading-tight">Campus Hub</span>
+                            <span className="block text-[10px] text-primary font-bold tracking-widest mt-0.5">STUDENT HUB</span>
                         </div>
                     </div>
                 </div>
 
-                {/* User Profile Section - Compact */}
-                <div className="mb-4">
+                {/* User Profile Section - Refined */}
+                <div className="mb-6">
                     <NavLink
                         to="/profile/me"
-                        className="group block p-2.5 rounded-xl bg-gradient-to-br from-custom-celadon/10 to-custom-soft-apricot/10 border border-custom-celadon/20 hover:border-custom-celadon/40 hover:shadow-md hover:shadow-custom-celadon/10 transition-all duration-300"
+                        className="group relative block p-1.5 rounded-[1.2rem] bg-white/60 border border-white shadow-sm hover:shadow-md hover:bg-white transition-all duration-300"
                     >
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-3 p-1.5">
                             <div className="relative">
                                 {userData.avatar ? (
-                                    <img src={userData.avatar} alt={userData.name} className="h-9 w-9 rounded-lg object-cover" />
+                                    <img src={userData.avatar} alt={userData.name} className="h-9 w-9 rounded-xl object-cover ring-2 ring-white" />
                                 ) : (
-                                    <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-custom-celadon to-custom-taupe-grey flex items-center justify-center text-white font-bold text-xs shadow-md">
+                                    <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-gray-800 to-gray-600 flex items-center justify-center text-white font-bold text-xs shadow-sm ring-2 ring-white">
                                         {getInitials(userData.name)}
                                     </div>
                                 )}
-                                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-custom-celadon border-2 border-white"></div>
+                                <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-white ring-1 ring-gray-100"></div>
                             </div>
-                            <div className="ml-2.5 flex-1 min-w-0">
-                                <p className="text-xs font-bold text-gray-900 truncate group-hover:text-custom-taupe-grey transition-colors">
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold text-gray-900 truncate group-hover:text-primary transition-colors">
                                     {userData.name}
                                 </p>
-                                <p className="text-[10px] text-gray-500 truncate leading-tight">{userData.role}</p>
+                                <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">{userData.role}</p>
                             </div>
-                            <ChevronRight className="h-3.5 w-3.5 text-gray-400 group-hover:text-custom-taupe-grey group-hover:translate-x-1 transition-all" />
                         </div>
                     </NavLink>
                 </div>
 
-                {/* Navigation Items - Compact */}
-                <nav className="flex-1 space-y-1">
-                    <div className="mb-1.5 px-2">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                            <Sparkles className="h-2.5 w-2.5" />
-                            Navigation
-                        </p>
+                {/* Navigation Items */}
+                <nav className="flex-1 space-y-1.5 overflow-y-auto no-scrollbar py-2">
+                    <div className="px-3 mb-2">
+                        <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest opacity-60">Main Menu</p>
                     </div>
                     {navItems.map((item, index) => (
                         <NavLink
@@ -122,87 +120,62 @@ const Sidebar = () => {
                             onMouseLeave={() => setHoveredItem(null)}
                             className={({ isActive }) =>
                                 cn(
-                                    "group relative flex items-center rounded-lg p-2 transition-all duration-300",
+                                    "group relative flex items-center rounded-xl px-3 py-2.5 transition-all duration-300",
                                     isActive
-                                        ? "bg-white shadow-md shadow-custom-taupe-grey/10 border border-custom-beige"
-                                        : "hover:bg-white/60 hover:shadow-sm border border-transparent"
+                                        ? `${item.activeClass} border-l-4 shadow-sm bg-opacity-100`
+                                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 border-l-4 border-transparent"
                                 )
                             }
                         >
                             {({ isActive }) => (
                                 <>
-                                    {/* Active Indicator */}
-                                    {isActive && (
-                                        <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-r-full bg-gradient-to-b ${item.color}`}></div>
-                                    )}
-
-                                    {/* Icon Container */}
-                                    <div className={cn(
-                                        "relative flex h-7 w-7 items-center justify-center rounded-lg transition-all duration-300",
-                                        isActive
-                                            ? `bg-gradient-to-br ${item.color} shadow-md`
-                                            : "bg-gray-100 group-hover:bg-custom-beige/30"
-                                    )}>
-                                        <item.icon
-                                            className={cn(
-                                                "h-4 w-4 transition-all duration-300",
-                                                isActive ? "text-white" : "text-gray-600 group-hover:text-gray-900"
-                                            )}
-                                            strokeWidth={isActive ? 2.5 : 2}
-                                        />
-
-                                        {/* Badge */}
-                                        {item.badge && (
-                                            <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-custom-cotton-candy border-2 border-white flex items-center justify-center">
-                                                <span className="text-[9px] font-bold text-white">{item.badge}</span>
-                                            </div>
+                                    <item.icon
+                                        className={cn(
+                                            "mr-3 h-5 w-5 transition-transform duration-300",
+                                            isActive ? "scale-110" : "group-hover:scale-110"
                                         )}
-                                    </div>
-
-                                    {/* Label */}
-                                    <span className={cn(
-                                        "ml-2.5 text-sm font-semibold transition-colors duration-300",
-                                        isActive ? "text-gray-900" : "text-gray-600 group-hover:text-gray-900"
-                                    )}>
+                                        strokeWidth={isActive ? 2.5 : 2}
+                                    />
+                                    <span className={cn("text-sm font-semibold", isActive ? "font-bold" : "")}>
                                         {item.label}
                                     </span>
 
-                                    {/* Hover Arrow */}
-                                    <ChevronRight
-                                        className={cn(
-                                            "ml-auto h-3.5 w-3.5 transition-all duration-300",
-                                            isActive ? "text-custom-taupe-grey opacity-100" : "text-gray-400 opacity-0 group-hover:opacity-100",
-                                            hoveredItem === index && "translate-x-1"
-                                        )}
-                                    />
+                                    {/* Badge */}
+                                    {item.badge && (
+                                        <div className={cn(
+                                            "ml-auto h-5 min-w-[20px] px-1.5 rounded-full flex items-center justify-center text-[10px] font-bold border transition-all",
+                                            isActive
+                                                ? "bg-white border-current"
+                                                : "bg-gray-100 text-gray-500 border-transparent group-hover:bg-white group-hover:shadow-sm"
+                                        )}>
+                                            {item.badge}
+                                        </div>
+                                    )}
                                 </>
                             )}
                         </NavLink>
                     ))}
                 </nav>
 
-                {/* Bottom Section - Compact */}
-                <div className="mt-auto space-y-1 pt-3 border-t border-gray-200/50">
-                    {/* Settings Button */}
-                    <button
-                        onClick={() => navigate('/settings')}
-                        className="flex w-full items-center rounded-lg p-2 text-gray-600 hover:bg-white/60 hover:text-gray-900 hover:shadow-sm transition-all duration-300 group"
+                {/* Bottom Section */}
+                <div className="mt-auto pt-4 border-t border-gray-200/50 space-y-1">
+                    <NavLink
+                        to="/settings"
+                        className={({ isActive }) => cn(
+                            "flex w-full items-center rounded-xl p-2.5 text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200 group gap-3",
+                            isActive ? "bg-gray-50 text-gray-900 font-bold" : ""
+                        )}
                     >
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100 group-hover:bg-gray-200 transition-colors">
-                            <Settings className="h-4 w-4" />
-                        </div>
-                        <span className="ml-2.5 text-sm font-semibold">Settings</span>
-                    </button>
+                        <Settings className="h-5 w-5 group-hover:rotate-90 transition-transform duration-500" />
+                        <span className="text-sm font-semibold">Settings</span>
+                    </NavLink>
 
-                    {/* Logout Button */}
                     <button
-                        className="flex w-full items-center rounded-lg p-2 text-gray-600 hover:bg-custom-cotton-candy/10 hover:text-custom-cotton-candy hover:shadow-sm transition-all duration-300 group"
+                        className="flex w-full items-center rounded-xl p-2.5 text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group gap-3"
                         onClick={handleLogout}
                     >
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100 group-hover:bg-custom-cotton-candy/20 transition-colors">
-                            <LogOut className="h-4 w-4" />
-                        </div>
-                        <span className="ml-2.5 text-sm font-semibold">Sign Out</span>
+                        <LogOut className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+                        <span className="text-sm font-semibold">Sign Out</span>
                     </button>
                 </div>
             </div>

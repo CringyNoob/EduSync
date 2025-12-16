@@ -25,12 +25,12 @@ const Button = ({ children, variant = 'primary', size = 'md', className = '', ..
     const baseStyles = "relative overflow-hidden inline-flex items-center justify-center font-semibold transition-all duration-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95";
 
     const variants = {
-        primary: "bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 focus:ring-indigo-500 border border-transparent group",
-        secondary: "bg-orange-500 text-white hover:bg-orange-600 hover:shadow-lg hover:shadow-orange-500/30 focus:ring-orange-500 border border-transparent",
-        outline: "bg-white/50 backdrop-blur-sm text-gray-700 border-2 border-gray-200 hover:border-indigo-600 hover:text-indigo-600 hover:bg-indigo-50/50 focus:ring-gray-200",
-        ghost: "bg-transparent text-gray-600 hover:bg-gray-100 hover:text-indigo-600",
-        white: "bg-white text-indigo-600 hover:bg-gray-50 shadow-md border border-transparent",
-        dark: "bg-gray-900 text-white hover:bg-gray-800 shadow-lg hover:shadow-gray-900/30"
+        primary: "bg-primary text-white hover:bg-primary-hover hover:shadow-lg hover:shadow-primary/30 focus:ring-primary border border-transparent group",
+        secondary: "bg-secondary text-white hover:bg-secondary-light hover:shadow-lg hover:shadow-secondary/30 focus:ring-secondary border border-transparent",
+        outline: "bg-white/50 backdrop-blur-sm text-text-main border-2 border-gray-200 hover:border-primary hover:text-primary hover:bg-white focus:ring-gray-200",
+        ghost: "bg-transparent text-text-main-light hover:bg-gray-100 hover:text-primary",
+        white: "bg-white text-primary hover:bg-gray-50 shadow-md border border-transparent",
+        dark: "bg-text-main text-white hover:bg-gray-800 shadow-lg hover:shadow-gray-900/30"
     };
 
     const sizes = {
@@ -54,10 +54,10 @@ const Button = ({ children, variant = 'primary', size = 'md', className = '', ..
 
 const Badge = ({ children, color = 'indigo' }) => {
     const colors = {
-        indigo: "bg-indigo-100/50 text-indigo-700 border-indigo-200",
-        orange: "bg-orange-100/50 text-orange-700 border-orange-200",
+        indigo: "bg-primary/10 text-primary border-primary/20",
+        orange: "bg-accent/10 text-accent border-accent/20",
         green: "bg-green-100/50 text-green-700 border-green-200",
-        violet: "bg-violet-100/50 text-violet-700 border-violet-200",
+        violet: "bg-secondary/10 text-secondary border-secondary/20",
     };
 
     return (
@@ -74,10 +74,10 @@ const AccordionItem = ({ question, answer, isOpen, onClick }) => {
                 className="w-full py-6 flex items-center justify-between text-left focus:outline-none group"
                 onClick={onClick}
             >
-                <span className={`text-lg font-medium transition-colors ${isOpen ? 'text-indigo-600' : 'text-gray-900 group-hover:text-indigo-600'}`}>
+                <span className={`text-lg font-medium transition-colors ${isOpen ? 'text-primary' : 'text-text-main group-hover:text-primary'}`}>
                     {question}
                 </span>
-                <div className={`p-2 rounded-full transition-colors ${isOpen ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500 group-hover:bg-indigo-50'}`}>
+                <div className={`p-2 rounded-full transition-colors ${isOpen ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-500 group-hover:bg-primary/10'}`}>
                     {isOpen ? <Minus size={16} /> : <Plus size={16} />}
                 </div>
             </button>
@@ -110,10 +110,8 @@ const Navbar = () => {
             <div className="container mx-auto px-6 flex items-center justify-between">
                 {/* Logo */}
                 <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/')}>
-                    <div className="bg-gradient-to-br from-indigo-600 to-violet-600 p-2 rounded-xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-300">
-                        <GraduationCap className="h-6 w-6 text-white" />
-                    </div>
-                    <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700">
+                    <img src="/logo.png" alt="EduSync Logo" className="h-10 w-auto group-hover:scale-105 transition-transform duration-300" />
+                    <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-text-main to-text-main-light">
                         EduSync
                     </span>
                 </div>
@@ -121,7 +119,7 @@ const Navbar = () => {
                 {/* Desktop Links */}
                 <div className="hidden md:flex items-center gap-8">
                     {['Features', 'Stats', 'Testimonials', 'FAQ'].map((item) => (
-                        <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-indigo-600 after:transition-all hover:after:w-full">
+                        <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-medium text-text-main-light hover:text-primary transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all hover:after:w-full">
                             {item}
                         </a>
                     ))}
@@ -129,10 +127,10 @@ const Navbar = () => {
 
                 {/* CTA */}
                 <div className="hidden md:flex items-center gap-4">
-                    <Link to="/login" className="text-sm font-semibold text-gray-600 hover:text-indigo-600 transition-colors">
+                    <Link to="/login" className="text-sm font-semibold text-text-main-light hover:text-primary transition-colors">
                         Log in
                     </Link>
-                    <Button size="sm" onClick={() => navigate('/register')} className="rounded-lg shadow-indigo-500/20">
+                    <Button size="sm" onClick={() => navigate('/register')} className="rounded-lg shadow-primary/20">
                         Get Started
                     </Button>
                 </div>
@@ -165,13 +163,13 @@ const HeroSection = () => {
     const navigate = useNavigate();
 
     return (
-        <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <section className="relative pt-24 pb-20 lg:pt-32 lg:pb-32 overflow-hidden">
             {/* Dynamic Background Elements - Enhanced */}
             <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
                 {/* Mesh Gradient */}
-                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-indigo-200/40 rounded-full mix-blend-multiply filter blur-[80px] animate-blob"></div>
-                <div className="absolute top-[-5%] left-[-10%] w-[600px] h-[600px] bg-violet-200/40 rounded-full mix-blend-multiply filter blur-[80px] animate-blob animation-delay-2000"></div>
-                <div className="absolute bottom-[-10%] left-[20%] w-[500px] h-[500px] bg-blue-200/40 rounded-full mix-blend-multiply filter blur-[80px] animate-blob animation-delay-4000"></div>
+                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-primary/20 rounded-full mix-blend-multiply filter blur-[80px] animate-blob"></div>
+                <div className="absolute top-[-5%] left-[-10%] w-[600px] h-[600px] bg-secondary/20 rounded-full mix-blend-multiply filter blur-[80px] animate-blob animation-delay-2000"></div>
+                <div className="absolute bottom-[-10%] left-[20%] w-[500px] h-[500px] bg-accent/20 rounded-full mix-blend-multiply filter blur-[80px] animate-blob animation-delay-4000"></div>
 
                 {/* Grid Pattern */}
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
@@ -183,17 +181,17 @@ const HeroSection = () => {
 
                     {/* Text Content */}
                     <div className="flex-1 text-center lg:text-left z-10">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 border border-indigo-100 backdrop-blur-md text-indigo-700 font-semibold text-xs uppercase tracking-wider mb-8 shadow-sm animate-fade-in-up hover:shadow-md transition-shadow cursor-default">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 border border-primary/10 backdrop-blur-md text-primary font-semibold text-xs uppercase tracking-wider mb-8 shadow-sm animate-fade-in-up hover:shadow-md transition-shadow cursor-default">
                             <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-500 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                             </span>
                             v2.0 is now live
                         </div>
 
-                        <h1 className="text-5xl lg:text-7xl font-extrabold text-gray-900 mb-6 leading-[1.1] tracking-tight drop-shadow-sm">
+                        <h1 className="text-5xl lg:text-7xl font-extrabold text-text-main mb-6 leading-[1.1] tracking-tight drop-shadow-sm">
                             Campus life, <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 animate-gradient-x">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-secondary animate-gradient-x">
                                 Synchronized.
                             </span>
                         </h1>
@@ -203,12 +201,12 @@ const HeroSection = () => {
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                            <Button size="lg" onClick={() => navigate('/register')} className="w-full sm:w-auto shadow-xl shadow-indigo-500/20">
+                            <Button size="lg" onClick={() => navigate('/register')} className="w-full sm:w-auto shadow-xl shadow-primary/20">
                                 Join Your Campus
                                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                             </Button>
                             <Button size="lg" variant="outline" onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })} className="w-full sm:w-auto bg-white/70">
-                                <Zap className="mr-2 h-5 w-5 text-orange-500" />
+                                <Zap className="mr-2 h-5 w-5 text-accent" />
                                 Explore Features
                             </Button>
                         </div>
@@ -230,7 +228,7 @@ const HeroSection = () => {
                         <div className="relative transform rotate-y-[-5deg] rotate-x-[5deg] hover:rotate-0 transition-all duration-700 ease-out group">
 
                             {/* Glow behind card */}
-                            <div className="absolute inset-0 bg-indigo-500 blur-[60px] opacity-20 rounded-full group-hover:opacity-30 transition-opacity"></div>
+                            <div className="absolute inset-0 bg-primary blur-[60px] opacity-20 rounded-full group-hover:opacity-30 transition-opacity"></div>
 
                             {/* Main Card */}
                             <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 overflow-hidden z-20">
@@ -243,12 +241,12 @@ const HeroSection = () => {
                                     <div className="ml-4 w-1/2 h-2 bg-gray-200/50 rounded-full"></div>
                                 </div>
                                 <div className="p-6 grid grid-cols-2 gap-4">
-                                    <div className="col-span-2 bg-gradient-to-br from-indigo-50 to-white rounded-xl p-4 flex items-center justify-between border border-indigo-50 shadow-sm">
+                                    <div className="col-span-2 bg-gradient-to-br from-primary/5 to-white rounded-xl p-4 flex items-center justify-between border border-primary/10 shadow-sm">
                                         <div>
-                                            <div className="text-xs font-semibold text-indigo-500 mb-1">UPCOMING EXAM</div>
+                                            <div className="text-xs font-semibold text-primary mb-1">UPCOMING EXAM</div>
                                             <div className="font-bold text-gray-800">Advanced Algorithms</div>
                                         </div>
-                                        <div className="bg-white px-3 py-1 rounded-lg text-sm font-bold text-indigo-600 shadow-sm border border-indigo-50">
+                                        <div className="bg-white px-3 py-1 rounded-lg text-sm font-bold text-primary shadow-sm border border-primary/10">
                                             Tomorrow
                                         </div>
                                     </div>
@@ -266,7 +264,7 @@ const HeroSection = () => {
                                         <div className="text-sm font-bold text-gray-800">Groups</div>
                                         <div className="text-xs text-gray-500 mt-1">5 Active Chats</div>
                                     </div>
-                                    <div className="col-span-2 h-24 bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400 text-sm hover:border-indigo-300 hover:text-indigo-500 hover:bg-indigo-50/30 transition-all cursor-pointer">
+                                    <div className="col-span-2 h-24 bg-bkg/50 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400 text-sm hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all cursor-pointer">
                                         Drop assignments here
                                     </div>
                                 </div>
@@ -275,8 +273,8 @@ const HeroSection = () => {
                             {/* Floating Elements - Enhanced */}
                             <div className="absolute -right-12 top-20 bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white z-30 animate-float">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                                        <MessageCircle size={20} className="text-indigo-600" />
+                                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                                        <MessageCircle size={20} className="text-primary" />
                                     </div>
                                     <div>
                                         <div className="text-xs text-gray-500 font-medium">New Message</div>
@@ -306,11 +304,11 @@ const HeroSection = () => {
 
 const StatCard = ({ count, label, icon: Icon, delay }) => (
     <div className="flex flex-col items-center text-center p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-white/60 shadow-sm hover:shadow-md transition-all duration-500 group" style={{ animationDelay: delay }}>
-        <div className="mb-3 p-3 bg-indigo-50 rounded-xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+        <div className="mb-3 p-3 bg-primary/10 rounded-xl text-primary group-hover:bg-primary group-hover:text-white transition-colors">
             <Icon size={24} />
         </div>
-        <div className="text-3xl font-extrabold text-gray-900 mb-1">{count}</div>
-        <div className="text-sm font-medium text-gray-500">{label}</div>
+        <div className="text-3xl font-extrabold text-text-main mb-1">{count}</div>
+        <div className="text-sm font-medium text-text-main-lighter">{label}</div>
     </div>
 );
 
@@ -356,8 +354,8 @@ const FeaturesSection = () => {
             <div className="container mx-auto px-6">
                 <div className="mb-20 text-center max-w-3xl mx-auto">
                     <Badge color="violet">Features</Badge>
-                    <h2 className="mt-6 text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight">One Platform, <br />Infinite Possibilities.</h2>
-                    <p className="mt-6 text-xl text-gray-600 leading-relaxed">EduSync bridges the gap between academic requirements and social life, creating a harmonious campus experience.</p>
+                    <h2 className="mt-6 text-4xl md:text-5xl font-extrabold text-text-main tracking-tight">One Platform, <br />Infinite Possibilities.</h2>
+                    <p className="mt-6 text-xl text-text-main-light leading-relaxed">EduSync bridges the gap between academic requirements and social life, creating a harmonious campus experience.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -366,28 +364,28 @@ const FeaturesSection = () => {
                         desc="Centralize your syllabus, grades, and assignments. Syncs automatically with your university portal so you never miss a deadline."
                         icon={BookOpen}
                         className="md:col-span-2"
-                        colorClass="text-indigo-600 bg-indigo-600"
+                        colorClass="text-primary bg-primary"
                     />
                     <BentoFeature
                         title="Real-time Chat"
                         desc="Connect with classmates instantly. Create project groups, share files, or join campus-wide channels."
                         icon={MessageCircle}
                         className=""
-                        colorClass="text-green-600 bg-green-600"
+                        colorClass="text-accent bg-accent"
                     />
                     <BentoFeature
                         title="Secure Marketplace"
                         desc="Buy and sell textbooks, electronics, and dorm essentials safely within your verified campus network."
                         icon={Shield}
                         className=""
-                        colorClass="text-orange-600 bg-orange-600"
+                        colorClass="text-secondary bg-secondary"
                     />
                     <BentoFeature
                         title="Event Calendar"
                         desc="Never miss a lecture, club meeting, or campus party. Smart notifications and calendar sync keep you on track."
                         icon={Calendar}
                         className="md:col-span-2"
-                        colorClass="text-violet-600 bg-violet-600"
+                        colorClass="text-primary bg-primary"
                     />
                 </div>
             </div>
@@ -407,7 +405,7 @@ const TestimonialCard = ({ name, role, text, avatar, color }) => (
             </div>
             <div>
                 <div className="font-bold text-gray-900 text-lg">{name}</div>
-                <div className="text-sm text-indigo-600 font-medium">{role}</div>
+                <div className="text-sm text-primary font-medium">{role}</div>
             </div>
         </div>
     </div>
@@ -432,18 +430,18 @@ const Testimonials = () => {
             <div className="container mx-auto px-6 mb-16 relative z-10 flex justify-between items-end">
                 <div>
                     <Badge color="orange">Testimonials</Badge>
-                    <h2 className="mt-6 text-4xl font-extrabold text-gray-900">Loved by Students</h2>
+                    <h2 className="mt-6 text-4xl font-extrabold text-text-main">Loved by Students</h2>
                 </div>
                 <div className="hidden md:flex gap-3">
                     <button
                         onClick={() => scroll('left')}
-                        className="p-3 rounded-full bg-white border border-gray-200 hover:border-indigo-600 hover:text-indigo-600 transition-colors shadow-sm"
+                        className="p-3 rounded-full bg-white border border-gray-200 hover:border-primary hover:text-primary transition-colors shadow-sm"
                     >
                         <ArrowRight className="rotate-180" />
                     </button>
                     <button
                         onClick={() => scroll('right')}
-                        className="p-3 rounded-full bg-white border border-gray-200 hover:border-indigo-600 hover:text-indigo-600 transition-colors shadow-sm"
+                        className="p-3 rounded-full bg-white border border-gray-200 hover:border-primary hover:text-primary transition-colors shadow-sm"
                     >
                         <ArrowRight />
                     </button>
@@ -541,13 +539,13 @@ const FAQSection = () => {
 const CTASection = () => (
     <section className="py-24 px-6 relative">
         <div className="container mx-auto max-w-6xl">
-            <div className="relative rounded-[3rem] bg-gray-900 overflow-hidden px-8 py-24 text-center shadow-2xl shadow-indigo-900/40">
+            <div className="relative rounded-[3rem] bg-secondary overflow-hidden px-8 py-24 text-center shadow-2xl shadow-secondary/40">
                 {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]"></div>
 
                 {/* Glowing Orbs */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-3xl pointer-events-none">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/30 rounded-full blur-[100px]"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/30 rounded-full blur-[100px]"></div>
                 </div>
 
                 <div className="relative z-10 max-w-3xl mx-auto">
@@ -561,7 +559,7 @@ const CTASection = () => (
                         <Button size="lg" variant="white" className="text-gray-900 font-bold hover:scale-105" onClick={() => alert("iOS App coming soon!")}>
                             Download for iOS
                         </Button>
-                        <Button size="lg" className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold border border-indigo-500/50 hover:scale-105 shadow-lg shadow-indigo-900/50" onClick={() => alert("Android App coming soon!")}>
+                        <Button size="lg" className="bg-primary hover:bg-primary-hover text-white font-bold border border-primary/50 hover:scale-105 shadow-lg shadow-secondary/50" onClick={() => alert("Android App coming soon!")}>
                             Download for Android
                         </Button>
                     </div>
@@ -576,23 +574,21 @@ const CTASection = () => (
 );
 
 const Footer = () => (
-    <footer className="bg-gray-900 text-white pt-20 pb-10">
+    <footer className="bg-secondary text-white pt-20 pb-10">
         <div className="container mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
                 <div className="col-span-2 md:col-span-1">
                     <div className="flex items-center gap-2 mb-6">
-                        <div className="bg-indigo-600 p-2 rounded-xl">
-                            <GraduationCap className="h-6 w-6 text-white" />
-                        </div>
+                        <img src="/logo.png" alt="EduSync Logo" className="h-10 w-auto brightness-0 invert" />
                         <span className="text-2xl font-bold">EduSync</span>
                     </div>
-                    <p className="text-gray-400 leading-relaxed mb-6">
+                    <p className="text-white/70 leading-relaxed mb-6">
                         Empowering the next generation of learners with tools that matter. Built for students, by students.
                     </p>
                     <div className="flex gap-4">
                         {/* Social icons */}
                         {['twitter', 'github', 'linkedin'].map((social) => (
-                            <div key={social} className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-indigo-600 hover:text-white transition-all cursor-pointer">
+                            <div key={social} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:bg-primary hover:text-white transition-all cursor-pointer">
                                 <Globe size={18} />
                             </div>
                         ))}
@@ -601,28 +597,28 @@ const Footer = () => (
                 <div>
                     <h4 className="font-bold text-lg mb-6">Product</h4>
                     <ul className="space-y-4 text-gray-400">
-                        <li><a href="#" className="hover:text-indigo-400 transition-colors">Features</a></li>
-                        <li><a href="#" className="hover:text-indigo-400 transition-colors">Pricing</a></li>
-                        <li><a href="#" className="hover:text-indigo-400 transition-colors">Marketplace</a></li>
-                        <li><a href="#" className="hover:text-indigo-400 transition-colors">Integrations</a></li>
+                        <li><a href="#" className="hover:text-accent transition-colors">Features</a></li>
+                        <li><a href="#" className="hover:text-accent transition-colors">Pricing</a></li>
+                        <li><a href="#" className="hover:text-accent transition-colors">Marketplace</a></li>
+                        <li><a href="#" className="hover:text-accent transition-colors">Integrations</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 className="font-bold text-lg mb-6">Company</h4>
                     <ul className="space-y-4 text-gray-400">
-                        <li><a href="#" className="hover:text-indigo-400 transition-colors">About Us</a></li>
-                        <li><a href="#" className="hover:text-indigo-400 transition-colors">Careers</a></li>
-                        <li><a href="#" className="hover:text-indigo-400 transition-colors">Blog</a></li>
-                        <li><a href="#" className="hover:text-indigo-400 transition-colors">Brand Assets</a></li>
+                        <li><a href="#" className="hover:text-accent transition-colors">About Us</a></li>
+                        <li><a href="#" className="hover:text-accent transition-colors">Careers</a></li>
+                        <li><a href="#" className="hover:text-accent transition-colors">Blog</a></li>
+                        <li><a href="#" className="hover:text-accent transition-colors">Brand Assets</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 className="font-bold text-lg mb-6">Legal</h4>
                     <ul className="space-y-4 text-gray-400">
-                        <li><a href="#" className="hover:text-indigo-400 transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" className="hover:text-indigo-400 transition-colors">Terms of Service</a></li>
-                        <li><a href="#" className="hover:text-indigo-400 transition-colors">Cookie Policy</a></li>
-                        <li><a href="#" className="hover:text-indigo-400 transition-colors">Security</a></li>
+                        <li><a href="#" className="hover:text-accent transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" className="hover:text-accent transition-colors">Terms of Service</a></li>
+                        <li><a href="#" className="hover:text-accent transition-colors">Cookie Policy</a></li>
+                        <li><a href="#" className="hover:text-accent transition-colors">Security</a></li>
                     </ul>
                 </div>
             </div>
@@ -642,12 +638,12 @@ const Footer = () => (
 
 const LandingPage = () => {
     return (
-        <div className="min-h-screen font-sans text-gray-900 selection:bg-indigo-200 selection:text-indigo-900 relative">
+        <div className="min-h-screen font-sans text-text-main selection:bg-primary/20 selection:text-primary relative">
             {/* Global Creative Background */}
-            <div className="fixed inset-0 -z-50">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 via-white to-purple-100"></div>
+            <div className="fixed inset-0 -z-50 bg-bkg">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-bkg to-secondary/5"></div>
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808025_1px,transparent_1px),linear-gradient(to_bottom,#80808025_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-300 to-transparent"></div>
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
             </div>
 
             <Navbar />
