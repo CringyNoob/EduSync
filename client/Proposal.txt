@@ -1,0 +1,281 @@
+You are a senior full-stack engineer. Generate the first 30% of a large React.js web application called “Edusync”.
+This is a university-centric platform with modules like Marketplace, Forum, Notice Board, Chat, and Issue Reporting.
+For now, generate ONLY the foundational structure of the app, including:
+
+1. Tech Stack Requirements
+
+Use the following stack:
+
+React.js (latest version)
+
+TailwindCSS
+
+React Router DOM
+
+Context API + Hooks for state management
+
+Axios for API simulation
+
+Folder architecture following enterprise pattern
+
+Reusable components using a clean UI style
+
+Icons from Lucide React
+
+Component-driven design
+
+Do NOT write backend code.
+Use mock data where needed.
+Do good commenting and instructions
+ for the backend codes.
+
+2. App Structure to Generate (30% of entire project)
+
+Create the full frontend skeleton, including:
+
+A. Project Folder Structure
+
+Create a scalable structure like:
+
+src/
+  components/
+    Navbar/
+    Sidebar/
+    Cards/
+    Form/
+  pages/
+    auth/
+      Login.jsx
+      Register.jsx
+      VerifyEmail.jsx
+      ForgotPassword.jsx
+    dashboard/
+      Home.jsx
+    marketplace/
+      MarketplaceHome.jsx
+      CategoryPage.jsx
+      ProductPage.jsx
+    forum/
+      ForumHome.jsx
+      CategoryPage.jsx
+    notices/
+      NoticeFeed.jsx
+      NoticeView.jsx
+    chat/
+      ChatList.jsx
+      ChatWindow.jsx
+    issues/
+      ReportIssue.jsx
+      IssueFeed.jsx
+  context/
+    AuthContext.jsx
+    ThemeContext.jsx
+  hooks/
+  utils/
+  data/
+  router/
+    AppRouter.jsx
+  App.jsx
+  main.jsx
+
+
+Create all files with initial boilerplate code, not empty.
+
+B. Routing System
+
+Set up full routing using react-router-dom:
+
+/login
+
+/register
+
+/verify-email
+
+/forgot-password
+
+/dashboard
+
+/marketplace
+
+/marketplace/:category
+
+/product/:id
+
+/forum
+
+/forum/:category
+
+/notices
+
+/notice/:id
+
+/chat
+
+/chat/:id
+
+/issues/report
+
+/issues
+
+Each route should link to a functional page component with placeholder UI.
+
+C. Core UI Components
+
+Create reusable components:
+
+Navbar
+
+Sidebar
+
+Card Component
+
+SearchBar
+
+Button
+
+Input Field
+
+Badge
+
+Modal
+
+Loading Skeletons
+
+Use Tailwind for styling with a modern, clean design.
+
+D. Authentication Pages
+
+Generate fully styled pages using Tailwind:
+
+Login
+
+Register
+
+Email verification placeholder
+
+Forgot password
+
+Include:
+
+Controlled input fields
+
+Validation placeholders
+
+Mock submit handlers
+
+E. Dashboard
+
+Create a polished Home Dashboard UI showing:
+
+Quick navigation cards (Marketplace, Forum, Notices, Issues)
+
+Recent notices mock data
+
+Trending marketplace items mock data
+
+Announcement banner
+
+Clean, modern layout using grid + Tailwind.
+
+F. Marketplace (Basic Screens Only)
+
+Generate initial versions of:
+
+MarketplaceHome.jsx
+
+CategoryPage.jsx
+
+ProductPage.jsx
+
+Use mock product lists and product cards.
+
+G. Forum (Basic Screens Only)
+
+Generate:
+
+ForumHome.jsx
+
+ForumCategory.jsx
+
+Use mock posts, clickable cards, filters.
+
+H. Notice Board (Basic Screens Only)
+
+Generate:
+
+NoticeFeed.jsx
+
+NoticeView.jsx
+
+Use mock notices and structured cards.
+
+I. Chat (Initial UI Only)
+
+Generate:
+
+ChatList.jsx
+
+ChatWindow.jsx
+
+Simple UI with mock messages (no WebSocket yet).
+
+J. Issue Reporting (Initial UI Only)
+
+Generate:
+
+ReportIssue.jsx (form UI)
+
+IssueFeed.jsx (list of issues)
+
+Use form fields, image upload placeholder, map placeholder.
+
+K. Context API
+
+Generate two contexts:
+
+AuthContext
+
+user
+
+login()
+
+logout()
+
+mock auth
+
+ThemeContext
+
+dark/light mode toggle
+
+Provide provider setup & sample usage.
+
+L. Style Guidelines
+
+Use TailwindCSS utility classes
+
+Rounded corners, soft shadows
+
+Modern spacing, 2xl containers
+
+Slight animations (transition-all)
+
+Use Lucide icons
+
+Goal
+
+Generate clean, readable code for the foundational 30% of the project, including:
+
+All page skeletons
+
+Routing
+
+UI components
+
+Dashboard
+
+Initial marketplace + forum + notice board screens
+
+Context setup
+
+Do NOT implement advanced logic (chat backend, marketplace logic, file upload, scraper, etc.) yet.
+This stage is just the scaffold + core layout + UI foundations.
