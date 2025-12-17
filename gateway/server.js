@@ -21,12 +21,22 @@ app.get('/', (req, res) => {
 app.use('/api/auth', createProxyMiddleware({
     target: 'http://localhost:3001', // Target Service
     changeOrigin: true,
-    pathRewrite: {
-        '^/api/auth': '/auth', // Rewrites '/api/auth/login' to '/auth/login'
+    pathRewrite: (path, req) => {
+        // Express strips /api/auth, so we need to add it back
+        const newPath = `/api/auth${path}`;
+        console.log(`[Gateway] Rewriting: ${path} -> ${newPath}`);
+        return newPath;
+    },
+    onProxyReq: (proxyReq, req, res) => {
+        console.log(`[Gateway] Proxying: ${req.method} ${req.originalUrl} -> http://localhost:3001${proxyReq.path}`);
     },
     onError: (err, req, res) => {
-        console.error('Proxy Error:', err);
-        res.status(500).send('Proxy Error: Could not reach Auth Service');
+        console.error('❌ Proxy Error:', err);
+        res.status(500).json({ 
+            success: false,
+            error: 'Proxy Error: Could not reach Auth Service',
+            details: err.message 
+        });
     },
 }));
 
