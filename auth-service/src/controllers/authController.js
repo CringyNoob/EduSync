@@ -199,13 +199,22 @@ async function register(req, res) {
             });
         }
 
-        // Validate student ID format (3-digit department code)
-        const deptCode = studentId.substring(0, 3);
-        const validDeptCodes = ['011', '012', '013', '014', '015', '016'];
-        if (!validDeptCodes.includes(deptCode)) {
+        // Validate student ID format (9 or 10 digits)
+        const studentIdStr = String(studentId).trim();
+        if (!/^\d{9,10}$/.test(studentIdStr)) {
             return res.status(400).json({
                 success: false,
-                error: 'Invalid student ID format. Department code must be 011-016.'
+                error: 'Student ID must be 9 or 10 digits'
+            });
+        }
+
+        // Validate batch is a valid year
+        const batchYear = parseInt(batch);
+        const currentYear = new Date().getFullYear();
+        if (isNaN(batchYear) || batchYear < 2000 || batchYear > currentYear + 5) {
+            return res.status(400).json({
+                success: false,
+                error: 'Batch must be a valid year'
             });
         }
 

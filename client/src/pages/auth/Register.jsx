@@ -59,7 +59,7 @@ const Register = () => {
         }
 
         // Validate university email
-        if (!formData.email.endsWith('.edu')) {
+        if (!formData.email.endsWith('.uiu.ac.bd')) {
             setError('Please use your university email address');
             return;
         }
@@ -91,7 +91,7 @@ const Register = () => {
             setError('Email is required');
             return false;
         }
-        if (!formData.email.endsWith('.edu')) {
+        if (!formData.email.endsWith('.uiu.ac.bd')) {
             setError('Please use your university email address');
             return false;
         }
@@ -125,6 +125,22 @@ const Register = () => {
             setError('Student ID, department, and batch are required');
             return false;
         }
+        
+        // Validate student ID (9 or 10 digits)
+        const studentIdStr = String(formData.studentId).trim();
+        if (!/^\d{9,10}$/.test(studentIdStr)) {
+            setError('Student ID must be 9 or 10 digits');
+            return false;
+        }
+        
+        // Validate batch is a year
+        const batchYear = parseInt(formData.batch);
+        const currentYear = new Date().getFullYear();
+        if (isNaN(batchYear) || batchYear < 2000 || batchYear > currentYear + 5) {
+            setError('Batch must be a valid year (e.g., 2021)');
+            return false;
+        }
+        
         return true;
     };
 
@@ -230,6 +246,7 @@ const Register = () => {
                 />
                 {!otpSent && (
                     <Button
+                        type="button"
                         variant="outline"
                         className="mt-2 w-full border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white"
                         onClick={handleSendOtp}
@@ -339,7 +356,7 @@ const Register = () => {
             <Input
                 label="Student ID"
                 name="studentId"
-                placeholder="2021-1-60-001"
+                placeholder="011221001 (9 or 10 digits)"
                 value={formData.studentId}
                 onChange={handleChange}
                 icon={<Hash className="w-5 h-5" />}
@@ -355,7 +372,7 @@ const Register = () => {
             />
 
             <Input
-                label="Batch"
+                label="Batch (Year)"
                 name="batch"
                 placeholder="2021"
                 value={formData.batch}
