@@ -16,6 +16,8 @@ import ChatList from '../pages/chat/ChatList';
 import IssueFeed from '../pages/issues/IssueFeed';
 import Profile from '../pages/profile/Profile';
 
+import PlaceholderPage from '../pages/PlaceholderPage';
+
 const router = createBrowserRouter([
     {
         path: '/',
@@ -53,6 +55,10 @@ const router = createBrowserRouter([
                 element: <MarketplaceHome />,
             },
             {
+                path: '/marketplace/new',
+                element: <PlaceholderPage title="Create New Listing" />,
+            },
+            {
                 path: '/marketplace/:id',
                 element: <MarketplaceItemDetails />,
             },
@@ -61,11 +67,27 @@ const router = createBrowserRouter([
                 element: <ForumHome />,
             },
             {
+                path: '/forum/new',
+                element: <PlaceholderPage title="Start New Discussion" />,
+            },
+            {
+                path: '/forum/:id',
+                element: <PlaceholderPage title="Discussion Details" />,
+            },
+            {
                 path: '/notices',
                 element: <NoticeFeed />,
             },
             {
+                path: '/notices/:id',
+                element: <PlaceholderPage title="Notice Details" />,
+            },
+            {
                 path: '/chat',
+                element: <ChatList />,
+            },
+            {
+                path: '/chat/:id',
                 element: <ChatList />,
             },
             {
@@ -73,9 +95,19 @@ const router = createBrowserRouter([
                 element: <IssueFeed />,
             },
             {
+                path: '/issues/new',
+                element: <PlaceholderPage title="Report an Issue" />,
+            },
+            {
                 path: '/profile/:id',
                 element: <Profile />,
             },
+            // New Routes from Dashboard
+            { path: '/saved', element: <PlaceholderPage title="Saved Items" /> },
+            { path: '/schedule', element: <PlaceholderPage title="Class Schedule" /> },
+            { path: '/notifications', element: <PlaceholderPage title="Notifications" /> },
+            { path: '/settings', element: <PlaceholderPage title="Settings" /> },
+            { path: '/groups/:id', element: <PlaceholderPage title="Study Group" /> },
         ],
     },
 ]);

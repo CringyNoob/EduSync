@@ -1,494 +1,466 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GraduationCap, ArrowLeft, Mail, User, Lock, Hash, Building2, Calendar, Phone, FileText, CheckCircle2 } from 'lucide-react';
-import Input from '../../components/Form/Input';
+import { Apple, Chrome, X, User, CheckCircle, Shield, Mail, Lock, Hash } from 'lucide-react';
 import Button from '../../components/Button';
-import { useAuth } from '../../context/AuthContext';
 import authService from '../../services/authService';
 
 const Register = () => {
     const navigate = useNavigate();
-    const { register: registerUser } = useAuth();
-
-    // Multi-step form state
-    const [currentStep, setCurrentStep] = useState(1);
-    const totalSteps = 3;
-
-    // Form data state
+    const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: Details
+    const [isLoading, setIsLoading] = useState(false);
+    const [otpSent, setOtpSent] = useState(false);
+    const [error, setError] = useState('');
+    const [otpHash, setOtpHash] = useState(''); // Store OTP hash from server
+    
+    // Form data
     const [formData, setFormData] = useState({
-        // Step 1: Email & OTP
         email: '',
         otp: '',
-        otpHash: '',
-        password: '',
-        confirmPassword: '',
-        
-        // Step 2: Personal Info
-        firstName: '',
-        lastName: '',
-        phone: '',
-        bio: '',
-        
-        // Step 3: Academic Info
+        fullName: '',
         studentId: '',
+        semester: 'Fall',
+        year: '',
         department: '',
-        batch: '',
+        phone: '',
+        password: '',
+        confirmPassword: ''
     });
 
-    // UI state
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [otpSent, setOtpSent] = useState(false);
-    const [otpLoading, setOtpLoading] = useState(false);
+    const departments = [
+        'Computer Science & Engineering',
+        'Electrical & Electronic Engineering',
+        'English',
+        'Media & Journalism',
+        'Development Studies',
+        'Civil Engineering',
+        'Pharmacy',
+        'Biotechnology'
+    ];
 
-    // Handle input changes
-    const handleChange = (e) => {
+    const semesters = ['Fall', 'Spring', 'Summer'];
+
+    const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-        setError(''); // Clear error on input change
+        setFormData(prev => ({ ...prev, [name]: value }));
+        setError('');
     };
 
-    // Send OTP to email
-    const handleSendOtp = async () => {
+    const handleSendOTP = async (e) => {
+        e.preventDefault();
+        
         if (!formData.email) {
-            setError('Please enter your email address');
+            setError('Please enter your email');
             return;
         }
-
-        // Validate university email
-        if (!formData.email.endsWith('.edu')) {
-            setError('Please use your university email address');
+        
+        if (!formData.email.endsWith('.uiu.ac.bd')) {
+            setError('Please use your UIU email address (.uiu.ac.bd)');
             return;
         }
-
-        setOtpLoading(true);
+        
+        setIsLoading(true);
         setError('');
-
+        
         try {
+            // Call the actual API to send OTP
             const response = await authService.sendOtp(formData.email);
             
-            // Save OTP hash and expiry from response
-            setFormData(prev => ({
-                ...prev,
-                otpHash: response.hash,
-            }));
-            
+            // Store the OTP hash from server response
+            setOtpHash(response.hash);
             setOtpSent(true);
             setError('');
         } catch (err) {
             setError(err.message || 'Failed to send OTP. Please try again.');
         } finally {
-            setOtpLoading(false);
+            setIsLoading(false);
         }
     };
 
-    // Validate step 1
-    const validateStep1 = () => {
-        if (!formData.email) {
-            setError('Email is required');
-            return false;
-        }
-        if (!formData.email.endsWith('.edu')) {
-            setError('Please use your university email address');
-            return false;
-        }
-        if (!formData.otp || formData.otp.length !== 6) {
-            setError('Please enter the 6-digit OTP');
-            return false;
-        }
-        if (!formData.password || formData.password.length < 8) {
-            setError('Password must be at least 8 characters');
-            return false;
-        }
-        if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match');
-            return false;
-        }
-        return true;
-    };
-
-    // Validate step 2
-    const validateStep2 = () => {
-        if (!formData.firstName || !formData.lastName) {
-            setError('First name and last name are required');
-            return false;
-        }
-        return true;
-    };
-
-    // Validate step 3
-    const validateStep3 = () => {
-        if (!formData.studentId || !formData.department || !formData.batch) {
-            setError('Student ID, department, and batch are required');
-            return false;
-        }
-        return true;
-    };
-
-    // Handle next step
-    const handleNext = () => {
-        setError('');
-        
-        if (currentStep === 1 && !validateStep1()) return;
-        if (currentStep === 2 && !validateStep2()) return;
-        
-        setCurrentStep(prev => prev + 1);
-    };
-
-    // Handle previous step
-    const handleBack = () => {
-        setError('');
-        setCurrentStep(prev => prev - 1);
-    };
-
-    // Handle final registration
-    const handleSubmit = async (e) => {
+    const handleVerifyOTP = async (e) => {
         e.preventDefault();
         
-        if (!validateStep3()) return;
-
-        setLoading(true);
+        if (!formData.otp || formData.otp.length !== 6) {
+            setError('Please enter the 6-digit OTP');
+            return;
+        }
+        
+        setIsLoading(true);
         setError('');
-
+        
         try {
+            // For now, just move to next step
+            // The actual OTP verification will happen during registration
+            setStep(3);
+        } catch (err) {
+            setError(err.message || 'Failed to verify OTP. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        
+        // Validation
+        if (!formData.fullName) {
+            setError('Please enter your full name');
+            return;
+        }
+        
+        if (!formData.studentId || (formData.studentId.length !== 9 && formData.studentId.length !== 10)) {
+            setError('Student ID must be 9 or 10 digits');
+            return;
+        }
+        
+        if (!formData.year || formData.year.length !== 4) {
+            setError('Please enter a valid year');
+            return;
+        }
+        
+        if (!formData.department) {
+            setError('Please select a department');
+            return;
+        }
+        
+        if (!formData.phone) {
+            setError('Please enter your phone number');
+            return;
+        }
+        
+        if (!formData.password || formData.password.length < 8) {
+            setError('Password must be at least 8 characters');
+            return;
+        }
+        
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
+        
+        setIsLoading(true);
+        setError('');
+        
+        try {
+            // Create batch string
+            const batch = `${formData.semester} - ${formData.year}`;
+            
+            // Split full name into first and last name
+            const nameParts = formData.fullName.trim().split(' ');
+            const firstName = nameParts[0];
+            const lastName = nameParts.slice(1).join(' ') || nameParts[0];
+            
             // Prepare registration data
             const registrationData = {
                 email: formData.email,
                 otp: formData.otp,
-                otpHash: formData.otpHash,
+                otpHash: otpHash,
                 password: formData.password,
-                firstName: formData.firstName,
-                lastName: formData.lastName,
+                firstName: firstName,
+                lastName: lastName,
                 studentId: formData.studentId,
                 department: formData.department,
-                batch: formData.batch,
-                phone: formData.phone || undefined,
-                bio: formData.bio || undefined,
+                batch: batch,
+                phone: formData.phone
             };
-
-            // Register user through context
-            await registerUser(registrationData);
             
-            // Navigate to dashboard on success
+            // Call the register API
+            const response = await authService.register(registrationData);
+            
+            // Registration successful - navigate to dashboard
             navigate('/dashboard');
         } catch (err) {
             setError(err.message || 'Registration failed. Please try again.');
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
-    // Render progress bar
-    const renderProgressBar = () => (
-        <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-                {[1, 2, 3].map((step) => (
-                    <div key={step} className="flex items-center flex-1">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                            currentStep >= step 
-                                ? 'bg-brand-orange text-white' 
-                                : 'bg-gray-200 text-gray-500'
-                        }`}>
-                            {currentStep > step ? (
-                                <CheckCircle2 className="w-5 h-5" />
-                            ) : (
-                                <span className="text-sm font-semibold">{step}</span>
-                            )}
-                        </div>
-                        {step < 3 && (
-                            <div className={`flex-1 h-1 mx-2 ${
-                                currentStep > step ? 'bg-brand-orange' : 'bg-gray-200'
-                            }`} />
-                        )}
-                    </div>
-                ))}
-            </div>
-            <div className="flex justify-between text-xs text-gray-500 mt-2">
-                <span>Account</span>
-                <span>Personal</span>
-                <span>Academic</span>
-            </div>
-        </div>
-    );
-
-    // Render step 1: Email & OTP
-    const renderStep1 = () => (
-        <div className="space-y-5">
-            <div>
-                <Input
-                    label="University Email"
-                    type="email"
-                    name="email"
-                    placeholder="student@university.edu"
-                    value={formData.email}
-                    onChange={handleChange}
-                    disabled={otpSent}
-                    icon={<Mail className="w-5 h-5" />}
-                />
-                {!otpSent && (
-                    <Button
-                        variant="outline"
-                        className="mt-2 w-full border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white"
-                        onClick={handleSendOtp}
-                        disabled={otpLoading || !formData.email}
-                    >
-                        {otpLoading ? 'Sending...' : 'Send OTP'}
-                    </Button>
-                )}
-            </div>
-
-            {otpSent && (
-                <>
-                    <div>
-                        <Input
-                            label="Enter OTP"
-                            type="text"
-                            name="otp"
-                            placeholder="123456"
-                            value={formData.otp}
-                            onChange={handleChange}
-                            maxLength={6}
-                            icon={<Hash className="w-5 h-5" />}
-                        />
-                        <p className="mt-1 text-xs text-gray-500">
-                            Check your email for the 6-digit code
-                        </p>
-                    </div>
-
-                    <Input
-                        label="Password"
-                        type="password"
-                        name="password"
-                        placeholder="••••••••"
-                        value={formData.password}
-                        onChange={handleChange}
-                        icon={<Lock className="w-5 h-5" />}
-                    />
-
-                    <Input
-                        label="Confirm Password"
-                        type="password"
-                        name="confirmPassword"
-                        placeholder="••••••••"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        icon={<Lock className="w-5 h-5" />}
-                    />
-                </>
-            )}
-        </div>
-    );
-
-    // Render step 2: Personal Info
-    const renderStep2 = () => (
-        <div className="space-y-5">
-            <div className="grid grid-cols-2 gap-4">
-                <Input
-                    label="First Name"
-                    name="firstName"
-                    placeholder="John"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    icon={<User className="w-5 h-5" />}
-                />
-                <Input
-                    label="Last Name"
-                    name="lastName"
-                    placeholder="Doe"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    icon={<User className="w-5 h-5" />}
-                />
-            </div>
-
-            <Input
-                label="Phone Number (Optional)"
-                type="tel"
-                name="phone"
-                placeholder="+1 234 567 8900"
-                value={formData.phone}
-                onChange={handleChange}
-                icon={<Phone className="w-5 h-5" />}
-            />
-
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Bio (Optional)
-                </label>
-                <div className="relative">
-                    <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                    <textarea
-                        name="bio"
-                        placeholder="Tell us about yourself..."
-                        value={formData.bio}
-                        onChange={handleChange}
-                        rows={4}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent resize-none"
-                    />
-                </div>
-            </div>
-        </div>
-    );
-
-    // Render step 3: Academic Info
-    const renderStep3 = () => (
-        <div className="space-y-5">
-            <Input
-                label="Student ID"
-                name="studentId"
-                placeholder="2021-1-60-001"
-                value={formData.studentId}
-                onChange={handleChange}
-                icon={<Hash className="w-5 h-5" />}
-            />
-
-            <Input
-                label="Department"
-                name="department"
-                placeholder="Computer Science & Engineering"
-                value={formData.department}
-                onChange={handleChange}
-                icon={<Building2 className="w-5 h-5" />}
-            />
-
-            <Input
-                label="Batch"
-                name="batch"
-                placeholder="2021"
-                value={formData.batch}
-                onChange={handleChange}
-                icon={<Calendar className="w-5 h-5" />}
-            />
-        </div>
-    );
-
     return (
-        <div className="flex min-h-screen bg-white">
-            {/* Left Side - Form */}
-            <div className="flex w-full flex-col justify-center px-4 py-12 sm:px-6 lg:w-1/2 lg:px-20 xl:px-24">
-                <div className="mx-auto w-full max-w-sm lg:w-96">
-                    <div className="mb-8">
-                        <Link to="/" className="flex items-center text-sm font-medium text-gray-500 hover:text-brand-orange transition-colors mb-6">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Home
+        <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-tr from-secondary/10 via-bkg to-accent/10 backdrop-blur-sm p-4 relative overflow-hidden">
+            {/* Background Blobs */}
+            <div className="absolute top-[-10%] right-[-10%] w-[900px] h-[900px] bg-secondary/10 rounded-full blur-[100px] pointer-events-none animate-pulse-slow"></div>
+            <div className="absolute bottom-[-10%] left-[-10%] w-[900px] h-[900px] bg-primary/10 rounded-full blur-[100px] pointer-events-none animate-pulse-slow animation-delay-2000"></div>
+
+            {/* Main Card - Compact */}
+            <div className="w-full max-w-[1000px] h-auto max-h-[90vh] aspect-[16/9] bg-white/80 backdrop-blur-xl rounded-[32px] shadow-2xl border border-white/60 flex overflow-hidden relative animate-fade-in-up">
+
+                {/* Close Button */}
+                <button onClick={() => navigate('/')} className="absolute top-4 right-4 z-50 w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg hover:scale-110 hover:bg-white transition-all cursor-pointer group">
+                    <X size={16} className="text-text-main group-hover:text-secondary transition-colors" />
+                </button>
+
+                {/* LEFT SIDE - FORM - Compact Padding */}
+                <div className="w-full lg:w-1/2 p-8 lg:p-10 flex flex-col justify-center relative bg-gradient-to-tr from-white to-gray-50 overflow-hidden">
+
+                    {/* Logo - Compact */}
+                    <div className="absolute top-8 left-8">
+                        <Link to="/" className="flex items-center gap-2 group">
+                            <img src="/logo.png" alt="EduSync Logo" className="h-8 w-auto group-hover:scale-105 transition-transform" />
+                            <span className="text-lg font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">EduSync</span>
                         </Link>
-                        <div className="flex items-center gap-2 mb-2">
-                            <div className="bg-brand-orange p-2 rounded-lg">
-                                <GraduationCap className="h-6 w-6 text-white" />
-                            </div>
-                            <span className="text-2xl font-bold text-gray-900">EduSync</span>
-                        </div>
-                        <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Create Account</h2>
-                        <p className="mt-2 text-sm text-gray-600">
-                            Step {currentStep} of {totalSteps}: {
-                                currentStep === 1 ? 'Account Setup' :
-                                currentStep === 2 ? 'Personal Information' :
-                                'Academic Details'
-                            }
-                        </p>
                     </div>
 
-                    {/* Progress Bar */}
-                    {renderProgressBar()}
+                    <div className="max-w-xs w-full mx-auto mt-6">
+                        <h1 className="text-2xl font-bold text-text-main mb-1">Create Account</h1>
+                        <p className="text-xs text-text-main-light mb-5">
+                            {step === 1 && 'Enter your UIU email to get started'}
+                            {step === 2 && 'Verify your email with OTP'}
+                            {step === 3 && 'Complete your profile'}
+                        </p>
 
-                    {/* Error Message */}
-                    {error && (
-                        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <p className="text-sm text-red-600">{error}</p>
-                        </div>
-                    )}
+                        {error && (
+                            <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg">
+                                <p className="text-xs text-red-600">{error}</p>
+                            </div>
+                        )}
 
-                    {/* Form Steps */}
-                    <form onSubmit={handleSubmit}>
-                        {currentStep === 1 && renderStep1()}
-                        {currentStep === 2 && renderStep2()}
-                        {currentStep === 3 && renderStep3()}
+                        {/* Step 1: Email */}
+                        {step === 1 && !otpSent && (
+                            <form onSubmit={handleSendOTP} className="space-y-3">
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-text-main ml-1">University Email</label>
+                                    <div className="relative">
+                                        <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleInputChange}
+                                            placeholder="student@example.uiu.ac.bd"
+                                            className="w-full h-10 pl-10 pr-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
+                                        />
+                                    </div>
+                                </div>
 
-                        {/* Navigation Buttons */}
-                        <div className="mt-6 flex gap-4">
-                            {currentStep > 1 && (
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="flex-1 h-11 border-gray-300 text-gray-700 hover:bg-gray-50"
-                                    onClick={handleBack}
-                                    disabled={loading}
-                                >
-                                    Back
-                                </Button>
-                            )}
-
-                            {currentStep < totalSteps ? (
-                                <Button
-                                    type="button"
-                                    className="flex-1 h-11 bg-brand-orange hover:bg-brand-orange-light text-white shadow-lg shadow-brand-orange/20"
-                                    onClick={handleNext}
-                                    disabled={!otpSent && currentStep === 1}
-                                >
-                                    Next
-                                </Button>
-                            ) : (
                                 <Button
                                     type="submit"
-                                    className="flex-1 h-11 bg-brand-orange hover:bg-brand-orange-light text-white shadow-lg shadow-brand-orange/20"
-                                    disabled={loading}
+                                    isLoading={isLoading}
+                                    className="w-full h-11 rounded-full bg-secondary hover:bg-secondary-light text-white font-bold text-sm shadow-md shadow-secondary/20 mt-3 border-none hover:scale-[1.02] transition-transform"
                                 >
-                                    {loading ? 'Creating Account...' : 'Create Account'}
+                                    Send OTP
                                 </Button>
-                            )}
-                        </div>
-                    </form>
+                            </form>
+                        )}
 
-                    {/* Login Link */}
-                    <div className="relative mt-6">
-                        <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                            <div className="w-full border-t border-gray-200" />
-                        </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="bg-white px-2 text-gray-500">Already have an account?</span>
-                        </div>
-                    </div>
+                        {/* Step 2: OTP Verification */}
+                        {step === 1 && otpSent && (
+                            <form onSubmit={handleVerifyOTP} className="space-y-3">
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-text-main ml-1">University Email</label>
+                                    <input
+                                        type="email"
+                                        value={formData.email}
+                                        disabled
+                                        className="w-full h-10 px-4 rounded-xl bg-gray-100 border border-gray-200 text-xs text-text-main outline-none"
+                                    />
+                                </div>
 
-                    <div className="mt-6">
-                        <Button
-                            variant="outline"
-                            className="w-full h-11 border-gray-300 text-gray-700 hover:bg-gray-50"
-                            onClick={() => navigate('/login')}
-                        >
-                            Sign in instead
-                        </Button>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-text-main ml-1">Enter OTP</label>
+                                    <div className="relative">
+                                        <Hash size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            name="otp"
+                                            value={formData.otp}
+                                            onChange={handleInputChange}
+                                            placeholder="123456"
+                                            maxLength={6}
+                                            className="w-full h-10 pl-10 pr-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
+                                        />
+                                    </div>
+                                    <p className="text-xs text-gray-500 ml-1 mt-1">Check your email for the 6-digit code</p>
+                                </div>
+
+                                <Button
+                                    type="submit"
+                                    isLoading={isLoading}
+                                    className="w-full h-11 rounded-full bg-secondary hover:bg-secondary-light text-white font-bold text-sm shadow-md shadow-secondary/20 mt-3 border-none hover:scale-[1.02] transition-transform"
+                                >
+                                    Verify OTP
+                                </Button>
+                            </form>
+                        )}
+
+                        {/* Step 3: Complete Details */}
+                        {step === 3 && (
+                            <form onSubmit={handleRegister} className="space-y-3 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-text-main ml-1">Full Name</label>
+                                    <input
+                                        type="text"
+                                        name="fullName"
+                                        value={formData.fullName}
+                                        onChange={handleInputChange}
+                                        placeholder="John Doe"
+                                        className="w-full h-10 px-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
+                                    />
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-text-main ml-1">Student ID (9-10 digits)</label>
+                                    <input
+                                        type="text"
+                                        name="studentId"
+                                        value={formData.studentId}
+                                        onChange={handleInputChange}
+                                        placeholder="011221123"
+                                        maxLength={10}
+                                        className="w-full h-10 px-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
+                                    />
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-text-main ml-1">Batch</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <select
+                                            name="semester"
+                                            value={formData.semester}
+                                            onChange={handleInputChange}
+                                            className="w-full h-10 px-3 rounded-xl bg-white border border-gray-200 text-xs text-text-main focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
+                                        >
+                                            {semesters.map(sem => (
+                                                <option key={sem} value={sem}>{sem}</option>
+                                            ))}
+                                        </select>
+                                        <input
+                                            type="text"
+                                            name="year"
+                                            value={formData.year}
+                                            onChange={handleInputChange}
+                                            placeholder="2023"
+                                            maxLength={4}
+                                            className="w-full h-10 px-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
+                                        />
+                                    </div>
+                                    <p className="text-xs text-gray-500 ml-1 mt-1">Will be saved as: {formData.semester} - {formData.year || 'YYYY'}</p>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-text-main ml-1">Department</label>
+                                    <select
+                                        name="department"
+                                        value={formData.department}
+                                        onChange={handleInputChange}
+                                        className="w-full h-10 px-3 rounded-xl bg-white border border-gray-200 text-xs text-text-main focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
+                                    >
+                                        <option value="">Select Department</option>
+                                        {departments.map(dept => (
+                                            <option key={dept} value={dept}>{dept}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-text-main ml-1">Phone Number</label>
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleInputChange}
+                                        placeholder="+880 1234567890"
+                                        className="w-full h-10 px-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
+                                    />
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-text-main ml-1">Password</label>
+                                    <div className="relative">
+                                        <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={handleInputChange}
+                                            placeholder="••••••••"
+                                            className="w-full h-10 pl-10 pr-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-text-main ml-1">Confirm Password</label>
+                                    <div className="relative">
+                                        <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="password"
+                                            name="confirmPassword"
+                                            value={formData.confirmPassword}
+                                            onChange={handleInputChange}
+                                            placeholder="••••••••"
+                                            className="w-full h-10 pl-10 pr-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                <Button
+                                    type="submit"
+                                    isLoading={isLoading}
+                                    className="w-full h-11 rounded-full bg-secondary hover:bg-secondary-light text-white font-bold text-sm shadow-md shadow-secondary/20 mt-3 border-none hover:scale-[1.02] transition-transform"
+                                >
+                                    Register Now
+                                </Button>
+                            </form>
+                        )}
+
+                        <div className="mt-6 flex items-center justify-between text-xs text-text-main-light">
+                            <p>Already a member? <Link to="/login" className="text-secondary font-bold hover:underline">Log In</Link></p>
+                            <Link to="/terms" className="hover:text-secondary transition-colors">Terms of Service</Link>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Right Side - Image/Brand */}
-            <div className="relative hidden w-0 flex-1 lg:block">
-                <div className="absolute inset-0 h-full w-full bg-gradient-to-br from-brand-orange to-yellow-500">
-                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80')] mix-blend-overlay opacity-20 bg-cover bg-center"></div>
-                    <div className="flex h-full flex-col justify-center px-20 text-white">
-                        <h2 className="text-4xl font-bold mb-6">Join Your Academic Community</h2>
-                        <p className="text-lg text-orange-100 max-w-md">
-                            Connect with peers, access resources, and enhance your university experience with EduSync.
-                        </p>
-                        <div className="mt-8 space-y-4">
-                            <div className="flex items-center gap-3">
-                                <CheckCircle2 className="w-6 h-6" />
-                                <span>Verified university email required</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <CheckCircle2 className="w-6 h-6" />
-                                <span>Secure authentication</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <CheckCircle2 className="w-6 h-6" />
-                                <span>Complete in 3 easy steps</span>
-                            </div>
+                {/* RIGHT SIDE - IMAGE & OVERLAYS */}
+                <div className="hidden lg:block w-1/2 relative bg-primary overflow-hidden">
+                    <img
+                        src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1742&q=80"
+                        alt="University Library"
+                        className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent pointer-events-none"></div>
+
+                    {/* Floating Verification Badge */}
+                    <div className="absolute top-[8%] right-[8%] bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-lg flex items-center gap-3 w-auto animate-float">
+                        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                            <Shield size={20} />
+                        </div>
+                        <div>
+                            <div className="text-xs text-gray-500">Account Type</div>
+                            <div className="text-sm font-bold text-gray-800">Verified Student</div>
+                        </div>
+                    </div>
+
+                    {/* Central Text Card */}
+                    <div className="absolute top-[35%] left-[50%] -translate-x-1/2 bg-white/10 backdrop-blur-xl border border-white/30 p-8 rounded-3xl text-white text-center w-72 shadow-2xl">
+                        <div className="text-2xl font-bold mb-2">Join 12,000+ Peers</div>
+                        <div className="text-white/80 text-sm mb-6">Connect, collaborate, and succeed in your academic journey.</div>
+                        <div className="flex justify-center -space-x-3">
+                            <img src="https://i.pravatar.cc/100?img=12" className="w-10 h-10 rounded-full border-2 border-primary" />
+                            <img src="https://i.pravatar.cc/100?img=24" className="w-10 h-10 rounded-full border-2 border-primary" />
+                            <img src="https://i.pravatar.cc/100?img=33" className="w-10 h-10 rounded-full border-2 border-primary" />
+                            <img src="https://i.pravatar.cc/100?img=41" className="w-10 h-10 rounded-full border-2 border-primary" />
+                        </div>
+                    </div>
+
+                    {/* Bottom Stats Rail */}
+                    <div className="absolute bottom-[10%] left-[10%] right-[10%] bg-secondary p-6 rounded-2xl shadow-xl flex justify-between items-center text-white border border-white/10">
+                        <div className="text-center">
+                            <div className="text-2xl font-bold">150+</div>
+                            <div className="text-xs opacity-70">Universities</div>
+                        </div>
+                        <div className="h-8 w-px bg-white/20"></div>
+                        <div className="text-center">
+                            <div className="text-2xl font-bold">Free</div>
+                            <div className="text-xs opacity-70">For Students</div>
+                        </div>
+                        <div className="h-8 w-px bg-white/20"></div>
+                        <div className="text-center">
+                            <div className="text-2xl font-bold">24/7</div>
+                            <div className="text-xs opacity-70">Support</div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     );

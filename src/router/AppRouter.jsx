@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import PrivateRoute from '../components/PrivateRoute';
 import LandingPage from '../pages/LandingPage';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
@@ -39,7 +40,11 @@ const router = createBrowserRouter([
         element: <ForgotPassword />,
     },
     {
-        element: <Layout />,
+        element: (
+            <PrivateRoute>
+                <Layout />
+            </PrivateRoute>
+        ),
         children: [
             {
                 path: '/dashboard',
