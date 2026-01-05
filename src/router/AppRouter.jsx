@@ -14,6 +14,10 @@ import NoticeFeed from '../pages/notices/NoticeFeed';
 import ChatList from '../pages/chat/ChatList';
 import IssueFeed from '../pages/issues/IssueFeed';
 import Profile from '../pages/profile/Profile';
+import RentHubHome from '../pages/renthub/RentHubHome';
+import RentHubItemDetails from '../pages/renthub/RentHubItemDetails';
+import CreateRentalListing from '../pages/renthub/CreateRentalListing';
+import RentHubDashboard from '../pages/renthub/RentHubDashboard';
 
 import PlaceholderPage from '../pages/PlaceholderPage';
 
@@ -56,6 +60,22 @@ const router = createBrowserRouter([
             {
                 path: '/marketplace/:id',
                 element: <MarketplaceItemDetails />,
+            },
+            {
+                path: '/renthub',
+                element: <RentHubHome />,
+            },
+            {
+                path: '/renthub/new',
+                element: <CreateRentalListing />,
+            },
+            {
+                path: '/renthub/:id',
+                element: <RentHubItemDetails />,
+            },
+            {
+                path: '/renthub/my-rentals',
+                element: <RentHubDashboard />,
             },
             {
                 path: '/forum',

@@ -164,7 +164,7 @@ const Home = () => {
     const personalStats = [
         { title: "My Listings", value: "5", icon: Package, colorClass: "bg-orange-100 text-orange-600", onClick: () => navigate('/marketplace?filter=my-listings') },
         { title: "My Posts", value: "12", icon: MessageCircle, colorClass: "bg-blue-100 text-blue-600", onClick: () => navigate('/forum?filter=my-posts') },
-        { title: "Saved Items", value: "8", icon: Bookmark, colorClass: "bg-purple-100 text-purple-600", onClick: () => navigate('/saved') },
+        { title: "Saved Items", value: "8", icon: Bookmark, colorClass: "bg-indigo-100 text-indigo-600", onClick: () => navigate('/saved') },
         { title: "Messages", value: "4", icon: MessageSquare, colorClass: "bg-green-100 text-green-600", onClick: () => navigate('/chat') },
     ];
 
