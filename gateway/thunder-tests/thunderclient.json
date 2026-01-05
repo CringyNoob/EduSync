@@ -1,0 +1,167 @@
+{
+  "clientName": "Thunder Client",
+  "collectionName": "EduSync Auth Service via Gateway",
+  "dateExported": "2025-12-17",
+  "version": "1.1",
+  "folders": [],
+  "requests": [
+    {
+      "name": "1. Gateway Health Check",
+      "method": "GET",
+      "url": "http://localhost:8000/",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "name": "2. Auth Service Info",
+      "method": "GET",
+      "url": "http://localhost:8000/api/auth",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "name": "3. Send OTP (Registration)",
+      "method": "POST",
+      "url": "http://localhost:8000/api/auth/send-otp",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"student@bscse.uiu.ac.bd\",\n  \"type\": \"registration\"\n}"
+      },
+      "tests": []
+    },
+    {
+      "name": "4. Register User",
+      "method": "POST",
+      "url": "http://localhost:8000/api/auth/register",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"student@bscse.uiu.ac.bd\",\n  \"password\": \"SecurePass123!\",\n  \"otp\": \"123456\",\n  \"hash\": \"PASTE_HASH_FROM_STEP_3\",\n  \"name\": \"John Doe\",\n  \"studentId\": \"011221001\",\n  \"department\": \"CSE\",\n  \"batch\": \"52\"\n}"
+      },
+      "tests": []
+    },
+    {
+      "name": "5. Login User",
+      "method": "POST",
+      "url": "http://localhost:8000/api/auth/login",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"student@bscse.uiu.ac.bd\",\n  \"password\": \"SecurePass123!\"\n}"
+      },
+      "tests": []
+    },
+    {
+      "name": "6. Get Profile",
+      "method": "GET",
+      "url": "http://localhost:8000/api/auth/profile",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer PASTE_TOKEN_FROM_LOGIN"
+        }
+      ],
+      "tests": []
+    },
+    {
+      "name": "7. Update Profile",
+      "method": "PUT",
+      "url": "http://localhost:8000/api/auth/profile",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer PASTE_TOKEN_FROM_LOGIN"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"fullName\": \"John Updated Doe\",\n  \"phone\": \"+880123456789\",\n  \"bio\": \"CS student at UIU\",\n  \"emailVisible\": true,\n  \"phoneVisible\": false\n}"
+      },
+      "tests": []
+    },
+    {
+      "name": "8. Verify Token",
+      "method": "GET",
+      "url": "http://localhost:8000/api/auth/verify-token",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer PASTE_TOKEN_FROM_LOGIN"
+        }
+      ],
+      "tests": []
+    },
+    {
+      "name": "9. Forgot Password",
+      "method": "POST",
+      "url": "http://localhost:8000/api/auth/forgot-password",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"student@bscse.uiu.ac.bd\"\n}"
+      },
+      "tests": []
+    },
+    {
+      "name": "10. Reset Password",
+      "method": "POST",
+      "url": "http://localhost:8000/api/auth/reset-password",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"student@bscse.uiu.ac.bd\",\n  \"otp\": \"123456\",\n  \"hash\": \"PASTE_HASH_FROM_FORGOT_PASSWORD\",\n  \"newPassword\": \"NewSecurePass456!\"\n}"
+      },
+      "tests": []
+    },
+    {
+      "name": "11. Change Password",
+      "method": "PUT",
+      "url": "http://localhost:8000/api/auth/change-password",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer PASTE_TOKEN_FROM_LOGIN"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"currentPassword\": \"SecurePass123!\",\n  \"newPassword\": \"EvenMoreSecure789!\"\n}"
+      },
+      "tests": []
+    }
+  ]
+}
