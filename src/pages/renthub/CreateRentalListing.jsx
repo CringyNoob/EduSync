@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Plus, Image, Smartphone, Shirt, Trophy,
     Calculator, Speaker, Package, DollarSign, Calendar,
-    Shield, Clock, Info, CheckCircle2, X
+    Shield, Clock, Info, CheckCircle2, X, BookOpen, Monitor, Armchair
 } from 'lucide-react';
 import Button from '../../components/Button';
 
