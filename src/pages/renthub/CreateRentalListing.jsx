@@ -22,10 +22,14 @@ const CreateRentalListing = () => {
     });
 
     const categories = [
-        { name: 'Study Tech', icon: Smartphone, color: 'text-blue-600 bg-blue-50' },
+        { name: 'Textbooks', icon: BookOpen, color: 'text-blue-600 bg-blue-50' },
+        { name: 'Electronics', icon: Monitor, color: 'text-indigo-600 bg-indigo-50' },
         { name: 'Research Gear', icon: Calculator, color: 'text-orange-600 bg-orange-50' },
-        { name: 'Media Equipment', icon: Speaker, color: 'text-pink-600 bg-pink-50' },
-        { name: 'Exam Essentials', icon: Calculator, color: 'text-emerald-600 bg-emerald-50' },
+        { name: 'Furniture', icon: Armchair, color: 'text-yellow-600 bg-yellow-50' },
+        { name: 'Clothing', icon: Shirt, color: 'text-purple-600 bg-purple-50' },
+        { name: 'Sports', icon: Trophy, color: 'text-emerald-600 bg-emerald-50' },
+        { name: 'Exam Essentials', icon: Calculator, color: 'text-cyan-600 bg-cyan-50' },
+        { name: 'Others', icon: Package, color: 'text-gray-600 bg-gray-50' },
     ];
 
     const nextStep = () => setStep(s => s + 1);

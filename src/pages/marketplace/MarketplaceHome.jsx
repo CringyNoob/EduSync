@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Search, Filter, ShoppingBag, Plus, Tag, DollarSign, MessageCircle, Heart,
     Image as ImageIcon, X, Trash2, UploadCloud, BookOpen, Monitor, Armchair,
     Shirt, Zap, Grid, LayoutGrid, Sparkles, Utensils, Box, ArrowLeft,
-    PackageCheck, Coffee
+    PackageCheck, Coffee, ArrowUpDown, ChevronDown
 } from 'lucide-react';
 
 // --- UI Components ---
@@ -133,9 +133,9 @@ const MarketplaceHome = () => {
 
     // Filter categories based on selection
     const filters = {
-        'Foods': ['Snacks', 'Homemade', 'Beverages', 'Meal Prep'],
-        'Pre-Owned': ['Textbooks', 'Electronics', 'Furniture', 'Clothing', 'Sports'],
-        'New Items': ['Stationery', 'Dorm Essentials', 'Tech Accessories', 'Merch']
+        'Foods': ['Snacks', 'Homemade', 'Beverages', 'Meal Prep', 'Others'],
+        'Pre-Owned': ['Textbooks', 'Electronics', 'Research Gear', 'Furniture', 'Clothing', 'Sports', 'Exam Essentials', 'Others'],
+        'New Items': ['Stationery', 'Dorm Essentials', 'Tech Accessories', 'Merch', 'Others']
     };
 
     const [activeFilter, setActiveFilter] = useState('All');
@@ -155,12 +155,23 @@ const MarketplaceHome = () => {
         { id: 7, section: 'New Items', title: 'Scientific Calculator TI-84 Plus', price: '120.00', category: 'Tech Accessories', bg: 'bg-cyan-50', icon: Monitor, seller: 'Tech Hub', timeAgo: '1d ago' },
     ];
 
-    const filteredProducts = products.filter(p => {
-        const matchesSection = selectedSection ? p.section === selectedSection : true;
-        const matchesCategory = activeFilter === 'All' || p.category === activeFilter;
-        const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesSection && matchesCategory && matchesSearch;
-    });
+    const [sortBy, setSortBy] = useState('newest');
+
+    const filteredProducts = useMemo(() => {
+        let result = products.filter(p => {
+            const matchesSection = selectedSection ? p.section === selectedSection : true;
+            const matchesCategory = activeFilter === 'All' || p.category === activeFilter;
+            const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                p.category.toLowerCase().includes(searchQuery.toLowerCase());
+            return matchesSection && matchesCategory && matchesSearch;
+        });
+
+        // Add basic sorting
+        if (sortBy === 'price-low') result.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        if (sortBy === 'price-high') result.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+
+        return result;
+    }, [products, selectedSection, activeFilter, searchQuery, sortBy]);
 
     return (
         <div className="relative min-h-screen p-3 md:p-5 space-y-6 font-sans">
@@ -196,7 +207,10 @@ const MarketplaceHome = () => {
                             icon={Utensils}
                             colorClass="text-orange-500"
                             gradient="from-orange-400 to-red-500"
-                            onClick={() => setSelectedSection('Foods')}
+                            onClick={() => {
+                                setSelectedSection('Foods');
+                                setActiveFilter('All');
+                            }}
                         />
                         <CategorySelectionCard
                             title="Pre-Owned"
@@ -204,7 +218,10 @@ const MarketplaceHome = () => {
                             icon={Box}
                             colorClass="text-indigo-500"
                             gradient="from-indigo-400 to-purple-600"
-                            onClick={() => setSelectedSection('Pre-Owned')}
+                            onClick={() => {
+                                setSelectedSection('Pre-Owned');
+                                setActiveFilter('All');
+                            }}
                         />
                         <CategorySelectionCard
                             title="New Items"
@@ -212,8 +229,25 @@ const MarketplaceHome = () => {
                             icon={PackageCheck}
                             colorClass="text-emerald-500"
                             gradient="from-emerald-400 to-teal-600"
-                            onClick={() => setSelectedSection('New Items')}
+                            onClick={() => {
+                                setSelectedSection('New Items');
+                                setActiveFilter('All');
+                            }}
                         />
+                    </div>
+                </div>
+            )}
+
+            {/* Hero Section - New Statement */}
+            {selectedSection && (
+                <div className="max-w-7xl mx-auto pt-8 pb-4">
+                    <div className="flex flex-col gap-1">
+                        <h2 className="text-4xl md:text-6xl font-black text-gray-900 leading-tight">
+                            Rent What You Need,
+                        </h2>
+                        <h2 className="text-4xl md:text-6xl font-black text-primary leading-tight">
+                            Earn From What You Own.
+                        </h2>
                     </div>
                 </div>
             )}
@@ -248,10 +282,25 @@ const MarketplaceHome = () => {
                                     className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100 focus:bg-white focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all text-sm font-medium"
                                 />
                             </div>
-                            <Button size="sm" className="shadow-lg shadow-primary/20 h-[42px]">
-                                <Plus className="mr-1.5 h-4 w-4" />
-                                Sell Item
-                            </Button>
+                            <div className="flex gap-2">
+                                <div className="relative group">
+                                    <ArrowUpDown size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                    <select
+                                        value={sortBy}
+                                        onChange={(e) => setSortBy(e.target.value)}
+                                        className="appearance-none pl-9 pr-8 py-2.5 rounded-xl bg-gray-50 border border-gray-100 text-sm font-bold text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 cursor-pointer transition-all"
+                                    >
+                                        <option value="newest">Newest</option>
+                                        <option value="price-low">Price: Low</option>
+                                        <option value="price-high">Price: High</option>
+                                    </select>
+                                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                </div>
+                                <Button size="sm" className="shadow-lg shadow-primary/20 h-[42px]">
+                                    <Plus className="mr-1.5 h-4 w-4" />
+                                    Sell Item
+                                </Button>
+                            </div>
                         </div>
 
                         <div className="flex gap-2 mt-4 overflow-x-auto pb-1 no-scrollbar">

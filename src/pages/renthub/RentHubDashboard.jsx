@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     Package, Clock, Shield, DollarSign, AlertCircle, CheckCircle2,
     Calendar, ChevronRight, Smartphone, Shirt, ArrowRight,
-    MessageCircle, MoreVertical, RefreshCcw, FileText
+    MessageCircle, MoreVertical, RefreshCcw, FileText, Plus
 } from 'lucide-react';
 import Button from '../../components/Button';
 
@@ -157,7 +157,7 @@ const RentHubDashboard = () => {
                                             </div>
                                             <div className="flex md:flex-col gap-2">
                                                 <Button size="sm" className="rounded-xl font-bold bg-gray-50 hover:bg-gray-100 text-gray-900 border-none">Details</Button>
-                                                <Button size="sm" variant="primary" className="rounded-xl font-bold bg-emerald-600 shadow-sm shadow-emerald-100">Return Gear</Button>
+                                                <Button size="sm" variant="primary" className="rounded-xl font-bold bg-emerald-600 shadow-sm shadow-emerald-100">Return Item</Button>
                                             </div>
                                         </div>
                                     </div>
@@ -200,7 +200,7 @@ const RentHubDashboard = () => {
                                             </div>
                                             <div className="flex md:flex-col gap-2">
                                                 <Button size="sm" className="rounded-xl font-bold bg-gray-50 text-gray-900">Manage</Button>
-                                                <Button size="sm" className="rounded-xl font-bold bg-blue-600 text-white">Release Gear</Button>
+                                                <Button size="sm" className="rounded-xl font-bold bg-blue-600 text-white">Confirm Return</Button>
                                             </div>
                                         </div>
                                     </div>
@@ -246,7 +246,7 @@ const RentHubDashboard = () => {
                             Use the RentHub checklist to ensure everything is in order before releasing the security deposit.
                         </p>
                         <Button className="w-full rounded-xl bg-white text-emerald-900 font-black h-12 shadow-lg shadow-emerald-900/20">
-                            Open Checklist
+                            Check Item
                         </Button>
                     </div>
                 </div>

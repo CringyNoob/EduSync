@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     Calendar, Shield, Clock, Star, ArrowLeft, MessageCircle,
@@ -13,34 +13,127 @@ const RentHubItemDetails = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
 
-    // Mock data for the item
-    const item = {
-        id: id,
-        title: "Sony Alpha a7 III Camera",
-        category: "Electronics",
-        price: 25,
-        deposit: 100,
-        owner: {
-            name: "Sarah Williams",
+    // Shared Data Registry (Mocking a database fetch)
+    const rentals = [
+        {
+            id: 1,
+            title: "Calculus: Early Transcendentals (8th Edition)",
+            category: "Textbooks",
+            price: 5,
+            deposit: 30,
+            images: [
+                "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&q=80",
+                "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=800&q=80"
+            ],
             rating: 4.9,
-            totalRentals: 156,
-            joined: "Sep 2023"
+            reviewsCount: 12,
+            owner: { name: "Sarah W.", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80", joined: "Sep 2023", totalRentals: 45 },
+            description: "Essential textbook for early calculus students. Perfect condition, no markings.",
+            rules: ["Return on time", "No page folding"],
+            availability: "Available Now"
         },
-        description: "Professional grade mirrorless camera. Perfect for student projects, events, and high-quality vlogging. Includes 28-70mm lens, 2 batteries, and a 64GB SD card.",
-        rules: [
-            "Handle with extreme care",
-            "Return with full battery",
-            "Do not use in rain without protection",
-            "Late return fee: $10/hour"
-        ],
-        images: [
-            "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
-            "https://images.unsplash.com/photo-1513650125333-0d366486cdc1?w=800&q=80"
-        ],
-        availability: "Available from Oct 15",
-        rating: 4.9,
-        reviewsCount: 24
-    };
+        {
+            id: 2,
+            title: "MacBook Pro M2 - Space Gray (16GB RAM)",
+            category: "Electronics",
+            price: 40,
+            deposit: 500,
+            images: [
+                "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&q=80",
+                "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=800&q=80"
+            ],
+            rating: 5.0,
+            reviewsCount: 8,
+            owner: { name: "Alex K.", avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200&q=80", joined: "Jan 2024", totalRentals: 128 },
+            description: "High performance MacBook Pro with M2 chip. Excellent for video editing and coding projects.",
+            rules: ["Do not install malware", "Return with original charger"],
+            availability: "Available Now"
+        },
+        {
+            id: 3,
+            title: "TI-84 Plus CE Graphing Calculator",
+            category: "Exam Essentials",
+            price: 5,
+            deposit: 50,
+            images: [
+                "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80"
+            ],
+            rating: 5.0,
+            reviewsCount: 32,
+            owner: { name: "Professor Oak", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80", joined: "Aug 2022", totalRentals: 210 },
+            description: "The gold standard for math exams. Color screen, fast processing.",
+            rules: ["Wipe memory before return", "No physical damage"],
+            availability: "Available for Midterms"
+        },
+        {
+            id: 4,
+            title: "Digital Microscope - 1000x Magnification",
+            category: "Research Gear",
+            price: 15,
+            deposit: 100,
+            images: [
+                "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80"
+            ],
+            rating: 4.8,
+            reviewsCount: 5,
+            owner: { name: "BioDept", avatar: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=200&q=80", joined: "Mar 2023", totalRentals: 88 },
+            description: "USB Digital Microscope with 1000x zoom. Includes base station and slides.",
+            rules: ["Clean lens after use", "Handle base with care"],
+            availability: "Available Now"
+        },
+        {
+            id: 5,
+            title: "Ergonomic Office Chair - Black Mesh",
+            category: "Furniture",
+            price: 10,
+            deposit: 80,
+            images: [
+                "https://images.unsplash.com/photo-1580480055273-228ff5388ef8?w=800&q=80"
+            ],
+            rating: 4.5,
+            reviewsCount: 15,
+            owner: { name: "Mike R.", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80", joined: "Dec 2023", totalRentals: 12 },
+            description: "Premium mesh chair for long study sessions. Fully adjustable height and armrests.",
+            rules: ["Weight limit 250lbs", "No food spills"],
+            availability: "Available Now"
+        },
+        {
+            id: 6,
+            title: "Tennis Racket - Wilson Pro Staff",
+            category: "Sports",
+            price: 8,
+            deposit: 40,
+            images: [
+                "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=800&q=80"
+            ],
+            rating: 4.7,
+            reviewsCount: 10,
+            owner: { name: "Athlete J.", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80", joined: "May 2024", totalRentals: 5 },
+            description: "Professional grade tennis racket for competitive play.",
+            rules: ["Do not throw racket", "Keep in bag when traveling"],
+            availability: "Available on Weekends"
+        },
+        {
+            id: 7,
+            title: "Sony Alpha a7 III Camera",
+            category: "Electronics",
+            price: 25,
+            deposit: 200,
+            images: [
+                "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+                "https://images.unsplash.com/photo-1513650125333-0d366486cdc1?w=800&q=80"
+            ],
+            rating: 4.9,
+            reviewsCount: 24,
+            owner: { name: "John D.", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80", joined: "Sep 2023", totalRentals: 156 },
+            description: "Professional mirrorless camera. Includes 28-70mm lens and kit bag.",
+            rules: ["Handle with care", "Return with full battery"],
+            availability: "Available from Oct 15"
+        }
+    ];
+
+    // Find the current item
+    const item = rentals.find(r => r.id === parseInt(id)) || rentals[0];
 
     const calculateTotal = () => {
         if (!startDate || !endDate) return 0;
@@ -78,7 +171,7 @@ const RentHubItemDetails = () => {
                 {/* Left: Images & Info */}
                 <div className="lg:col-span-2 space-y-8">
                     {/* Image Gallery */}
-                    <div className="relative h-[400px] md:h-[500px] rounded-[3rem] overflow-hidden group shadow-xl">
+                    <div className="relative h-[400px] md:h-[500px] rounded-[3rem] overflow-hidden group shadow-xl bg-gray-100">
                         <img
                             src={item.images[0]}
                             alt={item.title}
@@ -128,9 +221,9 @@ const RentHubItemDetails = () => {
                                 </ul>
                             </div>
                             <div>
-                                <h3 className="text-lg font-black mb-4">What's included</h3>
+                                <h3 className="text-lg font-black mb-4">Quick Specs</h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {['Lens', 'Bag', 'SD Card', '2 Batteries', 'Charger'].map((tag) => (
+                                    {['Official Kit', 'Certified', 'EduSync Insured'].map((tag) => (
                                         <span key={tag} className="px-3 py-1.5 rounded-xl bg-gray-100 text-gray-600 text-xs font-bold">
                                             {tag}
                                         </span>
@@ -143,8 +236,8 @@ const RentHubItemDetails = () => {
                     {/* Owner Info */}
                     <div className="bg-white/60 backdrop-blur-xl rounded-[2.5rem] border border-white p-8 flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-black text-2xl shadow-lg">
-                                {item.owner.name.charAt(0)}
+                            <div className="h-16 w-16 rounded-2xl overflow-hidden shadow-lg">
+                                <img src={item.owner.avatar} alt={item.owner.name} className="w-full h-full object-cover" />
                             </div>
                             <div>
                                 <h4 className="text-xl font-black text-gray-900">{item.owner.name}</h4>
@@ -263,7 +356,7 @@ const RentHubItemDetails = () => {
                             <div>
                                 <p className="text-xs font-black text-orange-900">Important Note</p>
                                 <p className="text-[10px] text-orange-700 font-bold leading-relaxed mt-1">
-                                    Remember to inspect the item upon handover. RentHub will send reminders 3 days, 1 day, and on the due date.
+                                    Remember to inspect the item upon handover. RentHub will send reminders 1 day before the due date.
                                 </p>
                             </div>
                         </div>
