@@ -10,18 +10,27 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
+        
+        if (!email || !password) {
+            setError('Please enter both email and password');
+            return;
+        }
+        
         setIsLoading(true);
+        setError('');
         
-        // Call the login function from AuthContext
-        login(email, password);
-        
-        setTimeout(() => {
-            setIsLoading(false);
+        try {
+            await login(email, password);
             navigate('/dashboard');
-        }, 1500);
+        } catch (err) {
+            setError(err.message || 'Login failed. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -52,6 +61,12 @@ const Login = () => {
                     <div className="max-w-xs w-full mx-auto mt-6">
                         <h1 className="text-2xl font-bold text-text-main mb-1">Welcome Back!</h1>
                         <p className="text-sm text-text-main-light mb-6">Log in to access your study groups.</p>
+
+                        {error && (
+                            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <p className="text-xs text-red-600">{error}</p>
+                            </div>
+                        )}
 
                         <form onSubmit={handleLogin} className="space-y-4">
 

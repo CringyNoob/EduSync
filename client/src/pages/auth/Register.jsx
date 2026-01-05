@@ -144,19 +144,13 @@ const Register = () => {
             // Create batch string
             const batch = `${formData.semester} - ${formData.year}`;
             
-            // Split full name into first and last name
-            const nameParts = formData.fullName.trim().split(' ');
-            const firstName = nameParts[0];
-            const lastName = nameParts.slice(1).join(' ') || nameParts[0];
-            
             // Prepare registration data
             const registrationData = {
                 email: formData.email,
                 otp: formData.otp,
-                otpHash: otpHash,
+                hash: otpHash,
                 password: formData.password,
-                firstName: firstName,
-                lastName: lastName,
+                name: formData.fullName,
                 studentId: formData.studentId,
                 department: formData.department,
                 batch: batch,

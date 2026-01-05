@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import {
     ShoppingBag, MessageSquare, Bell, AlertCircle, TrendingUp, Clock, ArrowRight,
     Zap, Star, Shield, Search, User, Heart, Bookmark, Calendar, Users,
@@ -146,6 +147,7 @@ const QuickActionCard = ({ title, description, icon: Icon, colorClass, onClick }
 
 const Home = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
     const [activityFilter, setActivityFilter] = useState('all');
 
@@ -157,8 +159,8 @@ const Home = () => {
         return 'Good Evening';
     };
 
-    // Mock data
-    const userName = "Alex";
+    // Get user's first name
+    const userName = user?.name?.split(' ')[0] || "User";
     const unreadNotifications = 3;
 
     const personalStats = [

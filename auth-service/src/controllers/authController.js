@@ -102,8 +102,7 @@ async function sendOtp(req, res) {
         const normalizedEmail = email.toLowerCase().trim();
 
         // Validate UIU email domain
-        const domainPattern = /@[a-z]+\.uiu\.ac\.bd$/i;
-        if (!domainPattern.test(normalizedEmail) && !normalizedEmail.endsWith('@uiu.ac.bd')) {
+        if (!normalizedEmail.endsWith('uiu.ac.bd')) {
             return res.status(400).json({
                 success: false,
                 error: 'Only UIU email addresses (e.g., student@bscse.uiu.ac.bd) are allowed'
@@ -169,19 +168,14 @@ async function register(req, res) {
             password, 
             otp, 
             hash, 
-            name,           // Can be full name
-            firstName,      // Or firstName + lastName
-            lastName,
+            name,
             studentId, 
             department, 
             batch 
         } = req.body;
 
-        // Combine name if firstName/lastName provided
-        const fullName = name || `${firstName || ''} ${lastName || ''}`.trim();
-
         // Validation
-        if (!email || !password || !otp || !hash || !fullName || !studentId || !department || !batch) {
+        if (!email || !password || !otp || !hash || !name || !studentId || !department || !batch) {
             return res.status(400).json({
                 success: false,
                 error: 'All fields are required (email, password, otp, hash, name, studentId, department, batch)'
@@ -191,21 +185,10 @@ async function register(req, res) {
         const normalizedEmail = email.toLowerCase().trim();
 
         // Validate UIU email domain
-        const domainPattern = /@[a-z]+\.uiu\.ac\.bd$/i;
-        if (!domainPattern.test(normalizedEmail) && !normalizedEmail.endsWith('@uiu.ac.bd')) {
+        if (!normalizedEmail.endsWith('uiu.ac.bd')) {
             return res.status(400).json({
                 success: false,
                 error: 'Only UIU email addresses (e.g., student@bscse.uiu.ac.bd) are allowed'
-            });
-        }
-
-        // Validate student ID format (3-digit department code)
-        const deptCode = studentId.substring(0, 3);
-        const validDeptCodes = ['011', '012', '013', '014', '015', '016'];
-        if (!validDeptCodes.includes(deptCode)) {
-            return res.status(400).json({
-                success: false,
-                error: 'Invalid student ID format. Department code must be 011-016.'
             });
         }
 
@@ -264,7 +247,7 @@ async function register(req, res) {
         await client.query(
             `INSERT INTO profiles (user_id, full_name, student_id, department, batch, email_visible, phone_visible)
              VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-            [newUser.id, fullName, studentId, department, batch, true, false]
+            [newUser.id, name, studentId, department, batch, true, false]
         );
 
         // Commit transaction
@@ -282,7 +265,7 @@ async function register(req, res) {
                 email: newUser.email,
                 role: newUser.role,
                 isVerified: newUser.is_verified,
-                name: fullName,
+                name: name,
                 studentId: studentId,
                 department: department,
                 batch: batch

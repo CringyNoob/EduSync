@@ -18,7 +18,7 @@ import { cn } from '../../utils/cn';
 import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
-    const { logout } = useAuth();
+    const { logout, user } = useAuth();
     const navigate = useNavigate();
     const [hoveredItem, setHoveredItem] = useState(null);
 
@@ -27,12 +27,12 @@ const Sidebar = () => {
         navigate('/');
     };
 
-    // Mock user data - Replace with actual user data from context
+    // Use actual user data from context
     const userData = {
-        name: "Alex Johnson",
-        email: "alex@university.edu",
-        avatar: null, // Will show initials if no avatar
-        role: "Student"
+        name: user?.name || "User",
+        email: user?.email || "",
+        avatar: user?.avatarUrl || null,
+        role: user?.role || "Student"
     };
 
     const navItems = [
