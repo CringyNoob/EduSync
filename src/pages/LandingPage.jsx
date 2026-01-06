@@ -400,8 +400,8 @@ const TestimonialCard = ({ name, role, text, avatar, color }) => (
         </div>
         <p className="text-gray-600 mb-8 flex-grow text-lg leading-relaxed italic">"{text}"</p>
         <div className="flex items-center gap-4 pt-6 border-t border-gray-100">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-md ${color}`}>
-                {name[0]}
+            <div className={`w-12 h-12 rounded-full overflow-hidden shadow-md ring-2 ring-white`}>
+                <img src={avatar} alt={name} className="w-full h-full object-cover" />
             </div>
             <div>
                 <div className="font-bold text-gray-900 text-lg">{name}</div>
@@ -457,7 +457,7 @@ const Testimonials = () => {
                     <TestimonialCard
                         name="Sarah Jenkins"
                         role="Computer Science @ MIT"
-                        color="bg-gradient-to-br from-pink-500 to-rose-500"
+                        avatar="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80"
                         text="EduSync completely changed how I manage my group projects. The chat feature combined with file sharing is a lifesaver. I can't imagine surviving finals without it."
                     />
                 </div>
@@ -465,7 +465,7 @@ const Testimonials = () => {
                     <TestimonialCard
                         name="David Chen"
                         role="Business Admin @ Stanford"
-                        color="bg-gradient-to-br from-blue-500 to-cyan-500"
+                        avatar="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80"
                         text="I sold all my old textbooks in 24 hours on the marketplace. It's so much safer than meeting strangers from generic sites because everyone is verified."
                     />
                 </div>
@@ -473,7 +473,7 @@ const Testimonials = () => {
                     <TestimonialCard
                         name="Marcus Johnson"
                         role="Engineering @ Oxford"
-                        color="bg-gradient-to-br from-violet-500 to-purple-500"
+                        avatar="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80"
                         text="Finally, an app that actually looks good and works well. The calendar integration with my university portal is seamless and saves me so much time."
                     />
                 </div>
@@ -481,7 +481,7 @@ const Testimonials = () => {
                     <TestimonialCard
                         name="Emily Blunt"
                         role="Arts @ NYU"
-                        color="bg-gradient-to-br from-yellow-500 to-orange-500"
+                        avatar="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80"
                         text="The community forums helped me find friends before I even arrived on campus. Best orientation tool ever. Highly recommended for freshmen."
                     />
                 </div>

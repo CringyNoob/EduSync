@@ -36,33 +36,6 @@ app.get('/', (req, res) => {
     });
 });
 
-// Database Health Check
-app.get('/health/db', async (req, res) => {
-    try {
-        const db = require('./src/config/db');
-        const result = await db.query('SELECT NOW() as time, current_database() as database');
-        const poolStatus = db.pool;
-        
-        res.json({
-            status: 'healthy',
-            database: result.rows[0].database,
-            serverTime: result.rows[0].time,
-            pool: {
-                total: poolStatus.totalCount,
-                idle: poolStatus.idleCount,
-                waiting: poolStatus.waitingCount
-            }
-        });
-    } catch (error) {
-        console.error('DB Health Check Failed:', error);
-        res.status(500).json({
-            status: 'unhealthy',
-            error: error.message,
-            code: error.code
-        });
-    }
-});
-
 // ========================================
 // ERROR HANDLING
 // ========================================

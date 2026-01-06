@@ -1,44 +1,23 @@
-# Auth Service - API Testing Guide
+# API Testing Guide
 
 ## Quick Start
 
-1. **Run the database schema first:**
-   ```sql
-   -- Execute database-schema.sql in your PostgreSQL database
+1. **Start the server:**
+   ```bash
+   node server.js
    ```
 
-2. **Update .env with your credentials:**
+2. **Update .env with your email credentials:**
    ```env
-   DB_HOST=your-db-host
-   DB_PORT=16231
-   DB_USER=avnadmin
-   DB_PASSWORD=your-password
-   DB_NAME=auth_db
-   JWT_SECRET=your-super-secret-jwt-key-min-32-chars
-   OTP_SECRET=your-otp-secret-key-min-32-chars
    EMAIL_USER=your-email@gmail.com
    EMAIL_PASSWORD=your-app-password
    ```
 
-3. **Start the server:**
-   ```bash
-   npm start
-   # or
-   node server.js
-   ```
-
-4. **Test the endpoints below using Postman, Thunder Client, or cURL**
+3. **Test the endpoints below**
 
 ---
 
-## Base URL
-```
-http://localhost:3001
-```
-
----
-
-## 🔓 PUBLIC ENDPOINTS (No Auth Required)
+## Test Endpoints
 
 ### 1. Health Check
 ```http
@@ -50,20 +29,19 @@ GET http://localhost:3001/health
 {
   "status": "OK",
   "message": "Database is connected!",
-  "db_time": "2025-12-17T10:30:00.000Z"
+  "db_time": "2025-12-10T10:30:00.000Z"
 }
 ```
 
 ---
 
-### 2. Send OTP (Registration)
+### 2. Send OTP
 ```http
 POST http://localhost:3001/api/auth/send-otp
 Content-Type: application/json
 
 {
-  "email": "student@bscse.uiu.ac.bd",
-  "type": "registration"
+  "email": "student@uiu.ac.bd"
 }
 ```
 
@@ -72,12 +50,11 @@ Content-Type: application/json
 {
   "success": true,
   "message": "OTP sent successfully to your email",
-  "hash": "1734444123456.a1b2c3d4e5f6789...",
-  "email": "student@bscse.uiu.ac.bd"
+  "hash": "653c857a551724fd70be7dae0cce33af930c8c7f543d239b7abb74e50a26c03b.1765307474109"
 }
 ```
 
-**⚠️ IMPORTANT:** Save the `hash` value - you'll need it for registration!
+**IMPORTANT:** Copy the `hash` value for the next step!
 
 ---
 
@@ -87,29 +64,13 @@ POST http://localhost:3001/api/auth/register
 Content-Type: application/json
 
 {
-  "email": "student@bscse.uiu.ac.bd",
-  "password": "SecurePass123!",
-  "otp": "123456",
-  "hash": "1734444123456.a1b2c3d4e5f6789...",
-  "name": "John Doe",
-  "studentId": "011221001",
+  "name": "Test User",
+  "email": "student@uiu.ac.bd",
+  "password": "SecurePass123",
   "department": "CSE",
-  "batch": "52"
-}
-```
-
-**Alternative (firstName/lastName):**
-```json
-{
-  "email": "student@bscse.uiu.ac.bd",
-  "password": "SecurePass123!",
-  "otp": "123456",
-  "hash": "1734444123456.a1b2c3d4e5f6789...",
-  "firstName": "John",
-  "lastName": "Doe",
-  "studentId": "011221001",
-  "department": "CSE",
-  "batch": "52"
+  "batch": "2021",
+  "otp": "256797",
+  "hash": "653c857a551724fd70be7dae0cce33af930c8c7f543d239b7abb74e50a26c03b.1765307474109"
 }
 ```
 
@@ -117,17 +78,14 @@ Content-Type: application/json
 ```json
 {
   "success": true,
-  "message": "Registration successful",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "message": "User registered successfully",
   "user": {
-    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    "email": "student@bscse.uiu.ac.bd",
-    "role": "student",
-    "isVerified": true,
-    "name": "John Doe",
-    "studentId": "011221001",
+    "id": 1,
+    "name": "Test User",
+    "email": "student@uiu.ac.bd",
     "department": "CSE",
-    "batch": "52"
+    "batch": "2021",
+    "created_at": "2025-12-10T10:30:00.000Z"
   }
 }
 ```
@@ -148,8 +106,8 @@ POST http://localhost:3001/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "student@bscse.uiu.ac.bd",
-  "password": "SecurePass123!"
+  "email": "student@uiu.ac.bd",
+  "password": "SecurePass123"
 }
 ```
 
@@ -158,229 +116,42 @@ Content-Type: application/json
 {
   "success": true,
   "message": "Login successful",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
-    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    "email": "student@bscse.uiu.ac.bd",
-    "role": "student",
-    "isVerified": true,
-    "name": "John Doe",
-    "studentId": "011221001",
+    "id": 1,
+    "name": "Test User",
+    "email": "student@uiu.ac.bd",
     "department": "CSE",
-    "batch": "52",
-    "phone": null,
-    "bio": null,
-    "avatarUrl": null,
-    "createdAt": "2025-12-17T10:30:00.000Z"
-  }
-}
-```
-
-**⚠️ IMPORTANT:** Save the `token` - you'll need it for protected endpoints!
-
----
-
-### 5. Forgot Password
-```http
-POST http://localhost:3001/api/auth/forgot-password
-Content-Type: application/json
-
-{
-  "email": "student@bscse.uiu.ac.bd"
-}
-```
-
-**Expected Response:**
-```json
-{
-  "success": true,
-  "message": "OTP sent to your email",
-  "hash": "1734444123456.a1b2c3d4e5f6789...",
-  "email": "student@bscse.uiu.ac.bd"
-}
-```
-
----
-
-### 6. Reset Password
-```http
-POST http://localhost:3001/api/auth/reset-password
-Content-Type: application/json
-
-{
-  "email": "student@bscse.uiu.ac.bd",
-  "otp": "123456",
-  "hash": "1734444123456.a1b2c3d4e5f6789...",
-  "newPassword": "NewSecurePass456!"
-}
-```
-
-**Expected Response:**
-```json
-{
-  "success": true,
-  "message": "Password reset successfully. You can now login with your new password."
-}
-```
-
----
-
-## 🔐 PROTECTED ENDPOINTS (Auth Required)
-
-For all protected endpoints, add this header:
-```
-Authorization: Bearer <your-jwt-token>
-```
-
----
-
-### 7. Verify Token
-```http
-GET http://localhost:3001/api/auth/verify-token
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-**Expected Response:**
-```json
-{
-  "success": true,
-  "valid": true,
-  "user": {
-    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    "email": "student@bscse.uiu.ac.bd",
-    "role": "student",
-    "isVerified": true,
-    "name": "John Doe",
-    "avatarUrl": null
+    "batch": "2021"
   }
 }
 ```
 
 ---
 
-### 8. Get Profile (Own)
-```http
-GET http://localhost:3001/api/auth/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-**Expected Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    "email": "student@bscse.uiu.ac.bd",
-    "role": "student",
-    "isVerified": true,
-    "name": "John Doe",
-    "studentId": "011221001",
-    "department": "CSE",
-    "batch": "52",
-    "phone": "+880123456789",
-    "bio": "CS student at UIU",
-    "avatarUrl": null,
-    "emailVisible": true,
-    "phoneVisible": false,
-    "createdAt": "2025-12-17T10:30:00.000Z"
-  }
-}
-```
-
----
-
-### 9. Get Profile (Other User)
-```http
-GET http://localhost:3001/api/auth/profile?userId=other-user-uuid
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-**Note:** Only shows email/phone if the user has set them as visible!
-
----
-
-### 10. Update Profile
-```http
-PUT http://localhost:3001/api/auth/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-Content-Type: application/json
-
-{
-  "fullName": "John Updated Doe",
-  "phone": "+880123456789",
-  "bio": "Senior CS student at UIU, passionate about web development",
-  "avatarUrl": "https://example.com/avatar.jpg",
-  "emailVisible": true,
-  "phoneVisible": true
-}
-```
-
-**Expected Response:**
-```json
-{
-  "success": true,
-  "message": "Profile updated successfully",
-  "data": {
-    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    "email": "student@bscse.uiu.ac.bd",
-    "role": "student",
-    "name": "John Updated Doe",
-    "studentId": "011221001",
-    "department": "CSE",
-    "batch": "52",
-    "phone": "+880123456789",
-    "bio": "Senior CS student at UIU, passionate about web development",
-    "avatarUrl": "https://example.com/avatar.jpg",
-    "emailVisible": true,
-    "phoneVisible": true,
-    "updatedAt": "2025-12-17T11:00:00.000Z"
-  }
-}
-```
-
----
-
-### 11. Change Password
-```http
-PUT http://localhost:3001/api/auth/change-password
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-Content-Type: application/json
-
-{
-  "currentPassword": "SecurePass123!",
-  "newPassword": "EvenMoreSecure456!"
-}
-```
-
-**Expected Response:**
-```json
-{
-  "success": true,
-  "message": "Password changed successfully"
-}
-```
-
----
-
-## ❌ Error Scenarios
+## Error Scenarios
 
 ### Invalid Email Domain
-```json
+```http
+POST http://localhost:3001/api/auth/send-otp
+Content-Type: application/json
+
 {
-  "success": false,
-  "error": "Only UIU email addresses (e.g., student@bscse.uiu.ac.bd) are allowed"
+  "email": "test@gmail.com"
 }
 ```
 
-### Invalid Student ID
+**Response:**
 ```json
 {
   "success": false,
-  "error": "Invalid student ID format. Department code must be 011-016."
+  "error": "Only UIU email addresses (@uiu.ac.bd) are allowed"
 }
 ```
 
-### Expired OTP (after 10 minutes)
+### Expired OTP
+Wait 5+ minutes after receiving OTP, then try to register.
+
+**Response:**
 ```json
 {
   "success": false,
@@ -389,57 +160,15 @@ Content-Type: application/json
 ```
 
 ### Duplicate Email
+Try to register with the same email twice.
+
+**Response:**
 ```json
 {
   "success": false,
   "error": "User with this email already exists"
 }
 ```
-
-### Invalid Token
-```json
-{
-  "success": false,
-  "error": "Invalid token."
-}
-```
-
-### Expired Token
-```json
-{
-  "success": false,
-  "error": "Token expired. Please login again."
-}
-```
-
-### Missing Token
-```json
-{
-  "success": false,
-  "error": "Access denied. No token provided."
-}
-```
-
----
-
-## 📋 Student ID Format
-
-| Department Code | Department |
-|----------------|------------|
-| 011 | CSE |
-| 012 | EEE |
-| 013 | BBA |
-| 014 | Economics |
-| 015 | Civil |
-| 016 | Pharmacy |
-
-**Format:** `DDDYYBSSS`
-- DDD = Department code (011-016)
-- YY = Year (21, 22, 23, etc.)
-- B = Batch number (1-9)
-- SSS = Serial number (001-999)
-
-**Example:** `011221001` = CSE, 2022, Batch 1, Serial 001
 
 ---
 
