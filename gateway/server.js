@@ -43,6 +43,19 @@ app.use('/api/market', createProxyMiddleware({
     },
 }));
 
+// 3. RentHub Proxy (New)
+app.use('/api/renthub', createProxyMiddleware({
+    target: 'http://localhost:3003', // RentHub Service Port
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api/renthub': '/', // Rewrites /api/renthub/listings -> /listings
+    },
+    onError: (err, req, res) => {
+        console.error('RentHub Proxy Error:', err);
+        res.status(500).send('Proxy Error: Could not reach RentHub Service');
+    },
+}));
+
 app.listen(PORT, () => {
     console.log(`🚀 Gateway running on http://localhost:${PORT}`);
 });
