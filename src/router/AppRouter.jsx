@@ -7,6 +7,8 @@ import Register from '../pages/auth/Register';
 import VerifyEmail from '../pages/auth/VerifyEmail';
 import ForgotPassword from '../pages/auth/ForgotPassword';
 import Home from '../pages/dashboard/Home';
+import AdminDashboard from '../pages/dashboard/AdminDashboard';
+import VendorDashboard from '../pages/dashboard/VendorDashboard';
 import MarketplaceHome from '../pages/marketplace/MarketplaceHome';
 import MarketplaceItemDetails from '../pages/marketplace/MarketplaceItemDetails';
 import CartPage from '../pages/marketplace/CartPage';
@@ -49,6 +51,14 @@ const router = createBrowserRouter([
             {
                 path: '/dashboard',
                 element: <Home />,
+            },
+            {
+                path: '/admin-dashboard',
+                element: <AdminDashboard />,
+            },
+            {
+                path: '/vendor-dashboard',
+                element: <VendorDashboard />,
             },
             {
                 path: '/marketplace',
@@ -128,6 +138,17 @@ const router = createBrowserRouter([
             { path: '/notifications', element: <PlaceholderPage title="Notifications" /> },
             { path: '/settings', element: <PlaceholderPage title="Settings" /> },
             { path: '/groups/:id', element: <PlaceholderPage title="Study Group" /> },
+
+            // Vendor Routes
+            { path: '/vendor/shop', element: <PlaceholderPage title="My Shop Settings" /> },
+            { path: '/vendor/orders', element: <PlaceholderPage title="Vendor Orders" /> },
+            { path: '/vendor/products', element: <PlaceholderPage title="Product Management" /> },
+            { path: '/vendor/analytics', element: <PlaceholderPage title="Sales Analytics" /> },
+
+            // Admin Routes
+            { path: '/admin/users', element: <PlaceholderPage title="User Management" /> },
+            { path: '/admin/approvals', element: <PlaceholderPage title="Pending Approvals" /> },
+            { path: '/admin/reports', element: <PlaceholderPage title="System Reports" /> },
         ],
     },
 ]);

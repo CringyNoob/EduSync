@@ -116,7 +116,7 @@ const CartPage = () => {
                         <Button
                             variant="outline"
                             className="w-full py-4 rounded-2xl"
-                            onClick={() => navigate('/marketplace', { state: { viewOrders: true } })}
+                            onClick={() => navigate('/marketplace', { state: { viewOrders: true, section: sectionCheckingOut } })}
                         >
                             View My Orders
                         </Button>

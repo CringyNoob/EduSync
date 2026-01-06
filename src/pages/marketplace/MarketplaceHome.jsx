@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Search, Filter, ShoppingBag, Plus, Tag, DollarSign, MessageCircle, Heart,
     Image as ImageIcon, X, Trash2, UploadCloud, BookOpen, Monitor, Armchair,
@@ -363,6 +363,7 @@ const CategorySelectionCard = ({ title, description, icon: Icon, colorClass, gra
 
 const MarketplaceHome = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { cartCount, orders, updateOrderStatus } = useCart();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedSection, setSelectedSection] = useState(null); // 'Foods', 'Pre-Owned', 'Shops'
@@ -371,6 +372,20 @@ const MarketplaceHome = () => {
     const [viewOrders, setViewOrders] = useState(false);
     const [showListingModal, setShowListingModal] = useState(false);
     const [trackingOrder, setTrackingOrder] = useState(null);
+
+    // Handle incoming navigation state (e.g. from CartPage)
+    useEffect(() => {
+        if (location.state) {
+            if (location.state.viewOrders) {
+                setViewOrders(true);
+            }
+            if (location.state.section) {
+                setSelectedSection(location.state.section);
+            }
+            // Clear state to prevent getting stuck in this view on refresh/navigation if desired, 
+            // though react-router handles state per history entry usually.
+        }
+    }, [location.state]);
 
     // Filter categories based on selection
     const filters = {
