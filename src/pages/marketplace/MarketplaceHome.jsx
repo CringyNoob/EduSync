@@ -5,10 +5,97 @@ import {
     Image as ImageIcon, X, Trash2, UploadCloud, BookOpen, Monitor, Armchair,
     Shirt, Zap, Grid, LayoutGrid, Sparkles, Utensils, Box, ArrowLeft,
     PackageCheck, Coffee, ArrowUpDown, ChevronDown, Store, MapPin, Star, ChevronRight,
-    Clock, Ticket, Flame, Percent
+    Clock, Ticket, Flame, Percent, CheckCircle
 } from 'lucide-react';
+import { useCart } from '../../context/CartContext';
 
 // --- UI Components ---
+
+const TrackingModal = ({ isOpen, onClose, order }) => {
+    if (!isOpen || !order) return null;
+
+    const steps = [
+        { label: 'Order Placed', status: 'New', icon: ShoppingBag },
+        { label: 'Preparing', status: 'Preparing', icon: Clock },
+        { label: 'On the Way', status: 'Shipped', icon: MapPin },
+        { label: 'Delivered', status: 'Delivered', icon: Sparkles }
+    ];
+
+    const currentStatusIdx = steps.findIndex(s => s.status === order.status);
+    const activeIdx = currentStatusIdx === -1 ? 0 : currentStatusIdx;
+
+    return (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose}></div>
+            <div className="relative bg-white w-full max-w-sm rounded-[3.5rem] shadow-2xl overflow-hidden animate-in zoom-in duration-500">
+                <div className="p-8 space-y-8">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h3 className="text-2xl font-black text-gray-900 leading-none">Track Order</h3>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">{order.id} • {order.item}</p>
+                        </div>
+                        <button onClick={onClose} className="p-2.5 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-all">
+                            <X size={20} />
+                        </button>
+                    </div>
+
+                    <div className="space-y-0 relative">
+                        {/* Progress Line */}
+                        <div className="absolute left-[27px] top-6 bottom-6 w-0.5 bg-gray-100"></div>
+                        <div
+                            className="absolute left-[27px] top-6 w-0.5 bg-primary transition-all duration-1000 ease-out"
+                            style={{ height: `${(activeIdx / (steps.length - 1)) * 100}%`, maxHeight: 'calc(100% - 48px)' }}
+                        ></div>
+
+                        {/* Steps */}
+                        <div className="space-y-10 relative">
+                            {steps.map((step, idx) => {
+                                const isCompleted = idx <= activeIdx;
+                                const isCurrent = idx === activeIdx;
+                                return (
+                                    <div key={idx} className="flex items-center gap-6 group">
+                                        <div className={`relative z-10 h-14 w-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${isCompleted ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-110' : 'bg-white border-2 border-gray-100 text-gray-300'
+                                            }`}>
+                                            <step.icon size={24} className={isCurrent ? 'animate-pulse' : ''} />
+                                            {isCompleted && !isCurrent && (
+                                                <div className="absolute -right-1 -bottom-1 bg-green-500 rounded-full p-1 border-2 border-white">
+                                                    <CheckCircle size={8} className="text-white" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <h4 className={`text-sm font-black transition-colors ${isCompleted ? 'text-gray-900' : 'text-gray-300'}`}>
+                                                {step.label}
+                                            </h4>
+                                            <p className={`text-[10px] font-bold uppercase tracking-tight ${isCurrent ? 'text-primary' : 'text-gray-400'}`}>
+                                                {isCurrent ? 'In Progress' : isCompleted ? 'Completed' : 'Pending'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-[2rem] p-6 space-y-3">
+                        <div className="flex justify-between items-center text-xs">
+                            <span className="font-bold text-gray-400">Merchant</span>
+                            <span className="font-black text-gray-900">{order.shop || order.type}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                            <span className="font-bold text-gray-400">Estimated Delivery</span>
+                            <span className="font-black text-primary">Within 30 mins</span>
+                        </div>
+                    </div>
+
+                    <Button className="w-full py-4 rounded-2xl shadow-xl shadow-primary/10" onClick={onClose}>
+                        Close Tracker
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const ListingModal = ({ isOpen, onClose, section }) => {
     if (!isOpen) return null;
@@ -29,17 +116,17 @@ const ListingModal = ({ isOpen, onClose, section }) => {
 
                     <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
+                            <div className="space-y-1.5 text-left">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Title</label>
                                 <input type="text" placeholder="e.g. Vintage Camera" className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium" />
                             </div>
-                            <div className="space-y-1.5">
+                            <div className="space-y-1.5 text-left">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Price ($)</label>
                                 <input type="number" placeholder="25.00" className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium" />
                             </div>
                         </div>
 
-                        <div className="space-y-1.5">
+                        <div className="space-y-1.5 text-left">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Category</label>
                             <select className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium appearance-none">
                                 <option>Select a category</option>
@@ -49,7 +136,7 @@ const ListingModal = ({ isOpen, onClose, section }) => {
                             </select>
                         </div>
 
-                        <div className="space-y-1.5">
+                        <div className="space-y-1.5 text-left">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description</label>
                             <textarea placeholder="Describe your item..." rows="3" className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium resize-none"></textarea>
                         </div>
@@ -80,7 +167,7 @@ const ListingModal = ({ isOpen, onClose, section }) => {
 
 const OfferBanner = ({ title, desc, gradient, icon: Icon }) => (
 
-    <div className={`min-w-[300px] h-40 rounded-[2rem] p-6 relative overflow-hidden group cursor-pointer transition-all hover:scale-[1.02] shadow-lg shadow-gray-200/20`}>
+    <div className={`min-w-[300px] h-40 rounded-[2rem] p-6 relative overflow-hidden group cursor-pointer transition-all hover:scale-[1.02] shadow-lg shadow-gray-200/20 text-left`}>
         <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`}></div>
         <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform">
             <Icon size={120} />
@@ -98,7 +185,7 @@ const OfferBanner = ({ title, desc, gradient, icon: Icon }) => (
 );
 
 const VoucherCard = ({ title, code, discount }) => (
-    <div className="bg-white/80 backdrop-blur-md border border-dashed border-primary/30 p-4 rounded-2xl flex items-center justify-between group hover:border-primary transition-all shadow-sm">
+    <div className="bg-white/80 backdrop-blur-md border border-dashed border-primary/30 p-4 rounded-2xl flex items-center justify-between group hover:border-primary transition-all shadow-sm text-left">
         <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center">
                 <Ticket size={24} />
@@ -144,7 +231,7 @@ const Button = ({ children, variant = 'primary', size = 'md', className = '', ..
 const MarketplaceCard = ({ product, onClick }) => (
     <div
         onClick={onClick}
-        className="group relative bg-white backdrop-blur-xl border border-white/60 rounded-2xl overflow-hidden shadow-[0_2px_10px_rgb(0,0,0,0.02)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+        className="group relative bg-white backdrop-blur-xl border border-white/60 rounded-2xl overflow-hidden shadow-[0_2px_10px_rgb(0,0,0,0.02)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer text-left"
     >
         {/* Image Section - Compacted */}
         <div className={`h-40 w-full ${product.bg || 'bg-gray-50'} p-4 flex items-center justify-center relative overflow-hidden`}>
@@ -276,13 +363,14 @@ const CategorySelectionCard = ({ title, description, icon: Icon, colorClass, gra
 
 const MarketplaceHome = () => {
     const navigate = useNavigate();
+    const { cartCount, orders, updateOrderStatus } = useCart();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedSection, setSelectedSection] = useState(null); // 'Foods', 'Pre-Owned', 'Shops'
     const [selectedShop, setSelectedShop] = useState(null);
     const [activeFilter, setActiveFilter] = useState('All');
     const [viewOrders, setViewOrders] = useState(false);
-    const [viewMerchantMode, setViewMerchantMode] = useState(false);
     const [showListingModal, setShowListingModal] = useState(false);
+    const [trackingOrder, setTrackingOrder] = useState(null);
 
     // Filter categories based on selection
     const filters = {
@@ -315,17 +403,6 @@ const MarketplaceHome = () => {
         ]
     };
 
-    const [orders, setOrders] = useState([
-        { id: 'ORD1', item: 'Calculus Textbook', status: 'In Transit', price: '45.00', date: 'Oct 12', image: null, type: 'Pre-Owned' },
-        { id: 'ORD2', item: 'Chicken Teriyaki Bowl', status: 'Preparing', price: '8.50', date: 'Today', shop: 'Campus Canteen', type: 'Foods' },
-        { id: 'ORD3', item: 'USB-C Adapter', status: 'Delivered', price: '12.99', date: 'Yesterday', shop: 'Tech Hub', type: 'Shops' }
-    ]);
-
-    const merchantOrders = [
-        { id: 'M-101', item: 'Homemade Chocolate Chip Cookies', customer: 'Sarah W.', time: '10 mins ago', status: 'New', price: '12.00', location: 'Dorm C Lounge', type: 'Foods' },
-        { id: 'M-102', item: 'Energy Drinks Bundle', customer: 'Mike R.', time: '25 mins ago', status: 'Preparing', price: '15.00', location: 'Lab 4', type: 'Foods' },
-        { id: 'M-103', item: 'Blue Fountain Pen', customer: 'James L.', time: '1h ago', status: 'Shipped', price: '5.50', location: 'Main Library', type: 'Shops' }
-    ];
 
     const shops = [
         { id: 's1', name: "Baker's Delight", section: 'Foods', location: 'Dorm C Lounge', rating: 4.8, itemCount: 12, bg: 'bg-orange-50', image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&q=80", deal: "Fresh Baked", isNew: false },
@@ -377,7 +454,7 @@ const MarketplaceHome = () => {
     return (
         <div className="relative min-h-screen p-3 md:p-5 space-y-6 font-sans">
             {/* Background elements */}
-            <div className="fixed inset-0 -z-50 pointer-events-none">
+            <div className="fixed inset-0 -z-30 pointer-events-none">
                 <div className="absolute top-0 left-[-100px] w-[600px] h-[800px] bg-gradient-to-br from-primary/10 via-secondary/10 to-transparent rounded-full mix-blend-multiply blur-[80px]"></div>
                 <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-gradient-to-bl from-accent/20 to-primary/10 rounded-full mix-blend-multiply blur-[80px] animate-blob"></div>
                 <div className="absolute bottom-[-10%] left-[20%] w-[500px] h-[500px] bg-gradient-to-tr from-secondary/10 to-accent/20 rounded-full mix-blend-multiply blur-[80px] animate-blob animation-delay-2000"></div>
@@ -387,13 +464,33 @@ const MarketplaceHome = () => {
             {/* Selection Screen (Main View) */}
             {!selectedSection && (
                 <div className="max-w-6xl mx-auto space-y-8 py-4">
-                    <div className="text-center space-y-2">
-                        <h1 className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-primary to-gray-800 tracking-tight leading-tight">
-                            Campus Marketplace
-                        </h1>
-                        <p className="text-base text-gray-500 max-w-xl mx-auto font-medium">
-                            Choose your marketplace experience
-                        </p>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => navigate('/dashboard')}
+                                className="p-2.5 rounded-2xl bg-white border border-gray-100 shadow-sm hover:border-primary hover:text-primary transition-all group"
+                            >
+                                <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                            </button>
+                            <div className="text-center md:text-left space-y-1">
+                                <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-tight">
+                                    Campus Marketplace
+                                </h1>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                                    Choose your experience
+                                </p>
+                            </div>
+                        </div>
+                        <div className="relative cursor-pointer group" onClick={() => navigate('/marketplace/cart')}>
+                            <Button variant="outline" size="icon" className="rounded-xl shadow-sm bg-white hover:text-primary transition-all p-3">
+                                <ShoppingBag size={24} />
+                            </Button>
+                            {cartCount > 0 && (
+                                <div className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-lg border-2 border-white animate-in zoom-in">
+                                    {cartCount}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-6">
@@ -442,11 +539,10 @@ const MarketplaceHome = () => {
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-500 max-w-7xl mx-auto text-left">
                     {/* Header with Navigation */}
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 text-left">
                             <button
                                 onClick={() => {
-                                    if (viewMerchantMode) setViewMerchantMode(false);
-                                    else if (viewOrders) setViewOrders(false);
+                                    if (viewOrders) setViewOrders(false);
                                     else if (selectedShop) setSelectedShop(null);
                                     else setSelectedSection(null);
                                 }}
@@ -454,26 +550,34 @@ const MarketplaceHome = () => {
                             >
                                 <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                             </button>
-                            <div>
+                            <div className="text-left">
                                 <div className="flex items-center gap-2">
                                     <h2 className="text-2xl font-black text-gray-900 leading-none">
-                                        {viewMerchantMode ? (selectedSection === 'Foods' ? "Restaurant Manager" : "Shop Manager") :
-                                            viewOrders ? `${selectedSection} Orders` :
-                                                selectedSection}
+                                        {viewOrders ? `${selectedSection} Orders` : selectedSection}
                                     </h2>
-                                    {(selectedShop && !viewOrders && !viewMerchantMode) && (
+                                    {(selectedShop && !viewOrders) && (
                                         <>
                                             <ChevronRight size={20} className="text-gray-300" />
                                             <h2 className="text-2xl font-black text-primary leading-none">{selectedShop.name}</h2>
                                         </>
                                     )}
                                 </div>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1.5 font-mono">
-                                    {viewMerchantMode ? "Manage your business" :
-                                        viewOrders ? "Track your purchases" :
-                                            showShops ? "Available Shops" : "Item Selection"}
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1.5 font-mono text-left">
+                                    {viewOrders ? "Track your purchases" :
+                                        showShops ? "Available Shops" : "Item Selection"}
                                 </p>
                             </div>
+                        </div>
+
+                        <div className="relative cursor-pointer group" onClick={() => navigate('/marketplace/cart')}>
+                            <Button variant="outline" size="icon" className="rounded-2xl shadow-sm bg-white hover:text-primary transition-all p-3">
+                                <ShoppingBag size={24} />
+                            </Button>
+                            {cartCount > 0 && (
+                                <div className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-lg border-2 border-white animate-in zoom-in">
+                                    {cartCount}
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -484,41 +588,23 @@ const MarketplaceHome = () => {
                             <input
                                 type="text"
                                 placeholder={viewOrders ? `Search your ${selectedSection} orders...` :
-                                    viewMerchantMode ? "Search incoming requests..." :
-                                        showShops ? "Search shops..." : `Search items in ${selectedShop?.name || selectedSection}...`}
+                                    showShops ? "Search shops..." : `Search items in ${selectedShop?.name || selectedSection}...`}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50/50 border-2 border-transparent focus:border-primary/20 focus:bg-white focus:outline-none transition-all font-medium"
                             />
                         </div>
                         <div className="flex gap-2">
-                            {!viewMerchantMode && (
-                                <Button
-                                    variant={viewOrders ? "primary" : "outline"}
-                                    onClick={() => {
-                                        setViewOrders(!viewOrders);
-                                        setViewMerchantMode(false);
-                                    }}
-                                    className="rounded-2xl px-6 whitespace-nowrap"
-                                >
-                                    <ShoppingBag size={20} className="mr-2" />
-                                    {viewOrders ? "Browse" : `${selectedSection} Orders`}
-                                </Button>
-                            )}
-
-                            {(selectedSection === 'Foods' || selectedSection === 'Shops') && !viewOrders && (
-                                <Button
-                                    variant={viewMerchantMode ? "primary" : "outline"}
-                                    onClick={() => {
-                                        setViewMerchantMode(!viewMerchantMode);
-                                        setViewOrders(false);
-                                    }}
-                                    className={`rounded-2xl px-6 whitespace-nowrap ${!viewMerchantMode ? 'bg-indigo-50/30 text-indigo-600 border-indigo-100' : ''} hover:bg-indigo-50 shadow-sm shadow-indigo-100/50`}
-                                >
-                                    {selectedSection === 'Foods' ? <Utensils size={20} className="mr-2" /> : <Store size={20} className="mr-2" />}
-                                    {viewMerchantMode ? "Store View" : (selectedSection === 'Foods' ? "My Restaurant" : "My Shop")}
-                                </Button>
-                            )}
+                            <Button
+                                variant={viewOrders ? "primary" : "outline"}
+                                onClick={() => {
+                                    setViewOrders(!viewOrders);
+                                }}
+                                className="rounded-2xl px-6 whitespace-nowrap"
+                            >
+                                <ShoppingBag size={20} className="mr-2" />
+                                {viewOrders ? "Browse" : `${selectedSection} Orders`}
+                            </Button>
 
                             {selectedSection === 'Pre-Owned' && !viewOrders && (
                                 <Button
@@ -531,141 +617,51 @@ const MarketplaceHome = () => {
                         </div>
                     </div>
 
-                    {viewMerchantMode ? (
-                        <div className="space-y-8 animate-in fade-in duration-500">
-                            {/* Management Stats */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-1 relative overflow-hidden group">
-                                    <div className="absolute -right-4 -bottom-4 text-primary/5 group-hover:scale-110 transition-transform"><DollarSign size={100} /></div>
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest relative">Today's Revenue</p>
-                                    <div className="flex items-end gap-2 relative">
-                                        <h4 className="text-3xl font-black text-gray-900">$284.50</h4>
-                                        <span className="text-green-500 text-xs font-bold pb-1.5">+12.5%</span>
-                                    </div>
-                                </div>
-                                <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-1 relative overflow-hidden group">
-                                    <div className="absolute -right-4 -bottom-4 text-primary/5 group-hover:scale-110 transition-transform"><ShoppingBag size={100} /></div>
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest relative">Processing</p>
-                                    <h4 className="text-3xl font-black text-primary relative">6 Orders</h4>
-                                </div>
-                                <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-1 relative overflow-hidden group">
-                                    <div className="absolute -right-4 -bottom-4 text-yellow-500/5 group-hover:scale-110 transition-transform"><Star size={100} /></div>
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest relative">Satisfaction</p>
-                                    <div className="flex items-center gap-2 relative">
-                                        <h4 className="text-3xl font-black text-gray-900">4.9</h4>
-                                        <div className="flex text-yellow-400"><Star size={20} fill="currentColor" /></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Merchant Actions */}
-                            <div className="grid md:grid-cols-4 gap-4">
-                                <button
-                                    onClick={() => setShowListingModal(true)}
-                                    className="p-6 rounded-[2rem] bg-primary text-white flex flex-col items-center justify-center gap-3 shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all"
-                                >
-                                    <div className="p-3 bg-white/20 rounded-2xl"><Plus size={24} /></div>
-                                    <span className="font-black text-xs uppercase tracking-widest">New Listing</span>
-                                </button>
-                                <button className="p-6 rounded-[2rem] bg-white border border-gray-100 flex flex-col items-center justify-center gap-3 hover:border-primary/20 transition-all">
-                                    <div className="p-3 bg-gray-50 rounded-2xl text-gray-400"><LayoutGrid size={24} /></div>
-                                    <span className="font-black text-xs uppercase tracking-widest text-gray-900">Inventory</span>
-                                </button>
-                                <button className="p-6 rounded-[2rem] bg-white border border-gray-100 flex flex-col items-center justify-center gap-3 hover:border-primary/20 transition-all">
-                                    <div className="p-3 bg-gray-50 rounded-2xl text-gray-400"><Percent size={24} /></div>
-                                    <span className="font-black text-xs uppercase tracking-widest text-gray-900">Promotions</span>
-                                </button>
-                                <button className="p-6 rounded-[2rem] bg-white border border-gray-100 flex flex-col items-center justify-center gap-3 hover:border-primary/20 transition-all">
-                                    <div className="p-3 bg-gray-50 rounded-2xl text-gray-400"><ArrowUpDown size={24} /></div>
-                                    <span className="font-black text-xs uppercase tracking-widest text-gray-900">Payouts</span>
-                                </button>
-                            </div>
-
-                            {/* Incoming Orders Area */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between px-2">
-                                    <h3 className="text-xl font-black text-gray-900">Incoming Requests</h3>
-                                    <button className="text-xs font-bold text-primary hover:underline">Full Analytics</button>
-                                </div>
-                                <div className="grid gap-4">
-                                    {merchantOrders.filter(o => o.type === selectedSection).length > 0 ? (
-                                        merchantOrders.filter(o => o.type === selectedSection).map(order => (
-                                            <div key={order.id} className="bg-white/80 p-5 rounded-[2rem] border border-gray-100 flex items-center gap-6 group hover:shadow-xl hover:border-primary/20 transition-all">
-                                                <div className={`h-14 w-14 rounded-2xl ${selectedSection === 'Foods' ? 'bg-orange-100 text-orange-600' : 'bg-emerald-100 text-emerald-600'} flex items-center justify-center font-black`}>
-                                                    {order.id.split('-')[1]}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-0.5">
-                                                        <h4 className="font-black text-gray-900">{order.item}</h4>
-                                                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase ${order.status === 'New' ? 'bg-green-100 text-green-600 animate-pulse' : 'bg-amber-100 text-amber-600'}`}>
-                                                            {order.status}
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-xs text-gray-500 font-medium">Customer: <span className="text-gray-900 font-bold">{order.customer}</span> • {order.location}</p>
-                                                </div>
-                                                <div className="flex items-center gap-4">
-                                                    <div className="text-right">
-                                                        <div className="font-black text-gray-900 tracking-tight">${order.price}</div>
-                                                        <div className="text-[10px] text-gray-400 font-bold">{order.time}</div>
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                        <Button variant="outline" size="iconSm" className="rounded-xl border-gray-100 hover:text-red-500">
-                                                            <Trash2 size={18} />
-                                                        </Button>
-                                                        <Button size="iconSm" className="rounded-xl shadow-lg shadow-primary/20">
-                                                            <Sparkles size={18} />
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="py-20 text-center bg-white/40 rounded-[3rem] border-2 border-dashed border-gray-200">
-                                            <Store size={48} className="mx-auto text-gray-200 mb-4" />
-                                            <h3 className="text-lg font-black text-gray-900">No active {selectedSection} requests</h3>
-                                            <p className="text-sm text-gray-500">New orders will appear here automatically.</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    ) : viewOrders ? (
-                        <div className="space-y-6 animate-in fade-in duration-500">
+                    {viewOrders ? (
+                        <div className="space-y-6 animate-in fade-in duration-500 text-left">
                             <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 text-left">
                                     <div className={`p-2 rounded-xl ${selectedSection === 'Foods' ? 'bg-orange-100 text-orange-600' : selectedSection === 'Shops' ? 'bg-emerald-100 text-emerald-600' : 'bg-indigo-100 text-indigo-600'}`}>
                                         <ShoppingBag size={24} />
                                     </div>
-                                    <div>
+                                    <div className="text-left">
                                         <h3 className="text-xl font-black text-gray-900">{selectedSection} Orders</h3>
-                                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Tracking your current purchases</p>
+                                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest text-left">Tracking your current purchases</p>
                                     </div>
                                 </div>
                                 <div className="text-[10px] font-black text-gray-400 uppercase bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
-                                    {orders.filter(o => o.type === selectedSection).length} Active Orders
+                                    {orders.filter(o => o.section === selectedSection).length} Active Orders
                                 </div>
                             </div>
 
                             <div className="grid gap-4">
-                                {orders.filter(o => o.type === selectedSection).length > 0 ? (
-                                    orders.filter(o => o.type === selectedSection).map(order => (
-                                        <div key={order.id} className="bg-white p-4 rounded-3xl border border-gray-100 flex items-center gap-4 hover:shadow-md transition-all group">
+                                {orders.filter(o => o.section === selectedSection).length > 0 ? (
+                                    orders.filter(o => o.section === selectedSection).map(order => (
+                                        <div key={order.id} className="bg-white p-4 rounded-3xl border border-gray-100 flex items-center gap-4 hover:shadow-md transition-all group text-left">
                                             <div className="h-16 w-16 rounded-2xl bg-gray-50 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                                                {order.type === 'Foods' ? <Utensils size={24} /> : order.type === 'Shops' ? <PackageCheck size={24} /> : <Box size={24} />}
+                                                {order.section === 'Foods' ? <Utensils size={24} /> : order.section === 'Shops' ? <PackageCheck size={24} /> : <Box size={24} />}
                                             </div>
-                                            <div className="flex-1 min-w-0">
+                                            <div className="flex-1 min-w-0 text-left">
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase ${order.status === 'Preparing' ? 'bg-amber-100 text-amber-600' : 'bg-primary/10 text-primary'}`}>
+                                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase ${order.status === 'Preparing' ? 'bg-amber-100 text-amber-600' :
+                                                        order.status === 'Shipped' ? 'bg-blue-100 text-blue-600' :
+                                                            order.status === 'Delivered' ? 'bg-green-100 text-green-600' :
+                                                                'bg-primary/10 text-primary'}`}>
                                                         {order.status}
                                                     </span>
                                                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{order.id}</span>
                                                 </div>
                                                 <h4 className="font-bold text-gray-900 truncate">{order.item}</h4>
-                                                <p className="text-xs text-gray-500">{order.shop || order.type} • {order.date}</p>
+                                                <p className="text-xs text-gray-500">{order.shop || order.section} • {order.date}</p>
                                             </div>
                                             <div className="text-right">
                                                 <div className="font-black text-gray-900 tracking-tight">${order.price}</div>
-                                                <button className="text-[10px] font-bold text-primary hover:underline uppercase tracking-widest">Track Status</button>
+                                                <button
+                                                    onClick={() => setTrackingOrder(order)}
+                                                    className="text-[10px] font-bold text-primary hover:underline uppercase tracking-widest"
+                                                >
+                                                    Track Status
+                                                </button>
                                             </div>
                                         </div>
                                     ))
@@ -704,16 +700,16 @@ const MarketplaceHome = () => {
 
                             {/* Content Grid */}
                             {showShops ? (
-                                <div className="space-y-12 pt-4">
+                                <div className="space-y-12 pt-4 text-left">
                                     {/* Offers Section */}
                                     <div className="space-y-6">
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-3 text-left">
                                             <div className="p-2 bg-primary/10 rounded-xl text-primary">
                                                 <Percent size={24} />
                                             </div>
-                                            <div>
+                                            <div className="text-left">
                                                 <h3 className="text-xl font-black text-gray-900">Limited Time Offers</h3>
-                                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Flash deals & discounts</p>
+                                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest text-left">Flash deals & discounts</p>
                                             </div>
                                         </div>
                                         <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
@@ -744,13 +740,13 @@ const MarketplaceHome = () => {
                                     {/* New Arrivals Section */}
                                     <div className="space-y-6">
                                         <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
+                                            <div className="flex items-center gap-3 text-left">
                                                 <div className="p-2 bg-accent/10 rounded-xl text-accent">
                                                     <Flame size={24} />
                                                 </div>
-                                                <div>
+                                                <div className="text-left">
                                                     <h3 className="text-xl font-black text-gray-900">New Arrivals</h3>
-                                                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Freshly opened on campus</p>
+                                                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest text-left">Freshly opened on campus</p>
                                                 </div>
                                             </div>
                                             <button className="text-sm font-bold text-primary hover:underline">See All</button>
@@ -766,13 +762,13 @@ const MarketplaceHome = () => {
 
                                     {/* All Shops Section */}
                                     <div className="space-y-6">
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-3 text-left">
                                             <div className="p-2 bg-gray-100 rounded-xl text-gray-400">
                                                 <Store size={24} />
                                             </div>
-                                            <div>
+                                            <div className="text-left">
                                                 <h3 className="text-xl font-black text-gray-900">Explore All {selectedSection}</h3>
-                                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{filteredShops.length} stores available</p>
+                                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest text-left">{filteredShops.length} stores available</p>
                                             </div>
                                         </div>
                                         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-2">
@@ -787,7 +783,7 @@ const MarketplaceHome = () => {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 pt-4">
+                                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 pt-4 text-left">
                                     {filteredProducts.length > 0 ? (
                                         filteredProducts.map((product) => (
                                             <MarketplaceCard
@@ -816,6 +812,13 @@ const MarketplaceHome = () => {
                     isOpen={showListingModal}
                     onClose={() => setShowListingModal(false)}
                     section={selectedSection}
+                />
+            )}
+            {trackingOrder && (
+                <TrackingModal
+                    isOpen={!!trackingOrder}
+                    order={trackingOrder}
+                    onClose={() => setTrackingOrder(null)}
                 />
             )}
         </div>

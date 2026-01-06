@@ -9,6 +9,7 @@ import ForgotPassword from '../pages/auth/ForgotPassword';
 import Home from '../pages/dashboard/Home';
 import MarketplaceHome from '../pages/marketplace/MarketplaceHome';
 import MarketplaceItemDetails from '../pages/marketplace/MarketplaceItemDetails';
+import CartPage from '../pages/marketplace/CartPage';
 import ForumHome from '../pages/forum/ForumHome';
 import NoticeFeed from '../pages/notices/NoticeFeed';
 import ChatList from '../pages/chat/ChatList';
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
             {
                 path: '/marketplace/:id',
                 element: <MarketplaceItemDetails />,
+            },
+            {
+                path: '/marketplace/cart',
+                element: <CartPage />,
             },
             {
                 path: '/renthub',

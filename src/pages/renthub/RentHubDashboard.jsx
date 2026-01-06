@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     Package, Clock, Shield, DollarSign, AlertCircle, CheckCircle2,
     Calendar, ChevronRight, Smartphone, Shirt, ArrowRight,
-    MessageCircle, MoreVertical, RefreshCcw, FileText, Plus
+    MessageCircle, MoreVertical, RefreshCcw, FileText, Plus, ArrowLeft
 } from 'lucide-react';
 import Button from '../../components/Button';
 
@@ -53,9 +53,17 @@ const RentHubDashboard = () => {
         <div className="relative min-h-screen p-4 md:p-6 space-y-8 font-sans text-gray-900">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-black">My Rental Dashboard</h1>
-                    <p className="text-gray-500 font-bold uppercase tracking-wider text-xs mt-1">Manage your gear and bookings</p>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate('/renthub')}
+                        className="p-2.5 rounded-2xl bg-white border border-gray-100 shadow-sm hover:border-emerald-500 hover:text-emerald-600 transition-all group"
+                    >
+                        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-black">My Rental Dashboard</h1>
+                        <p className="text-gray-500 font-bold uppercase tracking-wider text-xs mt-1">Manage your gear and bookings</p>
+                    </div>
                 </div>
                 <div className="flex bg-white/60 backdrop-blur-md p-1.5 rounded-2xl border border-white shadow-sm">
                     <button
