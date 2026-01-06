@@ -16,6 +16,7 @@ import ForumHome from '../pages/forum/ForumHome';
 import NoticeFeed from '../pages/notices/NoticeFeed';
 import ChatList from '../pages/chat/ChatList';
 import IssueFeed from '../pages/issues/IssueFeed';
+import ReportIssue from '../pages/issues/ReportIssue';
 import Profile from '../pages/profile/Profile';
 import RentHubHome from '../pages/renthub/RentHubHome';
 import RentHubItemDetails from '../pages/renthub/RentHubItemDetails';
@@ -128,7 +129,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/issues/new',
-                element: <PlaceholderPage title="Report an Issue" />,
+                element: <ReportIssue />,
             },
             {
                 path: '/profile/:id',
