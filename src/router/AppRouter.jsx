@@ -23,6 +23,7 @@ import CreateRentalListing from '../pages/renthub/CreateRentalListing';
 import RentHubDashboard from '../pages/renthub/RentHubDashboard';
 
 import PlaceholderPage from '../pages/PlaceholderPage';
+import SettingsPage from '../pages/settings/SettingsPage';
 
 const router = createBrowserRouter([
     {
@@ -136,7 +137,7 @@ const router = createBrowserRouter([
             { path: '/saved', element: <PlaceholderPage title="Saved Items" /> },
             { path: '/schedule', element: <PlaceholderPage title="Class Schedule" /> },
             { path: '/notifications', element: <PlaceholderPage title="Notifications" /> },
-            { path: '/settings', element: <PlaceholderPage title="Settings" /> },
+            { path: '/settings', element: <SettingsPage /> },
             { path: '/groups/:id', element: <PlaceholderPage title="Study Group" /> },
 
             // Vendor Routes
