@@ -24,6 +24,7 @@ import RentHubDashboard from '../pages/renthub/RentHubDashboard';
 
 import PlaceholderPage from '../pages/PlaceholderPage';
 import SettingsPage from '../pages/settings/SettingsPage';
+import NotificationsPage from '../pages/notifications/NotificationsPage';
 
 const router = createBrowserRouter([
     {
@@ -136,7 +137,7 @@ const router = createBrowserRouter([
             // New Routes from Dashboard
             { path: '/saved', element: <PlaceholderPage title="Saved Items" /> },
             { path: '/schedule', element: <PlaceholderPage title="Class Schedule" /> },
-            { path: '/notifications', element: <PlaceholderPage title="Notifications" /> },
+            { path: '/notifications', element: <NotificationsPage /> },
             { path: '/settings', element: <SettingsPage /> },
             { path: '/groups/:id', element: <PlaceholderPage title="Study Group" /> },
 

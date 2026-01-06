@@ -7,12 +7,16 @@ import { ThemeProvider } from './context/ThemeContext'
 
 import { CartProvider } from './context/CartContext'
 
+import { NotificationProvider } from './context/NotificationContext'
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
       <ThemeProvider>
         <CartProvider>
-          <App />
+          <NotificationProvider>
+            <App />
+          </NotificationProvider>
         </CartProvider>
       </ThemeProvider>
     </AuthProvider>
