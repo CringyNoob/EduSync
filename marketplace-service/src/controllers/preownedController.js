@@ -19,20 +19,19 @@ async function getAllListings(req, res) {
         let params = [];
 
         if (category) {
-            // Filter by category
+            // Filter by category (show all statuses)
             query = `
                 SELECT id, seller_id, seller_name, title, description, price, category, images, status, created_at
                 FROM preowned_listings
-                WHERE status = 'AVAILABLE' AND category = $1
+                WHERE category = $1
                 ORDER BY created_at DESC
             `;
             params = [category];
         } else {
-            // Return all available listings
+            // Return all listings (including SOLD items)
             query = `
                 SELECT id, seller_id, seller_name, title, description, price, category, images, status, created_at
                 FROM preowned_listings
-                WHERE status = 'AVAILABLE'
                 ORDER BY created_at DESC
             `;
         }

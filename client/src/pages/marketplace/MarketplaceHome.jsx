@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Search, Filter, ShoppingBag, Plus, Tag, DollarSign, MessageCircle, Heart,
     Image as ImageIcon, X, Trash2, UploadCloud, BookOpen, Monitor, Armchair,
     Shirt, Zap, Grid, LayoutGrid, Sparkles, Utensils, Box, ArrowLeft,
-    PackageCheck, Coffee
+    PackageCheck, Coffee, Loader2
 } from 'lucide-react';
+import marketplaceService from '../../services/marketplaceService';
 
 // --- UI Components ---
 
@@ -35,13 +36,38 @@ const Button = ({ children, variant = 'primary', size = 'md', className = '', ..
     );
 };
 
-const MarketplaceCard = ({ product, onClick }) => (
-    <div
-        onClick={onClick}
-        className="group relative bg-white backdrop-blur-xl border border-white/60 rounded-2xl overflow-hidden shadow-[0_2px_10px_rgb(0,0,0,0.02)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-    >
-        {/* Image Section - Compacted */}
-        <div className={`h-40 w-full ${product.bg} p-4 flex items-center justify-center relative overflow-hidden`}>
+const MarketplaceCard = ({ product, onClick }) => {
+    const isUnavailable = product.status === 'SOLD' || product.status === 'UNAVAILABLE';
+    const handleClick = () => {
+        // Prevent navigation for sold/unavailable items
+        if (!isUnavailable) {
+            onClick();
+        }
+    };
+    
+    return (
+        <div
+            onClick={handleClick}
+            className={`group relative bg-white backdrop-blur-xl border border-white/60 rounded-2xl overflow-hidden shadow-[0_2px_10px_rgb(0,0,0,0.02)] transition-all duration-300 ${isUnavailable ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg hover:-translate-y-1 cursor-pointer'}`}
+        >
+            {/* SOLD/UNAVAILABLE Overlay Banner */}
+            {product.status === 'SOLD' && (
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-900/60 to-gray-900/40 z-20 flex items-center justify-center pointer-events-none">
+                    <div className="bg-red-500 text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg transform -rotate-12">
+                        SOLD OUT
+                    </div>
+                </div>
+            )}
+            {product.status === 'UNAVAILABLE' && (
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-900/60 to-gray-900/40 z-20 flex items-center justify-center pointer-events-none">
+                    <div className="bg-orange-500 text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg transform -rotate-12">
+                        UNAVAILABLE
+                    </div>
+                </div>
+            )}
+
+            {/* Image Section - Compacted */}
+            <div className={`h-40 w-full ${product.bg} p-4 flex items-center justify-center relative overflow-hidden`}>
             {/* Overlay Actions */}
             <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
                 <button className="p-2 bg-white/90 backdrop-blur-md rounded-full text-pink-500 shadow-sm hover:scale-110 transition-transform">
@@ -94,8 +120,9 @@ const MarketplaceCard = ({ product, onClick }) => (
                 </Button>
             </div>
         </div>
-    </div>
-);
+        </div>
+    );
+};
 
 const CategorySelectionCard = ({ title, description, icon: Icon, colorClass, gradient, onClick }) => (
     <div
@@ -130,36 +157,139 @@ const MarketplaceHome = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedSection, setSelectedSection] = useState(null); // 'Foods', 'Pre-Owned', 'New Items'
     const [isSellModalOpen, setIsSellModalOpen] = useState(false);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     // Filter categories based on selection
     const filters = {
         'Foods': ['Snacks', 'Homemade', 'Beverages', 'Meal Prep'],
-        'Pre-Owned': ['Textbooks', 'Electronics', 'Furniture', 'Clothing', 'Sports'],
-        'New Items': ['Stationery', 'Dorm Essentials', 'Tech Accessories', 'Merch']
+        'Pre-Owned': ['TEXTBOOKS', 'ELECTRONICS', 'FURNITURE', 'CLOTHING', 'SPORTS'],
+        'Shops': ['Stationery', 'Dorm Essentials', 'Tech Accessories', 'Merch']
     };
 
     const [activeFilter, setActiveFilter] = useState('All');
 
-    const products = [
-        // Foods
-        { id: 1, section: 'Foods', title: 'Homemade Chocolate Chip Cookies', price: '12.00', category: 'Homemade', bg: 'bg-orange-50', icon: Utensils, seller: 'Baker B.', timeAgo: '1h ago' },
-        { id: 2, section: 'Foods', title: 'Energy Drinks Bundle', price: '15.00', category: 'Beverages', bg: 'bg-blue-50', icon: Coffee, seller: 'Gym Rat', timeAgo: '3h ago' },
+    // Fetch products when section changes
+    useEffect(() => {
+        const fetchProducts = async () => {
+            if (!selectedSection) return;
 
-        // Pre-Owned
-        { id: 3, section: 'Pre-Owned', title: 'Calculus Early Transcendentals', price: '45.00', category: 'Textbooks', bg: 'bg-indigo-50', icon: BookOpen, seller: 'John D.', timeAgo: '2h ago' },
-        { id: 4, section: 'Pre-Owned', title: 'Sony WH-1000XM4 Noise Canceling', price: '180.00', category: 'Electronics', bg: 'bg-gray-50', icon: Monitor, seller: 'Alex K.', timeAgo: '1d ago' },
-        { id: 5, section: 'Pre-Owned', title: 'IKEA Desk Lamp', price: '20.00', category: 'Furniture', bg: 'bg-yellow-50', icon: Armchair, seller: 'Mike R.', timeAgo: '1d ago' },
+            try {
+                setLoading(true);
+                setError(null);
+                let data = [];
 
-        // New Items
-        { id: 6, section: 'New Items', title: 'University Hoodie - Size L', price: '45.00', category: 'Merch', bg: 'bg-purple-50', icon: Shirt, seller: 'Campus Store', timeAgo: '5h ago' },
-        { id: 7, section: 'New Items', title: 'Scientific Calculator TI-84 Plus', price: '120.00', category: 'Tech Accessories', bg: 'bg-cyan-50', icon: Monitor, seller: 'Tech Hub', timeAgo: '1d ago' },
-    ];
+                if (selectedSection === 'Pre-Owned') {
+                    // Fetch pre-owned listings
+                    const response = await marketplaceService.getPreownedListings();
+                    if (response.success) {
+                        // Transform API data to match UI structure
+                        data = response.listings.map(listing => ({
+                            id: listing.id,
+                            section: 'Pre-Owned',
+                            title: listing.title,
+                            price: parseFloat(listing.price).toFixed(2),
+                            category: listing.category,
+                            bg: getCategoryBackground(listing.category),
+                            icon: getCategoryIcon(listing.category),
+                            seller: listing.seller_name,
+                            timeAgo: formatTimeAgo(listing.created_at),
+                            status: listing.status
+                        }));
+                    }
+                } else if (selectedSection === 'Foods') {
+                    // Fetch food vendors
+                    const response = await marketplaceService.getVendors('FOOD_VENDOR');
+                    if (response.success) {
+                        // Show all vendors with is_active status
+                        data = response.vendors.map(vendor => ({
+                            id: vendor.id,
+                            section: 'Foods',
+                            title: vendor.name,
+                            price: '0.00', // Placeholder
+                            category: 'Food Vendor',
+                            bg: 'bg-orange-50',
+                            icon: Utensils,
+                            seller: vendor.name,
+                            timeAgo: formatTimeAgo(vendor.created_at),
+                            isVendor: true,
+                            isActive: vendor.is_active,
+                            status: vendor.is_active ? 'AVAILABLE' : 'UNAVAILABLE'
+                        }));
+                    }
+                } else if (selectedSection === 'New Items') {
+                    // Fetch startup vendors
+                    const response = await marketplaceService.getVendors('STARTUP');
+                    if (response.success) {
+                        data = response.vendors.map(vendor => ({
+                            id: vendor.id,
+                            section: 'New Items',
+                            title: vendor.name,
+                            price: '0.00', // Placeholder
+                            category: 'Startup',
+                            bg: 'bg-purple-50',
+                            icon: PackageCheck,
+                            seller: vendor.name,
+                            timeAgo: formatTimeAgo(vendor.created_at),
+                            isVendor: true,
+                            isActive: vendor.is_active,
+                            status: vendor.is_active ? 'AVAILABLE' : 'UNAVAILABLE'
+                        }));
+                    }
+                }
+
+                setProducts(data);
+            } catch (err) {
+                console.error('Error fetching products:', err);
+                setError('Failed to load items. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, [selectedSection]);
+
+    // Helper functions
+    const formatTimeAgo = (timestamp) => {
+        const now = new Date();
+        const created = new Date(timestamp);
+        const diffInMinutes = Math.floor((now - created) / (1000 * 60));
+        
+        if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) return `${diffInHours}h ago`;
+        const diffInDays = Math.floor(diffInHours / 24);
+        return `${diffInDays}d ago`;
+    };
+
+    const getCategoryBackground = (category) => {
+        const backgrounds = {
+            'TEXTBOOKS': 'bg-indigo-50',
+            'ELECTRONICS': 'bg-gray-50',
+            'FURNITURE': 'bg-yellow-50',
+            'CLOTHING': 'bg-pink-50',
+            'SPORTS': 'bg-green-50',
+        };
+        return backgrounds[category] || 'bg-gray-50';
+    };
+
+    const getCategoryIcon = (category) => {
+        const icons = {
+            'TEXTBOOKS': BookOpen,
+            'ELECTRONICS': Monitor,
+            'FURNITURE': Armchair,
+            'CLOTHING': Shirt,
+            'SPORTS': Zap,
+        };
+        return icons[category] || Box;
+    };
 
     const filteredProducts = products.filter(p => {
-        const matchesSection = selectedSection ? p.section === selectedSection : true;
         const matchesCategory = activeFilter === 'All' || p.category === activeFilter;
         const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesSection && matchesCategory && matchesSearch;
+        return matchesCategory && matchesSearch;
     });
 
     return (
@@ -207,7 +337,7 @@ const MarketplaceHome = () => {
                             onClick={() => setSelectedSection('Pre-Owned')}
                         />
                         <CategorySelectionCard
-                            title="New Items"
+                            title="Shops"
                             description="Brand new stationery, merch."
                             icon={PackageCheck}
                             colorClass="text-emerald-500"
@@ -275,7 +405,25 @@ const MarketplaceHome = () => {
 
                     {/* Compact Product Grid */}
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                        {filteredProducts.length > 0 ? (
+                        {loading ? (
+                            <div className="col-span-full py-12 text-center">
+                                <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-3" />
+                                <p className="text-gray-500">Loading items...</p>
+                            </div>
+                        ) : error ? (
+                            <div className="col-span-full py-12 text-center">
+                                <div className="inline-block p-4 rounded-2xl bg-red-50 mb-3">
+                                    <X size={32} className="text-red-400" />
+                                </div>
+                                <h3 className="text-base font-bold text-gray-900 mb-2">{error}</h3>
+                                <button 
+                                    onClick={() => setSelectedSection(null)}
+                                    className="text-sm text-primary hover:underline"
+                                >
+                                    Go back
+                                </button>
+                            </div>
+                        ) : filteredProducts.length > 0 ? (
                             filteredProducts.map((product) => (
                                 <MarketplaceCard
                                     key={product.id}

@@ -11,48 +11,83 @@ import {
     Flag,
     CheckCircle,
     User,
-    ShoppingBag
+    ShoppingBag,
+    Loader2
 } from 'lucide-react';
 import Button from '../../components/Button';
-
-// --- Backend Integration Notes ---
-// 1. Fetch Item Details:
-//    - Endpoint: GET /api/marketplace/items/:id
-//    - Response: { id, title, price, description, category, images[], seller: { id, name, avatar, joinedDate, rating }, location, postedAt, condition }
-
-// 2. Contact Seller:
-//    - Endpoint: POST /api/chat/conversations
-//    - Body: { recipientId: seller.id, subject: `Inquiry about ${item.title}` }
-//    - Redirects to chat page
-
-// 3. Report Item:
-//    - Endpoint: POST /api/marketplace/items/:id/report
-//    - Body: { reason: string }
+import marketplaceService from '../../services/marketplaceService';
 
 const MarketplaceItemDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [isSaved, setIsSaved] = useState(false);
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Mock Data - In production, fetch this using the 'id' from useParams
-    const product = {
-        id: id,
-        title: 'Calculus Early Transcendentals (8th Edition)',
-        price: '45.00',
-        category: 'Textbooks',
-        condition: 'Like New',
-        description: 'Hardcover edition. Used for one semester only. No highlighting or markings inside. Includes the online access code which has not been redeemed yet. Perfect for Math 101/102 courses.',
-        images: ['bg-custom-celadon/30', 'bg-custom-beige/30', 'bg-custom-soft-apricot/30'],
-        location: 'North Campus Library',
-        postedAt: '2 hours ago',
-        seller: {
-            id: 'u123',
-            name: 'John Doe',
-            avatar: 'bg-gradient-to-br from-custom-taupe-grey to-gray-600',
-            rating: 4.8,
-            joined: 'Sep 2023',
-            verified: true
+    // Fetch product data from API
+    useEffect(() => {
+        const fetchProductDetails = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                
+                // Fetch pre-owned listing details
+                const response = await marketplaceService.getPreownedById(id);
+                
+                if (response.success) {
+                    const listing = response.listing;
+                    
+                    // Transform API data to match UI structure
+                    const transformedProduct = {
+                        id: listing.id,
+                        title: listing.title,
+                        price: parseFloat(listing.price).toFixed(2),
+                        category: listing.category,
+                        condition: 'Like New', // Default value - add to DB if needed
+                        description: listing.description,
+                        images: listing.images || ['bg-custom-celadon/30'],
+                        location: 'Campus', // Default value - add to DB if needed
+                        postedAt: formatTimeAgo(listing.created_at),
+                        seller: {
+                            id: listing.seller_id,
+                            name: listing.seller_name,
+                            avatar: 'bg-gradient-to-br from-custom-taupe-grey to-gray-600',
+                            rating: 4.8, // Default value - add to DB if needed
+                            joined: 'Sep 2023', // Default value - add to DB if needed
+                            verified: true
+                        },
+                        status: listing.status
+                    };
+                    
+                    setProduct(transformedProduct);
+                } else {
+                    setError('Failed to load product details');
+                }
+            } catch (err) {
+                console.error('Error fetching product:', err);
+                setError(err.response?.data?.error || 'Failed to load product. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchProductDetails();
         }
+    }, [id]);
+
+    // Helper function to format time ago
+    const formatTimeAgo = (timestamp) => {
+        const now = new Date();
+        const created = new Date(timestamp);
+        const diffInMinutes = Math.floor((now - created) / (1000 * 60));
+        
+        if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) return `${diffInHours}h ago`;
+        const diffInDays = Math.floor(diffInHours / 24);
+        return `${diffInDays}d ago`;
     };
 
     const handleContactSeller = () => {
@@ -60,6 +95,41 @@ const MarketplaceItemDetails = () => {
         // In a real app, you'd pass the sellerId to initiate a chat
         navigate('/chat');
     };
+
+    // Loading state
+    if (loading) {
+        return (
+            <div className="relative min-h-screen p-6 font-sans pb-24 flex items-center justify-center">
+                <div className="text-center space-y-4">
+                    <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+                    <p className="text-gray-500">Loading product details...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error || !product) {
+        return (
+            <div className="relative min-h-screen p-6 font-sans pb-24">
+                <div className="fixed inset-0 -z-50 pointer-events-none">
+                    <div className="absolute top-[20%] right-[10%] w-[400px] h-[400px] bg-custom-celadon/40 rounded-full mix-blend-multiply filter blur-[80px]"></div>
+                    <div className="absolute top-[10%] left-[10%] w-[300px] h-[300px] bg-custom-cotton-candy/40 rounded-full mix-blend-multiply filter blur-[60px]"></div>
+                </div>
+                <div className="max-w-2xl mx-auto mt-20 text-center space-y-6">
+                    <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-12 border border-white/60 shadow-lg">
+                        <ShoppingBag className="h-20 w-20 text-gray-300 mx-auto mb-6" />
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Product Not Found</h2>
+                        <p className="text-gray-500 mb-6">{error || 'The item you\'re looking for doesn\'t exist or has been removed.'}</p>
+                        <Button onClick={() => navigate('/marketplace')}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to Marketplace
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="relative min-h-screen p-6 font-sans pb-24">

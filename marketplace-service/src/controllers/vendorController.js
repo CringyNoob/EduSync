@@ -7,8 +7,8 @@ const db = require('../config/db');
  * GET /vendors?type=STARTUP or /vendors?type=FOOD_VENDOR
  * 
  * Business Logic:
- * - STARTUP: Returns all startups regardless of is_active status
- * - FOOD_VENDOR: Only returns vendors where is_active = true (Shop is Open)
+ * - Returns ALL vendors regardless of is_active status
+ * - Frontend displays unavailable banner for is_active = false
  */
 async function getVendors(req, res) {
     try {
@@ -22,28 +22,14 @@ async function getVendors(req, res) {
             });
         }
 
-        let query;
-        let params;
-
-        if (type === 'FOOD_VENDOR') {
-            // Food vendors: Only return ACTIVE shops (is_active = true means "Shop is Open")
-            query = `
-                SELECT id, owner_id, name, type, description, logo_url, is_active, created_at
-                FROM vendors
-                WHERE type = $1 AND is_active = true
-                ORDER BY name ASC
-            `;
-            params = [type];
-        } else {
-            // Startups: Return all regardless of is_active status
-            query = `
-                SELECT id, owner_id, name, type, description, logo_url, is_active, created_at
-                FROM vendors
-                WHERE type = $1
-                ORDER BY name ASC
-            `;
-            params = [type];
-        }
+        // Return all vendors regardless of is_active status
+        const query = `
+            SELECT id, owner_id, name, type, description, logo_url, is_active, created_at
+            FROM vendors
+            WHERE type = $1
+            ORDER BY name ASC
+        `;
+        const params = [type];
 
         const result = await db.query(query, params);
 
