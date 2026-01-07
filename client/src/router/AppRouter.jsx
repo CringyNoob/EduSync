@@ -20,7 +20,7 @@ import ReportIssue from '../pages/issues/ReportIssue';
 import Profile from '../pages/profile/Profile';
 import RentHubHome from '../pages/renthub/RentHubHome';
 import RentHubItemDetails from '../pages/renthub/RentHubItemDetails';
-import CreateRentalListing from '../pages/renthub/CreateRentalListing';
+import RentHubNewListing from '../pages/renthub/RentHubNewListing';
 import RentHubDashboard from '../pages/renthub/RentHubDashboard';
 
 import PlaceholderPage from '../pages/PlaceholderPage';
@@ -85,7 +85,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/renthub/new',
-                element: <CreateRentalListing />,
+                element: <RentHubNewListing />,
             },
             {
                 path: '/renthub/:id',

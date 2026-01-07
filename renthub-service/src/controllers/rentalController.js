@@ -73,6 +73,13 @@ const getListingById = async (req, res) => {
 
 const createListing = async (req, res) => {
   try {
+    console.log('=== CREATE RENTAL LISTING REQUEST RECEIVED ===');
+    console.log('Body keys:', Object.keys(req.body));
+    console.log('Body data:', {
+      ...req.body,
+      images: req.body.images ? `[${req.body.images.length} images]` : 'none'
+    });
+
     const {
       owner_id,
       owner_name,
@@ -88,6 +95,15 @@ const createListing = async (req, res) => {
 
     // Validation
     if (!owner_id || !owner_name || !owner_email || !title || !daily_price || !availability_start || !availability_end) {
+      console.log('Validation failed - missing fields:', {
+        owner_id: !!owner_id,
+        owner_name: !!owner_name,
+        owner_email: !!owner_email,
+        title: !!title,
+        daily_price: !!daily_price,
+        availability_start: !!availability_start,
+        availability_end: !!availability_end
+      });
       return res.status(400).json({
         success: false,
         error: 'Please provide all required fields'

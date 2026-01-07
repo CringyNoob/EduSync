@@ -6,38 +6,98 @@ import {
     MessageCircle, MoreVertical, RefreshCcw, FileText, Plus, ArrowLeft
 } from 'lucide-react';
 import Button from '../../components/Button';
+import { useAuth } from '../../context/AuthContext';
 import renthubService from '../../services/renthubService';
 
 const RentHubDashboard = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('renting');
     const [activeRentals, setActiveRentals] = useState([]);
     const [myListings, setMyListings] = useState([]);
     const [loading, setLoading] = useState(false);
-
-    // TODO: Get actual user ID from auth context
-    const userId = 'user001';
+    const [error, setError] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
+            // Check if user is logged in
+            if (!user?.id || user.id.length < 36 || user.id.startsWith('temp-')) {
+                setError('Please login to view your rentals');
+                return;
+            }
+
             setLoading(true);
+            setError('');
             try {
                 // Fetch user's rentals (as renter)
-                const rentalsRes = await renthubService.getUserRentals(userId);
-                setActiveRentals(rentalsRes.transactions || []);
+                const rentalsRes = await renthubService.getUserRentals(user.id);
+                const rentals = rentalsRes.data || [];
+                
+                // Map to component format
+                const mappedRentals = rentals.map(rental => ({
+                    id: rental.id,
+                    title: rental.title,
+                    image: rental.images && rental.images.length > 0 ? rental.images[0] : 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80',
+                    owner: rental.owner_name,
+                    dueDate: new Date(rental.end_date).toLocaleDateString(),
+                    startDate: new Date(rental.start_date).toLocaleDateString(),
+                    endDate: new Date(rental.end_date).toLocaleDateString(),
+                    status: rental.status === 'ACTIVE' ? 'active' : rental.status.toLowerCase(),
+                    totalPrice: parseFloat(rental.total_price),
+                    durationDays: rental.duration_days,
+                    dailyPrice: parseFloat(rental.daily_price),
+                    progress: calculateProgress(rental.start_date, rental.end_date)
+                }));
+                setActiveRentals(mappedRentals);
                 
                 // Fetch user's listings (as owner)
-                const listingsRes = await renthubService.getUserListings(userId);
-                setMyListings(listingsRes.listings || []);
+                const listingsRes = await renthubService.getUserListings(user.id);
+                const listings = listingsRes.data || [];
+                
+                // Map to component format  
+                const mappedListings = listings.map(listing => ({
+                    id: listing.id,
+                    title: listing.title,
+                    category: listing.category,
+                    image: listing.images && listing.images.length > 0 ? listing.images[0] : 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80',
+                    price: parseFloat(listing.daily_price),
+                    status: listing.status,
+                    availability: `${new Date(listing.availability_start).toLocaleDateString()} - ${new Date(listing.availability_end).toLocaleDateString()}`,
+                    views: 0, // Can be added to backend later
+                    bookings: 0 // Can be calculated from transactions
+                }));
+                setMyListings(mappedListings);
             } catch (err) {
                 console.error('Error fetching dashboard data:', err);
+                setError(err.message || 'Failed to load dashboard data');
             } finally {
                 setLoading(false);
             }
         };
 
         fetchData();
-    }, [userId]);
+    }, [user]);
+
+    const calculateProgress = (startDate, endDate) => {
+        const now = new Date();
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const total = end - start;
+        const elapsed = now - start;
+        return Math.min(Math.max((elapsed / total) * 100, 0), 100);
+    };
+
+    const handleCompleteRental = async (transactionId) => {
+        try {
+            await renthubService.completeTransaction(transactionId);
+            alert('Rental completed successfully!');
+            // Refresh data
+            window.location.reload();
+        } catch (err) {
+            console.error('Error completing rental:', err);
+            alert(err.error || 'Failed to complete rental');
+        }
+    };
 
     return (
         <div className="relative min-h-screen p-4 md:p-6 space-y-8 font-sans text-gray-900">
@@ -77,41 +137,48 @@ const RentHubDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-white/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white shadow-sm">
                     <div className="flex items-center gap-4 mb-2">
-                        <div className="p-2 bg-emerald-100 text-emerald-600 rounded-xl">
-                            <Shield className="h-5 w-5" />
-                        </div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Held Deposits</p>
-                    </div>
-                    <h3 className="text-3xl font-black text-gray-900">$200.00</h3>
-                </div>
-                <div className="bg-white/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white shadow-sm">
-                    <div className="flex items-center gap-4 mb-2">
                         <div className="p-2 bg-blue-100 text-blue-600 rounded-xl">
-                            <DollarSign className="h-5 w-5" />
-                        </div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Earnings</p>
-                    </div>
-                    <h3 className="text-3xl font-black text-gray-900">$120.00</h3>
-                </div>
-                <div className="bg-white/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white shadow-sm">
-                    <div className="flex items-center gap-4 mb-2">
-                        <div className="p-2 bg-orange-100 text-orange-600 rounded-xl">
                             <Clock className="h-5 w-5" />
                         </div>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Rentals</p>
                     </div>
-                    <h3 className="text-3xl font-black text-gray-900">3</h3>
+                    <h3 className="text-3xl font-black text-gray-900">{activeRentals.filter(r => r.status === 'active').length}</h3>
+                </div>
+                <div className="bg-white/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white shadow-sm">
+                    <div className="flex items-center gap-4 mb-2">
+                        <div className="p-2 bg-emerald-100 text-emerald-600 rounded-xl">
+                            <Package className="h-5 w-5" />
+                        </div>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">My Listings</p>
+                    </div>
+                    <h3 className="text-3xl font-black text-gray-900">{myListings.length}</h3>
+                </div>
+                <div className="bg-white/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white shadow-sm">
+                    <div className="flex items-center gap-4 mb-2">
+                        <div className="p-2 bg-orange-100 text-orange-600 rounded-xl">
+                            <DollarSign className="h-5 w-5" />
+                        </div>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Spent</p>
+                    </div>
+                    <h3 className="text-3xl font-black text-gray-900">${activeRentals.reduce((sum, r) => sum + r.totalPrice, 0).toFixed(2)}</h3>
                 </div>
                 <div className="bg-gray-900 p-6 rounded-[2rem] text-white shadow-xl shadow-gray-200 relative overflow-hidden group">
                     <div className="relative z-10">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Power User Rank</p>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Available Items</p>
                         <h3 className="text-2xl font-black flex items-center gap-2">
-                            Top 5% <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                            {myListings.filter(l => l.status === 'AVAILABLE').length} <CheckCircle2 className="h-5 w-5 text-emerald-400" />
                         </h3>
                     </div>
                     <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform"></div>
                 </div>
             </div>
+
+            {error && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-center">
+                    <p className="text-red-600 font-semibold">{error}</p>
+                    <Button onClick={() => navigate('/login')} className="mt-4">Go to Login</Button>
+                </div>
+            )}
 
             <div className="grid lg:grid-cols-3 gap-8">
                 {/* Main List */}
@@ -123,43 +190,64 @@ const RentHubDashboard = () => {
                                 <Button variant="ghost" size="sm" className="font-bold text-emerald-600">History <ChevronRight className="ml-1 h-4 w-4" /></Button>
                             </div>
                             <div className="space-y-4">
-                                {activeRentals.map((rental) => (
-                                    <div key={rental.id} className="bg-white rounded-[2.5rem] border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow">
-                                        <div className="flex flex-col md:flex-row md:items-center gap-6">
-                                            <div className="h-24 w-24 rounded-3xl overflow-hidden shrink-0">
-                                                <img src={rental.image} alt={rental.title} className="w-full h-full object-cover" />
-                                            </div>
-                                            <div className="flex-1 space-y-3">
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <h3 className="text-xl font-bold">{rental.title}</h3>
-                                                        <p className="text-sm text-gray-500 font-medium">Lent by <span className="font-bold text-gray-900">{rental.owner}</span></p>
-                                                    </div>
-                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${rental.status === 'due-soon' ? 'bg-orange-100 text-orange-600 border border-orange-200' : 'bg-emerald-100 text-emerald-600 border border-emerald-200'
-                                                        }`}>
-                                                        {rental.status === 'due-soon' ? 'Due Tomorrow' : 'Active'}
-                                                    </span>
+                                {loading ? (
+                                    <div className="text-center py-12">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                                        <p className="text-gray-500 mt-4">Loading rentals...</p>
+                                    </div>
+                                ) : activeRentals.length === 0 ? (
+                                    <div className="text-center py-12">
+                                        <Package size={48} className="text-gray-300 mx-auto mb-4" />
+                                        <p className="text-gray-500">No active rentals</p>
+                                        <Button onClick={() => navigate('/renthub')} className="mt-4">Browse Items</Button>
+                                    </div>
+                                ) : (
+                                    activeRentals.map((rental) => (
+                                        <div key={rental.id} className="bg-white rounded-[2.5rem] border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow">
+                                            <div className="flex flex-col md:flex-row md:items-center gap-6">
+                                                <div className="h-24 w-24 rounded-3xl overflow-hidden shrink-0">
+                                                    <img src={rental.image} alt={rental.title} className="w-full h-full object-cover" />
                                                 </div>
-                                                <div className="space-y-1.5">
-                                                    <div className="flex justify-between text-[11px] font-black text-gray-400 uppercase tracking-widest">
-                                                        <span>Progress</span>
-                                                        <span>Due: {rental.dueDate}</span>
+                                                <div className="flex-1 space-y-3">
+                                                    <div className="flex justify-between items-start">
+                                                        <div>
+                                                            <h3 className="text-xl font-bold">{rental.title}</h3>
+                                                            <p className="text-sm text-gray-500 font-medium">Lent by <span className="font-bold text-gray-900">{rental.owner}</span></p>
+                                                            <p className="text-xs text-gray-400 mt-1">{rental.startDate} - {rental.endDate} ({rental.durationDays} days)</p>
+                                                        </div>
+                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${rental.status === 'completed' ? 'bg-gray-100 text-gray-600 border border-gray-200' : 'bg-emerald-100 text-emerald-600 border border-emerald-200'}`}>
+                                                            {rental.status}
+                                                        </span>
                                                     </div>
-                                                    <div className="h-2 bg-gray-50 rounded-full overflow-hidden">
-                                                        <div
-                                                            className={`h-full rounded-full ${rental.status === 'due-soon' ? 'bg-orange-500' : 'bg-emerald-500'}`}
-                                                            style={{ width: `${rental.progress}%` }}
-                                                        />
+                                                    <div className="space-y-1.5">
+                                                        <div className="flex justify-between text-[11px] font-black text-gray-400 uppercase tracking-widest">
+                                                            <span>Progress</span>
+                                                            <span>Due: {rental.dueDate}</span>
+                                                        </div>
+                                                        <div className="h-2 bg-gray-50 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full rounded-full bg-emerald-500"
+                                                                style={{ width: `${rental.progress}%` }}
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div className="flex md:flex-col gap-2">
-                                                <Button size="sm" className="rounded-xl font-bold bg-gray-50 hover:bg-gray-100 text-gray-900 border-none">Details</Button>
-                                                <Button size="sm" variant="primary" className="rounded-xl font-bold bg-emerald-600 shadow-sm shadow-emerald-100">Return Item</Button>
+                                                <div className="flex md:flex-col gap-2">
+                                                    <p className="text-xl font-black text-gray-900">৳{rental.totalPrice.toFixed(2)}</p>
+                                                    {rental.status === 'ACTIVE' && (
+                                                        <Button 
+                                                            size="sm" 
+                                                            variant="primary" 
+                                                            className="rounded-xl font-bold bg-emerald-600 shadow-sm shadow-emerald-100"
+                                                            onClick={() => handleCompleteRental(rental.id)}
+                                                        >
+                                                            Complete Rental
+                                                        </Button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    )))}
                             </div>
                         </>
                     ) : (
@@ -171,38 +259,52 @@ const RentHubDashboard = () => {
                                 </Button>
                             </div>
                             <div className="space-y-4">
-                                {myListings.map((listing) => (
-                                    <div key={listing.id} className="bg-white rounded-[2.5rem] border border-gray-100 p-6 shadow-sm">
-                                        <div className="flex flex-col md:flex-row md:items-center gap-6">
-                                            <div className="h-24 w-24 rounded-3xl overflow-hidden shrink-0">
-                                                <img src={listing.image} alt={listing.title} className="w-full h-full object-cover" />
-                                            </div>
-                                            <div className="flex-1 space-y-3">
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <h3 className="text-xl font-bold">{listing.title}</h3>
-                                                        <p className="text-sm text-gray-500 font-medium">Current Renter: <span className="font-bold text-gray-900">{listing.renter}</span></p>
-                                                    </div>
-                                                    <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-600 border border-blue-200 text-[10px] font-black uppercase">Rented</span>
+                                {loading ? (
+                                    <div className="text-center py-12">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                                        <p className="text-gray-500 mt-4">Loading listings...</p>
+                                    </div>
+                                ) : myListings.length === 0 ? (
+                                    <div className="text-center py-12">
+                                        <Package size={48} className="text-gray-300 mx-auto mb-4" />
+                                        <p className="text-gray-500">No active listings</p>
+                                        <Button onClick={() => navigate('/renthub/new')} className="mt-4">Create Listing</Button>
+                                    </div>
+                                ) : (
+                                    myListings.map((listing) => (
+                                        <div key={listing.id} className="bg-white rounded-[2.5rem] border border-gray-100 p-6 shadow-sm">
+                                            <div className="flex flex-col md:flex-row md:items-center gap-6">
+                                                <div className="h-24 w-24 rounded-3xl overflow-hidden shrink-0">
+                                                    <img src={listing.image} alt={listing.title} className="w-full h-full object-cover" />
                                                 </div>
-                                                <div className="flex gap-6">
-                                                    <div>
-                                                        <p className="text-[10px] font-black text-gray-400 uppercase">Held Deposit</p>
-                                                        <p className="text-lg font-black text-blue-600">${listing.depositHeld}</p>
+                                                <div className="flex-1 space-y-3">
+                                                    <div className="flex justify-between items-start">
+                                                        <div>
+                                                            <h3 className="text-xl font-bold">{listing.title}</h3>
+                                                            <p className="text-sm text-gray-500 font-medium">{listing.category}</p>
+                                                            <p className="text-xs text-gray-400 mt-1">Available: {listing.availabilityStart} - {listing.availabilityEnd}</p>
+                                                        </div>
+                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                                                            listing.status === 'AVAILABLE' ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : 
+                                                            listing.status === 'RENTED' ? 'bg-blue-100 text-blue-600 border border-blue-200' :
+                                                            'bg-gray-100 text-gray-600 border border-gray-200'
+                                                        }`}>
+                                                            {listing.status}
+                                                        </span>
                                                     </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-black text-gray-400 uppercase">Earnings so far</p>
-                                                        <p className="text-lg font-black text-gray-900">${listing.earnings}</p>
+                                                    <div className="flex gap-6">
+                                                        <div>
+                                                            <p className="text-[10px] font-black text-gray-400 uppercase">Daily Price</p>
+                                                            <p className="text-lg font-black text-blue-600">৳{listing.dailyPrice}</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div className="flex md:flex-col gap-2">
-                                                <Button size="sm" className="rounded-xl font-bold bg-gray-50 text-gray-900">Manage</Button>
-                                                <Button size="sm" className="rounded-xl font-bold bg-blue-600 text-white">Confirm Return</Button>
+                                                <div className="flex md:flex-col gap-2">
+                                                    <Button size="sm" className="rounded-xl font-bold bg-gray-50 text-gray-900" onClick={() => navigate(`/renthub/${listing.id}`)}>View Details</Button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    )))}
                             </div>
                         </>
                     )}

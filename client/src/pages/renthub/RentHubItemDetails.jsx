@@ -6,16 +6,20 @@ import {
     DollarSign, FileText, Smartphone, Package, User
 } from 'lucide-react';
 import Button from '../../components/Button';
+import { useAuth } from '../../context/AuthContext';
 import renthubService from '../../services/renthubService';
 
 const RentHubItemDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [item, setItem] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [booking, setBooking] = useState(false);
+    const [bookingError, setBookingError] = useState('');
 
     // Fetch listing details on mount
     useEffect(() => {
@@ -57,127 +61,79 @@ const RentHubItemDetails = () => {
         }
     }, [id]);
 
-    // Old mock data (removed)
-    const rentals = [
-        {
-            id: 1,
-            title: "Calculus: Early Transcendentals (8th Edition)",
-            category: "Textbooks",
-            price: 5,
-            deposit: 30,
-            images: [
-                "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&q=80",
-                "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=800&q=80"
-            ],
-            rating: 4.9,
-            reviewsCount: 12,
-            owner: { name: "Sarah W.", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80", joined: "Sep 2023", totalRentals: 45 },
-            description: "Essential textbook for early calculus students. Perfect condition, no markings.",
-            rules: ["Return on time", "No page folding"],
-            availability: "Available Now"
-        },
-        {
-            id: 2,
-            title: "MacBook Pro M2 - Space Gray (16GB RAM)",
-            category: "Electronics",
-            price: 40,
-            deposit: 500,
-            images: [
-                "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&q=80",
-                "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=800&q=80"
-            ],
-            rating: 5.0,
-            reviewsCount: 8,
-            owner: { name: "Alex K.", avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200&q=80", joined: "Jan 2024", totalRentals: 128 },
-            description: "High performance MacBook Pro with M2 chip. Excellent for video editing and coding projects.",
-            rules: ["Do not install malware", "Return with original charger"],
-            availability: "Available Now"
-        },
-        {
-            id: 3,
-            title: "TI-84 Plus CE Graphing Calculator",
-            category: "Exam Essentials",
-            price: 5,
-            deposit: 50,
-            images: [
-                "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80"
-            ],
-            rating: 5.0,
-            reviewsCount: 32,
-            owner: { name: "Professor Oak", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80", joined: "Aug 2022", totalRentals: 210 },
-            description: "The gold standard for math exams. Color screen, fast processing.",
-            rules: ["Wipe memory before return", "No physical damage"],
-            availability: "Available for Midterms"
-        },
-        {
-            id: 4,
-            title: "Digital Microscope - 1000x Magnification",
-            category: "Research Gear",
-            price: 15,
-            deposit: 100,
-            images: [
-                "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80"
-            ],
-            rating: 4.8,
-            reviewsCount: 5,
-            owner: { name: "BioDept", avatar: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=200&q=80", joined: "Mar 2023", totalRentals: 88 },
-            description: "USB Digital Microscope with 1000x zoom. Includes base station and slides.",
-            rules: ["Clean lens after use", "Handle base with care"],
-            availability: "Available Now"
-        },
-        {
-            id: 5,
-            title: "Ergonomic Office Chair - Black Mesh",
-            category: "Furniture",
-            price: 10,
-            deposit: 80,
-            images: [
-                "https://images.unsplash.com/photo-1580480055273-228ff5388ef8?w=800&q=80"
-            ],
-            rating: 4.5,
-            reviewsCount: 15,
-            owner: { name: "Mike R.", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80", joined: "Dec 2023", totalRentals: 12 },
-            description: "Premium mesh chair for long study sessions. Fully adjustable height and armrests.",
-            rules: ["Weight limit 250lbs", "No food spills"],
-            availability: "Available Now"
-        },
-        {
-            id: 6,
-            title: "Tennis Racket - Wilson Pro Staff",
-            category: "Sports",
-            price: 8,
-            deposit: 40,
-            images: [
-                "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=800&q=80"
-            ],
-            rating: 4.7,
-            reviewsCount: 10,
-            owner: { name: "Athlete J.", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80", joined: "May 2024", totalRentals: 5 },
-            description: "Professional grade tennis racket for competitive play.",
-            rules: ["Do not throw racket", "Keep in bag when traveling"],
-            availability: "Available on Weekends"
-        },
-        {
-            id: 7,
-            title: "Sony Alpha a7 III Camera",
-            category: "Electronics",
-            price: 25,
-            deposit: 200,
-            images: [
-                "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
-                "https://images.unsplash.com/photo-1513650125333-0d366486cdc1?w=800&q=80"
-            ],
-            rating: 4.9,
-            reviewsCount: 24,
-            owner: { name: "John D.", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80", joined: "Sep 2023", totalRentals: 156 },
-            description: "Professional mirrorless camera. Includes 28-70mm lens and kit bag.",
-            rules: ["Handle with care", "Return with full battery"],
-            availability: "Available from Oct 15"
-        }
-    ];
-
     // Calculate rental cost
     const calculateTotal = () => {
+        if (!startDate || !endDate || !item) return 0;
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+        return days > 0 ? days * item.price : 0;
+    };
+
+    const getDurationDays = () => {
+        if (!startDate || !endDate) return 0;
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+        return days > 0 ? days : 0;
+    };
+
+    const handleRentNow = async () => {
+        setBookingError('');
+
+        // Check if user is logged in
+        if (!user?.id || user.id.length < 36 || user.id.startsWith('temp-')) {
+            setBookingError('Please login to rent items');
+            return;
+        }
+
+        // Validation
+        if (!startDate || !endDate) {
+            setBookingError('Please select rental dates');
+            return;
+        }
+
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        if (end <= start) {
+            setBookingError('End date must be after start date');
+            return;
+        }
+
+        if (start < new Date()) {
+            setBookingError('Start date cannot be in the past');
+            return;
+        }
+
+        setBooking(true);
+
+        try {
+            const transactionData = {
+                listing_id: item.id,
+                renter_id: user.id,
+                renter_name: user.name,
+                renter_email: user.email,
+                start_date: startDate,
+                end_date: endDate
+            };
+
+            const response = await renthubService.createTransaction(transactionData);
+            
+            if (response.success) {
+                alert(`Rental confirmed! Total: $${calculateTotal()}\nDuration: ${getDurationDays()} days`);
+                navigate('/renthub/my-rentals');
+            }
+        } catch (err) {
+            console.error('Error creating rental:', err);
+            setBookingError(err.error || err.message || 'Failed to create rental. Please try again.');
+        } finally {
+            setBooking(false);
+        }
+    };
+
+    // Old calculateTotal function (removed)
+    const calculateTotalOld = () => {
         if (!startDate || !endDate || !item) return 0;
         const start = new Date(startDate);
         const end = new Date(endDate);
@@ -364,32 +320,35 @@ const RentHubItemDetails = () => {
                                 </div>
                             </div>
 
-                            {days > 0 && (
+                            {bookingError && (
+                                <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+                                    <p className="text-sm text-red-600 font-semibold">{bookingError}</p>
+                                </div>
+                            )}
+
+                            {getDurationDays() > 0 && (
                                 <div className="pt-4 space-y-3">
                                     <div className="flex justify-between text-sm font-bold text-gray-500">
-                                        <span>${item.price} x {days} days</span>
+                                        <span>${item.price} x {getDurationDays()} days</span>
                                         <span>${calculateTotal()}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm font-bold text-emerald-600">
-                                        <span>Refundable Deposit</span>
-                                        <span>${item.deposit}</span>
                                     </div>
                                     <div className="pt-4 border-t border-gray-100 flex justify-between">
                                         <span className="text-lg font-black">Total to pay</span>
-                                        <span className="text-2xl font-black">${calculateTotal() + item.deposit}</span>
+                                        <span className="text-2xl font-black">${calculateTotal()}</span>
                                     </div>
                                 </div>
                             )}
 
                             <Button
                                 className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-lg font-black shadow-lg shadow-emerald-100"
-                                disabled={!startDate || !endDate}
+                                disabled={!startDate || !endDate || booking}
+                                onClick={handleRentNow}
                             >
-                                Proceed to Booking
+                                {booking ? 'Processing...' : 'Rent Now'}
                             </Button>
 
                             <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-tight">
-                                You won't be charged yet
+                                Secure payment via EduSync
                             </p>
                         </div>
 
