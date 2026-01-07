@@ -2,18 +2,43 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Apple, Chrome, X, GraduationCap, Users, BookOpen } from 'lucide-react';
 import Button from '../../components/Button';
+import authService from '../../services/authService';
 
 const Login = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    const [formData, setFormData] = useState({ email: '', password: '' });
+    const [error, setError] = useState('');
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
+        setError('');
         setIsLoading(true);
-        setTimeout(() => {
+
+        try {
+            const response = await authService.login(formData.email, formData.password);
+            
+            if (response.success) {
+                // Token is already saved by authService
+                // Trigger the AuthContext to refresh
+                window.dispatchEvent(new Event('tokenUpdated'));
+                
+                // Navigate to dashboard
+                navigate('/dashboard');
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            setError(err.message || 'Login failed. Please check your credentials.');
+        } finally {
             setIsLoading(false);
-            navigate('/dashboard');
-        }, 1500);
+        }
+    };
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
     };
 
     return (
@@ -45,13 +70,23 @@ const Login = () => {
                         <h1 className="text-2xl font-bold text-text-main mb-1">Welcome Back!</h1>
                         <p className="text-sm text-text-main-light mb-6">Log in to access your study groups.</p>
 
+                        {error && (
+                            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
+                                <p className="text-sm text-red-600">{error}</p>
+                            </div>
+                        )}
+
                         <form onSubmit={handleLogin} className="space-y-4">
 
                             <div className="space-y-1.5">
                                 <label className="text-xs font-semibold text-text-main ml-1">University Email</label>
                                 <input
                                     type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
                                     placeholder="student@university.edu"
+                                    required
                                     className="w-full h-11 px-4 rounded-xl bg-white border border-gray-200 text-sm text-text-main placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all outline-none"
                                 />
                             </div>
@@ -61,7 +96,11 @@ const Login = () => {
                                 <div className="relative">
                                     <input
                                         type="password"
+                                        name="password"
+                                        value={formData.password}
+                                        onChange={handleChange}
                                         placeholder="•••••••••••••••••"
+                                        required
                                         className="w-full h-11 px-4 rounded-xl bg-white border border-gray-200 text-sm text-text-main placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all outline-none"
                                     />
                                 </div>

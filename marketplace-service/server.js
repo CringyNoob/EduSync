@@ -13,7 +13,8 @@ const PORT = process.env.PORT || 3002;
 // MIDDLEWARE
 // ========================================
 app.use(cors());           // Enable CORS for frontend/gateway communication
-app.use(express.json());   // Parse JSON request bodies
+app.use(express.json({ limit: '50mb' }));   // Parse JSON request bodies with 50MB limit
+app.use(express.urlencoded({ limit: '50mb', extended: true })); // Parse URL-encoded bodies
 
 // ========================================
 // ROUTES

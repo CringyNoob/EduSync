@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Search, Filter, Repeat, Plus, Star,
@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Button from '../../components/Button';
 import { cn } from '../../utils/cn';
+import renthubService from '../../services/renthubService';
 
 const RentalCard = ({ item, onClick }) => (
     <div
@@ -72,88 +73,44 @@ const RentHubHome = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('All');
     const [sortBy, setSortBy] = useState('newest');
+    const [rentals, setRentals] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    const categories = ['All', 'Textbooks', 'Electronics', 'Research Gear', 'Furniture', 'Clothing', 'Sports', 'Exam Essentials', 'Others'];
+    const categories = ['All', 'Books', 'Electronics', 'Other', 'Furniture', 'Clothing', 'Sports Equipment', 'Musical Instruments', 'Tools'];
 
-    const [rentals] = useState([
-        {
-            id: 1,
-            title: "Calculus: Early Transcendentals (8th Edition)",
-            category: "Textbooks",
-            price: 5,
-            image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80",
-            rating: 4.9,
-            owner: "Sarah W.",
-            timeAgo: "2h ago",
-            createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
-        },
-        {
-            id: 2,
-            title: "MacBook Pro M2 - Space Gray (16GB RAM)",
-            category: "Electronics",
-            price: 40,
-            image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&q=80",
-            rating: 5.0,
-            owner: "Alex K.",
-            timeAgo: "5h ago",
-            createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000)
-        },
-        {
-            id: 3,
-            title: "TI-84 Plus CE Graphing Calculator",
-            category: "Exam Essentials",
-            price: 5,
-            image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=80",
-            rating: 5.0,
-            owner: "Professor Oak",
-            timeAgo: "1d ago",
-            createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000)
-        },
-        {
-            id: 4,
-            title: "Digital Microscope - 1000x Magnification",
-            category: "Research Gear",
-            price: 15,
-            image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&q=80",
-            rating: 4.8,
-            owner: "BioDept",
-            timeAgo: "3h ago",
-            createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000)
-        },
-        {
-            id: 5,
-            title: "Ergonomic Office Chair - Black Mesh",
-            category: "Furniture",
-            price: 10,
-            image: "https://images.unsplash.com/photo-1580480055273-228ff5388ef8?w=600&q=80",
-            rating: 4.5,
-            owner: "Mike R.",
-            timeAgo: "1d ago",
-            createdAt: new Date(Date.now() - 25 * 60 * 60 * 1000)
-        },
-        {
-            id: 6,
-            title: "Tennis Racket - Wilson Pro Staff",
-            category: "Sports",
-            price: 8,
-            image: "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=600&q=80",
-            rating: 4.7,
-            owner: "Athlete J.",
-            timeAgo: "2d ago",
-            createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000)
-        },
-        {
-            id: 7,
-            title: "Sony Alpha a7 III Camera",
-            category: "Electronics",
-            price: 25,
-            image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&q=80",
-            rating: 4.9,
-            owner: "John D.",
-            timeAgo: "4h ago",
-            createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000)
-        }
-    ]);
+    // Fetch rental listings on component mount
+    useEffect(() => {
+        const fetchListings = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await renthubService.getAllListings({ status: 'AVAILABLE' });
+                const listings = response.data || [];
+                // Map to component format
+                const mappedListings = listings.map(listing => ({
+                    id: listing.id,
+                    title: listing.title,
+                    category: listing.category,
+                    price: parseFloat(listing.daily_price),
+                    image: listing.images && listing.images.length > 0 ? listing.images[0] : 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80',
+                    rating: 4.5,
+                    owner: listing.owner_name,
+                    timeAgo: 'Recently',
+                    createdAt: new Date(listing.created_at),
+                    description: listing.description
+                }));
+                setRentals(mappedListings);
+            } catch (err) {
+                console.error('Error fetching rentals:', err);
+                setError(err.message || 'Failed to load rentals');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchListings();
+    }, []);
 
     const filteredAndSortedRentals = useMemo(() => {
         let result = rentals.filter(item => {

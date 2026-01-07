@@ -6,6 +6,7 @@ import {
     Shield, Clock, Info, CheckCircle2, X, BookOpen, Monitor, Armchair
 } from 'lucide-react';
 import Button from '../../components/Button';
+import renthubService from '../../services/renthubService';
 
 const CreateRentalListing = () => {
     const navigate = useNavigate();
@@ -34,6 +35,31 @@ const CreateRentalListing = () => {
 
     const nextStep = () => setStep(s => s + 1);
     const prevStep = () => setStep(s => s - 1);
+
+    const handleSubmit = async () => {
+        // TODO: Get actual user info from auth context
+        const listingData = {
+            owner_id: 'user001',
+            owner_name: 'Current User',
+            owner_email: 'user@uiu.edu',
+            title: formData.title,
+            description: formData.description,
+            daily_price: parseFloat(formData.dailyRate),
+            category: formData.category,
+            images: [], // Can add image upload functionality
+            availability_start: new Date().toISOString().split('T')[0],
+            availability_end: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 90 days from now
+        };
+
+        try {
+            await renthubService.createListing(listingData);
+            // Navigate to renthub on success
+            navigate('/renthub');
+        } catch (err) {
+            console.error('Error creating listing:', err);
+            alert('Failed to create listing. Please try again.');
+        }
+    };
 
     return (
         <div className="relative min-h-screen p-4 md:p-6 space-y-8 font-sans text-gray-900">
@@ -255,7 +281,8 @@ const CreateRentalListing = () => {
                                 </Button>
                                 <Button
                                     className="h-14 px-12 rounded-2xl font-black bg-primary text-white hover:bg-primary-hover shadow-xl shadow-primary/20"
-                                    onClick={() => navigate('/renthub')}
+                                    onClick={handleSubmit}
+                                    disabled={!formData.title || !formData.category || !formData.dailyRate}
                                 >
                                     Publish Rental <Package className="ml-2 h-5 w-5" />
                                 </Button>

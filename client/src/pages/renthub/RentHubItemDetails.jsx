@@ -6,14 +6,58 @@ import {
     DollarSign, FileText, Smartphone, Package, User
 } from 'lucide-react';
 import Button from '../../components/Button';
+import renthubService from '../../services/renthubService';
 
 const RentHubItemDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [item, setItem] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Shared Data Registry (Mocking a database fetch)
+    // Fetch listing details on mount
+    useEffect(() => {
+        const fetchListing = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await renthubService.getListingById(id);
+                const listing = response.data;
+                setItem({
+                    id: listing.id,
+                    title: listing.title,
+                    category: listing.category,
+                    price: parseFloat(listing.daily_price),
+                    deposit: 0, // Can be added to backend if needed
+                    images: listing.images || ['https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&q=80'],
+                    rating: 4.5,
+                    reviewsCount: 10,
+                    owner: {
+                        name: listing.owner_name,
+                        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80',
+                        joined: 'Recently',
+                        totalRentals: 0
+                    },
+                    description: listing.description || 'No description available',
+                    rules: ['Return on time', 'Keep item in good condition'],
+                    availability: listing.status === 'AVAILABLE' ? 'Available Now' : 'Currently Unavailable'
+                });
+            } catch (err) {
+                console.error('Error fetching listing:', err);
+                setError(err.message || 'Failed to load listing');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchListing();
+        }
+    }, [id]);
+
+    // Old mock data (removed)
     const rentals = [
         {
             id: 1,
@@ -132,18 +176,40 @@ const RentHubItemDetails = () => {
         }
     ];
 
-    // Find the current item
-    const item = rentals.find(r => r.id === parseInt(id)) || rentals[0];
-
+    // Calculate rental cost
     const calculateTotal = () => {
-        if (!startDate || !endDate) return 0;
+        if (!startDate || !endDate || !item) return 0;
         const start = new Date(startDate);
         const end = new Date(endDate);
         const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
         return diff > 0 ? diff * item.price : 0;
     };
 
-    const days = calculateTotal() / item.price;
+    const days = item ? calculateTotal() / item.price : 0;
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-gray-500">Loading item details...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error || !item) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
+                    <h2 className="text-xl font-bold mb-2">Failed to load item</h2>
+                    <p className="text-gray-500 mb-4">{error || 'Item not found'}</p>
+                    <Button onClick={() => navigate('/renthub')}>Back to RentHub</Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="relative min-h-screen p-4 md:p-6 space-y-8 font-sans text-gray-900">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Package, Clock, Shield, DollarSign, AlertCircle, CheckCircle2,
@@ -6,48 +6,38 @@ import {
     MessageCircle, MoreVertical, RefreshCcw, FileText, Plus, ArrowLeft
 } from 'lucide-react';
 import Button from '../../components/Button';
+import renthubService from '../../services/renthubService';
 
 const RentHubDashboard = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('renting');
+    const [activeRentals, setActiveRentals] = useState([]);
+    const [myListings, setMyListings] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    const activeRentals = [
-        {
-            id: 101,
-            title: "Canon EOS R6 Kit",
-            owner: "Sarah W.",
-            dueDate: "Tomorrow, 5 PM",
-            status: "due-soon",
-            deposit: 150,
-            paid: 45,
-            progress: 85,
-            image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=100&q=80"
-        },
-        {
-            id: 102,
-            title: "MacBook Pro M2 - Silver",
-            owner: "TechLab",
-            dueDate: "Oct 24, 2023",
-            status: "active",
-            deposit: 500,
-            paid: 120,
-            progress: 30,
-            image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=100&q=80"
-        }
-    ];
+    // TODO: Get actual user ID from auth context
+    const userId = 'user001';
 
-    const myListings = [
-        {
-            id: 201,
-            title: "MacBook Pro M2",
-            renter: "Jane Doe",
-            status: "rented",
-            dueDate: "Oct 20, 2023",
-            earnings: 120,
-            depositHeld: 300,
-            image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=100&q=80"
-        }
-    ];
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                // Fetch user's rentals (as renter)
+                const rentalsRes = await renthubService.getUserRentals(userId);
+                setActiveRentals(rentalsRes.transactions || []);
+                
+                // Fetch user's listings (as owner)
+                const listingsRes = await renthubService.getUserListings(userId);
+                setMyListings(listingsRes.listings || []);
+            } catch (err) {
+                console.error('Error fetching dashboard data:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [userId]);
 
     return (
         <div className="relative min-h-screen p-4 md:p-6 space-y-8 font-sans text-gray-900">

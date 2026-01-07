@@ -167,9 +167,22 @@ async function login(req, res) {
             });
         }
 
-        // Find user by email
+        // Find user by email with profile data (JOIN)
         const result = await db.query(
-            'SELECT * FROM users WHERE email = $1',
+            `SELECT 
+                u.id, 
+                u.email, 
+                u.password_hash, 
+                u.role,
+                p.full_name as name,
+                p.student_id,
+                p.department,
+                p.batch,
+                p.phone,
+                p.avatar_url
+            FROM users u
+            LEFT JOIN profiles p ON u.id = p.user_id
+            WHERE u.email = $1`,
             [email]
         );
 
@@ -182,8 +195,18 @@ async function login(req, res) {
 
         const user = result.rows[0];
 
-         // 1. Generate the Token (Make sure this part exists)
-            const token = jwt.sign(
+        // Compare password BEFORE generating token
+        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ 
+                success: false,
+                error: 'Invalid email or password' 
+            });
+        }
+
+        // Generate token AFTER successful password validation
+        const token = jwt.sign(
             { 
                 id: user.id,
                 name: user.name,
@@ -193,10 +216,7 @@ async function login(req, res) {
             }, 
             process.env.JWT_SECRET, 
             { expiresIn: '1d' }
-            );
-
-        // Compare password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        );
 
         if (!isPasswordValid) {
             return res.status(401).json({ 
@@ -205,7 +225,7 @@ async function login(req, res) {
             });
         }
 
-        // Return user data (exclude password)
+        // Return user data (exclude password_hash)
         return res.status(200).json({
             success: true,
             message: 'Login successful',
@@ -214,8 +234,10 @@ async function login(req, res) {
                 id: user.id,
                 name: user.name,
                 email: user.email,
+                role: user.role,
                 department: user.department,
-                batch: user.batch
+                batch: user.batch,
+                student_id: user.student_id
             }
         });
 

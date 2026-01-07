@@ -8,6 +8,9 @@ import {
     Clock, Ticket, Flame, Percent, CheckCircle
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import marketplaceService from '../../services/marketplaceService';
+import { uploadMultipleImages, previewImage, validateImage } from '../../utils/imageUpload';
 
 // --- UI Components ---
 
@@ -97,67 +100,304 @@ const TrackingModal = ({ isOpen, onClose, order }) => {
     );
 };
 
-const ListingModal = ({ isOpen, onClose, section }) => {
+const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
+    const { user } = useAuth();
+    const [formData, setFormData] = useState({
+        title: '',
+        price: '',
+        category: '',
+        description: ''
+    });
+    const [images, setImages] = useState([]);
+    const [imagePreviews, setImagePreviews] = useState([]);
+    const [uploading, setUploading] = useState(false);
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const categories = [
+        'Textbooks',
+        'Electronics',
+        'Furniture',
+        'Clothing',
+        'Sports Equipment',
+        'Musical Instruments',
+        'Lab Equipment',
+        'Stationery',
+        'Others'
+    ];
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleImageSelect = async (e) => {
+        const files = Array.from(e.target.files);
+        setError('');
+
+        // Validate each file
+        for (const file of files) {
+            const validation = validateImage(file);
+            if (!validation.valid) {
+                setError(validation.error);
+                return;
+            }
+        }
+
+        // Limit to 5 images
+        if (images.length + files.length > 5) {
+            setError('Maximum 5 images allowed');
+            return;
+        }
+
+        setImages(prev => [...prev, ...files]);
+
+        // Generate previews
+        const previews = await Promise.all(
+            files.map(file => previewImage(file))
+        );
+        setImagePreviews(prev => [...prev, ...previews]);
+    };
+
+    const removeImage = (index) => {
+        setImages(prev => prev.filter((_, i) => i !== index));
+        setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleSubmit = async () => {
+        setError('');
+        
+        // Check if user is logged in with valid UUID
+        if (!user?.id || user.id.length < 36 || user.id.startsWith('temp-')) {
+            setError('Please login to create a listing');
+            return;
+        }
+
+        // Validation
+        if (!formData.title.trim()) {
+            setError('Title is required');
+            return;
+        }
+        if (!formData.price || parseFloat(formData.price) <= 0) {
+            setError('Valid price is required');
+            return;
+        }
+        if (!formData.category) {
+            setError('Category is required');
+            return;
+        }
+        if (!formData.description.trim()) {
+            setError('Description is required');
+            return;
+        }
+        if (images.length === 0) {
+            setError('At least one image is required');
+            return;
+        }
+
+        setLoading(true);
+        setUploading(true);
+
+        try {
+            // Upload images
+            console.log('Starting image upload...', images.length, 'images');
+            const imageUrls = await uploadMultipleImages(images);
+            console.log('Images uploaded successfully:', imageUrls.length, 'URLs');
+
+            // Create listing
+            const listingData = {
+                seller_id: user.id,
+                seller_name: user.name,
+                title: formData.title,
+                description: formData.description,
+                price: parseFloat(formData.price),
+                category: formData.category,
+                images: imageUrls
+            };
+
+            console.log('Sending listing data:', {
+                ...listingData,
+                images: `[${imageUrls.length} base64 strings]`
+            });
+
+            const response = await marketplaceService.createPreownedListing(listingData);
+            console.log('Response received:', response);
+            
+            if (response.success) {
+                alert('Listing created successfully!');
+                onClose();
+                if (onSuccess) onSuccess();
+                // Reset form
+                setFormData({ title: '', price: '', category: '', description: '' });
+                setImages([]);
+                setImagePreviews([]);
+            }
+        } catch (err) {
+            console.error('Error creating listing:', err);
+            console.error('Error details:', {
+                message: err.message,
+                status: err.status,
+                response: err.response
+            });
+            setError(err.message || 'Failed to create listing. Please try again.');
+        } finally {
+            setLoading(false);
+            setUploading(false);
+        }
+    };
+
     if (!isOpen) return null;
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
             <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={onClose}></div>
-            <div className="relative bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div className="relative bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
                 <div className="p-8 space-y-6">
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-2xl font-black text-gray-900">List New {section === 'Foods' ? 'Item' : section === 'Shops' ? 'Product' : 'Pre-Owned Item'}</h3>
                             <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Fill in the details for your listing</p>
                         </div>
-                        <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                        <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-xl transition-colors" disabled={loading}>
                             <X size={24} />
                         </button>
                     </div>
 
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm">
+                            {error}
+                        </div>
+                    )}
+
                     <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5 text-left">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Title</label>
-                                <input type="text" placeholder="e.g. Vintage Camera" className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium" />
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Title *</label>
+                                <input 
+                                    type="text" 
+                                    name="title"
+                                    value={formData.title}
+                                    onChange={handleInputChange}
+                                    placeholder="e.g. Calculus Textbook" 
+                                    className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium"
+                                    disabled={loading}
+                                />
                             </div>
                             <div className="space-y-1.5 text-left">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Price ($)</label>
-                                <input type="number" placeholder="25.00" className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium" />
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Price ($) *</label>
+                                <input 
+                                    type="number" 
+                                    name="price"
+                                    value={formData.price}
+                                    onChange={handleInputChange}
+                                    placeholder="25.00" 
+                                    step="0.01"
+                                    min="0"
+                                    className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium"
+                                    disabled={loading}
+                                />
                             </div>
                         </div>
 
                         <div className="space-y-1.5 text-left">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Category</label>
-                            <select className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium appearance-none">
-                                <option>Select a category</option>
-                                <option>Electronics</option>
-                                <option>Homemade Foods</option>
-                                <option>Textbooks</option>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Category *</label>
+                            <select 
+                                name="category"
+                                value={formData.category}
+                                onChange={handleInputChange}
+                                className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium appearance-none"
+                                disabled={loading}
+                            >
+                                <option value="">Select a category</option>
+                                {categories.map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
                             </select>
                         </div>
 
                         <div className="space-y-1.5 text-left">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description</label>
-                            <textarea placeholder="Describe your item..." rows="3" className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium resize-none"></textarea>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description *</label>
+                            <textarea 
+                                name="description"
+                                value={formData.description}
+                                onChange={handleInputChange}
+                                placeholder="Describe your item in detail..." 
+                                rows="3" 
+                                className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium resize-none"
+                                disabled={loading}
+                            ></textarea>
                         </div>
 
-                        <div className="border-2 border-dashed border-gray-100 rounded-3xl p-8 text-center space-y-2 hover:border-primary/30 transition-colors cursor-pointer group">
-                            <div className="h-12 w-12 rounded-2xl bg-primary/5 text-primary mx-auto flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <UploadCloud size={24} />
-                            </div>
-                            <div>
-                                <p className="text-sm font-bold text-gray-900">Upload Images</p>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">PNG, JPG up to 10MB</p>
-                            </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Images * (Max 5)</label>
+                            
+                            {/* Image Upload Area */}
+                            <label className="border-2 border-dashed border-gray-100 rounded-3xl p-8 text-center space-y-2 hover:border-primary/30 transition-colors cursor-pointer group block">
+                                <input 
+                                    type="file" 
+                                    accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                                    multiple
+                                    onChange={handleImageSelect}
+                                    className="hidden"
+                                    disabled={loading || images.length >= 5}
+                                />
+                                <div className="h-12 w-12 rounded-2xl bg-primary/5 text-primary mx-auto flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <UploadCloud size={24} />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-gray-900">Upload Images</p>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">PNG, JPG up to 10MB</p>
+                                </div>
+                            </label>
+
+                            {/* Image Previews */}
+                            {imagePreviews.length > 0 && (
+                                <div className="grid grid-cols-3 gap-3 mt-4">
+                                    {imagePreviews.map((preview, index) => (
+                                        <div key={index} className="relative group">
+                                            <img 
+                                                src={preview} 
+                                                alt={`Preview ${index + 1}`}
+                                                className="w-full h-24 object-cover rounded-xl border border-gray-200"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(index)}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                disabled={loading}
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
 
                     <div className="flex gap-3 pt-2">
-                        <Button variant="outline" className="flex-1 py-4 rounded-2xl" onClick={onClose}>Cancel</Button>
-                        <Button className="flex-[2] py-4 rounded-2xl shadow-xl shadow-primary/20" onClick={() => {
-                            alert('Listing created successfully!');
-                            onClose();
-                        }}>Create Listing</Button>
+                        <Button 
+                            variant="outline" 
+                            className="flex-1 py-4 rounded-2xl" 
+                            onClick={onClose}
+                            disabled={loading}
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            className="flex-[2] py-4 rounded-2xl shadow-xl shadow-primary/20" 
+                            onClick={handleSubmit}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                uploading ? 'Uploading Images...' : 'Creating Listing...'
+                            ) : (
+                                'Create Listing'
+                            )}
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -373,6 +613,13 @@ const MarketplaceHome = () => {
     const [showListingModal, setShowListingModal] = useState(false);
     const [trackingOrder, setTrackingOrder] = useState(null);
 
+    // State for API data
+    const [vendors, setVendors] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [preownedListings, setPreownedListings] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
     // Handle incoming navigation state (e.g. from CartPage)
     useEffect(() => {
         if (location.state) {
@@ -387,10 +634,58 @@ const MarketplaceHome = () => {
         }
     }, [location.state]);
 
+    // Fetch data based on selected section
+    useEffect(() => {
+        fetchData();
+    }, [selectedSection, selectedShop]);
+
+    const fetchData = async () => {
+        if (!selectedSection) return;
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            if (selectedSection === 'Foods') {
+                // Fetch food vendors
+                const vendorsRes = await marketplaceService.getVendors('FOOD_VENDOR');
+                setVendors(vendorsRes.vendors || []);
+                // If a shop is selected, fetch its products
+                if (selectedShop && selectedShop.id) {
+                    const vendorRes = await marketplaceService.getVendorById(selectedShop.id);
+                    setProducts(vendorRes.vendor?.products || []);
+                }
+            } else if (selectedSection === 'Shops') {
+                // Fetch startup vendors
+                const vendorsRes = await marketplaceService.getVendors('STARTUP');
+                setVendors(vendorsRes.vendors || []);
+                // If a shop is selected, fetch its products
+                if (selectedShop && selectedShop.id) {
+                    const vendorRes = await marketplaceService.getVendorById(selectedShop.id);
+                    setProducts(vendorRes.vendor?.products || []);
+                }
+            } else if (selectedSection === 'Pre-Owned') {
+                // Fetch pre-owned listings
+                const listingsRes = await marketplaceService.getPreownedListings();
+                setPreownedListings(listingsRes.listings || []);
+            }
+        } catch (err) {
+            console.error('Error fetching marketplace data:', err);
+            setError(err.message || 'Failed to load data');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleListingSuccess = () => {
+        // Refresh the data after successful listing creation
+        fetchData();
+    };
+
     // Filter categories based on selection
     const filters = {
         'Foods': ['Snacks', 'Homemade', 'Beverages', 'Meal Prep', 'Others'],
-        'Pre-Owned': ['Textbooks', 'Electronics', 'Research Gear', 'Furniture', 'Clothing', 'Sports', 'Exam Essentials', 'Others'],
+        'Pre-Owned': ['Textbooks', 'Electronics', 'Research Gear', 'Furniture', 'Clothing', 'Sports', 'Exam Essentials', 'Lab Equipment', 'Musical Instruments', 'Others'],
         'Shops': ['Stationery', 'Dorm Essentials', 'Tech Accessories', 'Merch', 'Others']
     };
 
@@ -418,35 +713,56 @@ const MarketplaceHome = () => {
         ]
     };
 
+    // Map vendors to shop format
+    const shops = useMemo(() => {
+        return vendors.map(vendor => ({
+            id: vendor.id,
+            name: vendor.name,
+            section: vendor.type === 'FOOD_VENDOR' ? 'Foods' : 'Shops',
+            location: 'Campus',
+            rating: 4.5,
+            itemCount: 0, // Will be populated when vendor products are fetched
+            bg: 'bg-gray-50',
+            image: vendor.logo_url,
+            deal: vendor.type === 'FOOD_VENDOR' ? (vendor.is_active ? 'Open Now' : 'Closed') : 'Available',
+            isNew: false,
+            is_active: vendor.is_active
+        }));
+    }, [vendors]);
 
-    const shops = [
-        { id: 's1', name: "Baker's Delight", section: 'Foods', location: 'Dorm C Lounge', rating: 4.8, itemCount: 12, bg: 'bg-orange-50', image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&q=80", deal: "Fresh Baked", isNew: false },
-        { id: 's2', name: "Campus Canteen", section: 'Foods', location: 'Main Hall', rating: 4.5, itemCount: 45, bg: 'bg-blue-50', image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80", deal: "20% OFF", isNew: true },
-        { id: 's3', name: "University Store", section: 'Shops', location: 'Admin Block', rating: 4.9, itemCount: 156, bg: 'bg-emerald-50', image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&q=80", deal: "Voucher Ready", isNew: false },
-        { id: 's4', name: "Tech Hub", section: 'Shops', location: 'Science Building', rating: 5.0, itemCount: 28, bg: 'bg-cyan-50', image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80", deal: "10% Student Disc.", isNew: true },
-        { id: 's5', name: "Green Bean Coffee", section: 'Foods', location: 'Library Annex', rating: 4.7, itemCount: 15, bg: 'bg-emerald-50', image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80", isNew: true },
-        { id: 's6', name: "Night Owl Snacks", section: 'Foods', location: 'Student Union', rating: 4.6, itemCount: 22, bg: 'bg-purple-50', image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&q=80", isNew: false },
-        { id: 's7', name: "The Stationery Spot", section: 'Shops', location: 'Arts Building', rating: 4.8, itemCount: 64, bg: 'bg-yellow-50', image: "https://images.unsplash.com/photo-1456735190827-d1262f71b8a3?w=600&q=80", isNew: false },
-        { id: 's8', name: "Fanatic Sports", section: 'Shops', location: 'Gym Complex', rating: 4.7, itemCount: 32, bg: 'bg-blue-50', image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80", isNew: true }
-    ];
-
-    const products = [
-        // Foods - Baker's Delight
-        { id: 1, section: 'Foods', shopId: 's1', title: 'Homemade Chocolate Chip Cookies', price: '12.00', category: 'Homemade', bg: 'bg-orange-50', icon: Utensils, seller: "Baker's Delight", timeAgo: '1h ago', image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&q=80" },
-        { id: 8, section: 'Foods', shopId: 's1', title: 'Blueberry Muffin Box (4pc)', price: '10.00', category: 'Snacks', bg: 'bg-blue-50', icon: Coffee, seller: "Baker's Delight", timeAgo: '2h ago', image: "https://images.unsplash.com/photo-1587538637146-8a03ca519f4a?w=400&q=80" },
-
-        // Foods - Campus Canteen
-        { id: 2, section: 'Foods', shopId: 's2', title: 'Energy Drinks Bundle', price: '15.00', category: 'Beverages', bg: 'bg-blue-50', icon: Coffee, seller: 'Campus Canteen', timeAgo: '3h ago', image: "https://images.unsplash.com/photo-1622543953490-3b7cec1e564d?w=400&q=80" },
-        { id: 9, section: 'Foods', shopId: 's2', title: 'Chicken Teriyaki Bowl', price: '8.50', category: 'Meal Prep', bg: 'bg-orange-50', icon: Utensils, seller: 'Campus Canteen', timeAgo: '30m ago', image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80" },
-
-        // Pre-Owned
-        { id: 3, section: 'Pre-Owned', title: 'Calculus Early Transcendentals', price: '45.00', category: 'Textbooks', bg: 'bg-indigo-50', icon: BookOpen, seller: 'John D.', timeAgo: '2h ago' },
-        { id: 4, section: 'Pre-Owned', title: 'Sony WH-1000XM4 Noise Cancelling', price: '180.00', category: 'Electronics', bg: 'bg-gray-50', icon: Monitor, seller: 'Alex K.', timeAgo: '1d ago' },
-
-        // Shops - University Store
-        { id: 6, section: 'Shops', shopId: 's3', title: 'University Hoodie - Size L', price: '45.00', category: 'Merch', bg: 'bg-purple-50', icon: Shirt, seller: 'University Store', timeAgo: '5h ago', image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&q=80" },
-        { id: 14, section: 'Shops', shopId: 's3', title: 'Classic Baseball Cap', price: '22.00', category: 'Merch', bg: 'bg-blue-50', icon: Shirt, seller: 'University Store', timeAgo: '1h ago', image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&q=80" },
-    ];
+    // Map products/preowned to unified product format
+    const allProducts = useMemo(() => {
+        if (selectedSection === 'Pre-Owned') {
+            return preownedListings.map(listing => ({
+                id: listing.id,
+                section: 'Pre-Owned',
+                title: listing.title,
+                price: listing.price,
+                category: listing.category,
+                bg: 'bg-indigo-50',
+                icon: Box,
+                seller: listing.seller_name,
+                timeAgo: 'Recently',
+                image: listing.images && listing.images.length > 0 ? listing.images[0] : null,
+                status: listing.status
+            }));
+        } else {
+            return products.map(product => ({
+                id: product.id,
+                section: selectedSection,
+                shopId: product.vendor_id,
+                title: product.name,
+                price: product.price,
+                category: 'Products',
+                bg: 'bg-gray-50',
+                icon: selectedSection === 'Foods' ? Utensils : PackageCheck,
+                seller: selectedShop?.name || 'Shop',
+                timeAgo: 'Available',
+                image: product.image_url,
+                is_available: product.is_available
+            }));
+        }
+    }, [products, preownedListings, selectedSection, selectedShop]);
 
     const filteredShops = useMemo(() => {
         if (!selectedSection || selectedSection === 'Pre-Owned') return [];
@@ -454,15 +770,15 @@ const MarketplaceHome = () => {
     }, [selectedSection, searchQuery, shops]);
 
     const filteredProducts = useMemo(() => {
-        return products.filter(p => {
-            const matchesSection = selectedSection ? p.section === selectedSection : true;
-            const matchesShop = (selectedSection === 'Pre-Owned') || (selectedShop ? p.shopId === selectedShop.id : true);
+        return allProducts.filter(p => {
             const matchesCategory = activeFilter === 'All' || p.category === activeFilter;
             const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 p.category.toLowerCase().includes(searchQuery.toLowerCase());
-            return matchesSection && matchesShop && matchesCategory && matchesSearch;
+            // Filter out unavailable products and sold items
+            const isAvailable = selectedSection === 'Pre-Owned' ? p.status === 'AVAILABLE' : p.is_available !== false;
+            return matchesCategory && matchesSearch && isAvailable;
         });
-    }, [products, selectedSection, selectedShop, activeFilter, searchQuery]);
+    }, [allProducts, activeFilter, searchQuery, selectedSection]);
 
     const showShops = (selectedSection === 'Foods' || selectedSection === 'Shops') && !selectedShop;
 
@@ -827,6 +1143,7 @@ const MarketplaceHome = () => {
                     isOpen={showListingModal}
                     onClose={() => setShowListingModal(false)}
                     section={selectedSection}
+                    onSuccess={handleListingSuccess}
                 />
             )}
             {trackingOrder && (

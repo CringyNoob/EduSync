@@ -22,31 +22,76 @@ import {
     Truck,
     CreditCard,
     ChevronRight,
-    X as CloseIcon
+    X
 } from 'lucide-react';
 import Button from '../../components/Button';
 import { useCart } from '../../context/CartContext';
+import marketplaceService from '../../services/marketplaceService';
 
 const MarketplaceItemDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [isSaved, setIsSaved] = useState(false);
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Mock Database
-    const products = [
-        { id: '1', title: 'Homemade Chocolate Chip Cookies', price: '12.00', category: 'Homemade', bg: 'bg-orange-50', icon: Utensils, seller: 'Baker B.', location: 'Dorm C Lounge', description: 'Freshly baked this morning! Pack of 12 soft and chewy cookies.', postedAt: '1h ago', sellerRating: 4.8, section: 'Foods' },
-        { id: '2', title: 'Energy Drinks Bundle', price: '15.00', category: 'Beverages', bg: 'bg-blue-50', icon: Coffee, seller: 'Gym Rat', location: 'Campus Gym', description: 'Bundle of 6 energy drinks. Mixed flavors.', postedAt: '3h ago', sellerRating: 4.5, section: 'Foods' },
-        { id: '3', title: 'Calculus Early Transcendentals', price: '45.00', category: 'Textbooks', bg: 'bg-indigo-50', icon: BookOpen, seller: 'John D.', location: 'Main Library', description: '8th edition, great condition. No highlights.', postedAt: '2h ago', sellerRating: 4.9, section: 'Pre-Owned' },
-        { id: '4', title: 'Sony WH-1000XM4 Noise Cancelling', price: '180.00', category: 'Electronics', bg: 'bg-gray-50', icon: Monitor, seller: 'Alex K.', location: 'Tech Hub', description: 'Barely used headphones. Industry leading noise cancellation.', postedAt: '1d ago', sellerRating: 5.0, section: 'Pre-Owned' },
-        { id: '5', title: 'IKEA Desk Lamp', price: '20.00', category: 'Furniture', bg: 'bg-yellow-50', icon: Armchair, seller: 'Mike R.', location: 'Dorm A', description: 'Adjustable desk lamp. Includes LED bulb.', postedAt: '1d ago', sellerRating: 4.7, section: 'Pre-Owned' },
-        { id: '6', title: 'University Hoodie - Size L', price: '45.00', category: 'Merch', bg: 'bg-purple-50', icon: Shirt, seller: 'Campus Store', location: 'Bookstore', description: 'Official campus hoodie. New with tags.', postedAt: '5h ago', sellerRating: 4.9, section: 'Shops' },
-        { id: '7', title: 'Scientific Calculator TI-84 Plus', price: '120.00', category: 'Tech Accessories', bg: 'bg-cyan-50', icon: Monitor, seller: 'Tech Hub', location: 'Science Building', description: 'Standard graphing calculator. Good as new.', postedAt: '1d ago', sellerRating: 5.0, section: 'Shops' },
-        { id: '14', title: 'Classic Baseball Cap', price: '22.00', category: 'Merch', bg: 'bg-blue-50', icon: Shirt, seller: 'University Store', location: 'Bookstore', description: 'Show your campus pride with this classic cotton baseball cap.', postedAt: '1h ago', sellerRating: 4.9, section: 'Shops' },
-        { id: '8', title: 'Blueberry Muffin Box (4pc)', price: '10.00', category: 'Snacks', bg: 'bg-blue-50', icon: Coffee, seller: "Baker's Delight", location: 'Dorm C Lounge', description: '4 pieces of freshly baked muffins.', postedAt: '2h ago', sellerRating: 4.8, section: 'Foods' },
-        { id: '9', title: 'Chicken Teriyaki Bowl', price: '8.50', category: 'Meal Prep', bg: 'bg-orange-50', icon: Utensils, seller: 'Campus Canteen', location: 'Main Hall', description: 'Healthy meal prep with chicken and rice.', postedAt: '30m ago', sellerRating: 4.5, section: 'Foods' },
-    ];
+    // Fetch product details on mount
+    useEffect(() => {
+        const fetchProduct = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                // Try fetching as preowned first, then as regular product
+                let productData;
+                try {
+                    const response = await marketplaceService.getPreownedById(id);
+                    const listing = response.listing || response.data;
+                    productData = {
+                        id: listing.id,
+                        title: listing.title,
+                        price: listing.price,
+                        category: listing.category,
+                        description: listing.description,
+                        seller: listing.seller_name,
+                        location: 'Campus',
+                        postedAt: 'Recently',
+                        sellerRating: 4.5,
+                        section: 'Pre-Owned',
+                        images: listing.images || [],
+                        status: listing.status
+                    };
+                } catch (err) {
+                    // If not preowned, try as regular product
+                    const response = await marketplaceService.getProductById(id);
+                    productData = {
+                        id: response.product.id,
+                        title: response.product.name,
+                        price: response.product.price,
+                        category: response.product.vendor?.name || 'Product',
+                        description: response.product.description,
+                        seller: response.product.vendor?.name || 'Vendor',
+                        location: 'Campus',
+                        postedAt: 'Available',
+                        sellerRating: 4.5,
+                        section: 'Shops',
+                        image: response.product.image_url,
+                        is_available: response.product.is_available
+                    };
+                }
+                setProduct(productData);
+            } catch (err) {
+                console.error('Error fetching product:', err);
+                setError(err.message || 'Failed to load product');
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const product = products.find(p => p.id === id) || products[0];
+        if (id) {
+            fetchProduct();
+        }
+    }, [id]);
 
     const { addToCart, cartCount } = useCart();
     const [isAdded, setIsAdded] = useState(false);
@@ -60,6 +105,30 @@ const MarketplaceItemDetails = () => {
     const handleContactSeller = () => {
         navigate('/chat');
     };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-gray-500">Loading product details...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error || !product) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <Shield size={48} className="text-red-500 mx-auto mb-4" />
+                    <h2 className="text-xl font-bold mb-2">Failed to load product</h2>
+                    <p className="text-gray-500 mb-4">{error || 'Product not found'}</p>
+                    <Button onClick={() => navigate('/marketplace')}>Back to Marketplace</Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="relative min-h-screen p-6 font-sans pb-24 text-left">
@@ -93,10 +162,24 @@ const MarketplaceItemDetails = () => {
             </div>
 
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                {/* Image Section (Icon Based) */}
+                {/* Image Section */}
                 <div className="space-y-4">
-                    <div className={`aspect-square w-full rounded-[3rem] shadow-2xl overflow-hidden border border-white/60 relative group ${product.bg} flex items-center justify-center`}>
-                        <product.icon size={120} className="text-gray-900/10 transition-transform duration-700 group-hover:scale-110" />
+                    <div className="aspect-square w-full rounded-[3rem] shadow-2xl overflow-hidden border border-white/60 relative group bg-gray-50 flex items-center justify-center">
+                        {product.images && product.images.length > 0 ? (
+                            <img 
+                                src={product.images[0]} 
+                                alt={product.title}
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            />
+                        ) : product.image ? (
+                            <img 
+                                src={product.image} 
+                                alt={product.title}
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            />
+                        ) : (
+                            <ShoppingBag size={120} className="text-gray-300 transition-transform duration-700 group-hover:scale-110" />
+                        )}
                     </div>
                 </div>
 

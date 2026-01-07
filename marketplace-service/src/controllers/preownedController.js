@@ -108,10 +108,24 @@ async function getListingById(req, res) {
  */
 async function createListing(req, res) {
     try {
+        console.log('=== CREATE LISTING REQUEST RECEIVED ===');
+        console.log('Body keys:', Object.keys(req.body));
+        console.log('Body data:', {
+            ...req.body,
+            images: req.body.images ? `[${req.body.images.length} images]` : 'none'
+        });
+        
         const { seller_id, seller_name, title, description, price, category, images } = req.body;
 
         // Validate required fields
         if (!seller_id || !seller_name || !title || !price || !category) {
+            console.log('Validation failed - missing fields:', {
+                seller_id: !!seller_id,
+                seller_name: !!seller_name,
+                title: !!title,
+                price: !!price,
+                category: !!category
+            });
             return res.status(400).json({
                 success: false,
                 error: 'Missing required fields: seller_id, seller_name, title, price, category'
