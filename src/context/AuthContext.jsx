@@ -6,7 +6,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState({
         name: 'John Doe',
         email: 'john.doe@university.edu',
-        role: 'student'
+        role: 'Student'
     });
 
     const login = (email, password) => {
@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
         setUser({
             name: 'John Doe',
             email: email,
-            role: 'student'
+            role: 'Student'
         });
     };
 
@@ -22,8 +22,15 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const switchRole = (newRole) => {
+        setUser(prev => ({
+            ...prev,
+            role: newRole
+        }));
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, switchRole }}>
             {children}
         </AuthContext.Provider>
     );

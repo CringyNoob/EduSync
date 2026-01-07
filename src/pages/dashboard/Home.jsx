@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useNotifications } from '../../context/NotificationContext';
 import {
     ShoppingBag, MessageSquare, Bell, AlertCircle, TrendingUp, Clock, ArrowRight,
     Zap, Star, Shield, Search, User, Heart, Bookmark, Calendar, Users,
     Package, MessageCircle, Activity, Filter, ChevronRight, Plus, Settings,
-    BookOpen, Award, Target, Sparkles, Home as HomeIcon
+    BookOpen, Award, Target, Sparkles, Home as HomeIcon, LayoutDashboard
 } from 'lucide-react';
 
 // Reusing the styled Button from LandingPage for consistency
@@ -146,6 +147,7 @@ const QuickActionCard = ({ title, description, icon: Icon, colorClass, onClick }
 
 const Home = () => {
     const navigate = useNavigate();
+    const { unreadCount: unreadNotifications } = useNotifications();
     const [searchQuery, setSearchQuery] = useState('');
     const [activityFilter, setActivityFilter] = useState('all');
 
@@ -159,12 +161,11 @@ const Home = () => {
 
     // Mock data
     const userName = "Alex";
-    const unreadNotifications = 3;
 
     const personalStats = [
         { title: "My Listings", value: "5", icon: Package, colorClass: "bg-orange-100 text-orange-600", onClick: () => navigate('/marketplace?filter=my-listings') },
         { title: "My Posts", value: "12", icon: MessageCircle, colorClass: "bg-blue-100 text-blue-600", onClick: () => navigate('/forum?filter=my-posts') },
-        { title: "Saved Items", value: "8", icon: Bookmark, colorClass: "bg-purple-100 text-purple-600", onClick: () => navigate('/saved') },
+        { title: "Saved Items", value: "8", icon: Bookmark, colorClass: "bg-indigo-100 text-indigo-600", onClick: () => navigate('/saved') },
         { title: "Messages", value: "4", icon: MessageSquare, colorClass: "bg-green-100 text-green-600", onClick: () => navigate('/chat') },
     ];
 
@@ -185,8 +186,8 @@ const Home = () => {
     const quickActions = [
         { title: "Sell Item", description: "List on marketplace", icon: ShoppingBag, colorClass: "bg-gradient-to-br from-orange-400 to-pink-500", onClick: () => navigate('/marketplace/new') },
         { title: "Ask Question", description: "Start forum topic", icon: MessageSquare, colorClass: "bg-gradient-to-br from-blue-400 to-cyan-500", onClick: () => navigate('/forum/new') },
+        { title: "My Rentals", description: "Manage your gear", icon: LayoutDashboard, colorClass: "bg-gradient-to-br from-emerald-400 to-teal-500", onClick: () => navigate('/renthub/my-rentals') },
         { title: "Report Issue", description: "Submit campus issue", icon: AlertCircle, colorClass: "bg-gradient-to-br from-red-400 to-rose-500", onClick: () => navigate('/issues/new') },
-        { title: "View Schedule", description: "Check class timing", icon: Calendar, colorClass: "bg-gradient-to-br from-emerald-400 to-teal-500", onClick: () => navigate('/schedule') },
     ];
 
     const campusStats = [
@@ -251,9 +252,16 @@ const Home = () => {
 
                     {/* Quick Action Buttons */}
                     <div className="flex gap-3">
-                        <Button size="icon" variant="outline" className="rounded-2xl h-14 w-14 border-gray-200 hover:border-primary hover:bg-white hover:shadow-md bg-white" onClick={() => navigate('/notifications')}>
-                            <Bell className="h-6 w-6" />
-                        </Button>
+                        <div className="relative">
+                            <Button size="icon" variant="outline" className="rounded-2xl h-14 w-14 border-gray-200 hover:border-primary hover:bg-white hover:shadow-md bg-white" onClick={() => navigate('/notifications')}>
+                                <Bell className="h-6 w-6" />
+                            </Button>
+                            {unreadNotifications > 0 && (
+                                <div className="absolute top-1 right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold ring-2 ring-white shadow-sm pointer-events-none animate-in zoom-in">
+                                    {unreadNotifications}
+                                </div>
+                            )}
+                        </div>
                         <Button size="icon" variant="outline" className="rounded-2xl h-14 w-14 border-gray-200 hover:border-primary hover:bg-white hover:shadow-md bg-white" onClick={() => navigate('/settings')}>
                             <Settings className="h-6 w-6" />
                         </Button>
