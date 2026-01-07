@@ -182,8 +182,26 @@ async function login(req, res) {
 
         const user = result.rows[0];
 
-         // 1. Generate the Token (Make sure this part exists)
-            const token = jwt.sign(
+        // Check if password_hash exists in database
+        if (!user.password_hash) {
+            return res.status(500).json({ 
+                success: false,
+                error: 'User account has no password set. Please contact support.' 
+            });
+        }
+
+        // Compare password with password_hash
+        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ 
+                success: false,
+                error: 'Invalid email or password' 
+            });
+        }
+
+        // Generate the Token after successful password validation
+        const token = jwt.sign(
             { 
                 id: user.id,
                 name: user.name,
@@ -193,17 +211,7 @@ async function login(req, res) {
             }, 
             process.env.JWT_SECRET, 
             { expiresIn: '1d' }
-            );
-
-        // Compare password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-
-        if (!isPasswordValid) {
-            return res.status(401).json({ 
-                success: false,
-                error: 'Invalid email or password' 
-            });
-        }
+        );
 
         // Return user data (exclude password)
         return res.status(200).json({

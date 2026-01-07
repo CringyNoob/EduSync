@@ -1,172 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Apple, Chrome, X, User, CheckCircle, Shield, Mail, Lock, Hash } from 'lucide-react';
+import { Apple, Chrome, X, User, CheckCircle, Shield } from 'lucide-react';
 import Button from '../../components/Button';
-import authService from '../../services/authService';
 
 const Register = () => {
     const navigate = useNavigate();
-    const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: Details
     const [isLoading, setIsLoading] = useState(false);
-    const [otpSent, setOtpSent] = useState(false);
-    const [error, setError] = useState('');
-    const [otpHash, setOtpHash] = useState(''); // Store OTP hash from server
-    
-    // Form data
-    const [formData, setFormData] = useState({
-        email: '',
-        otp: '',
-        fullName: '',
-        studentId: '',
-        semester: 'Fall',
-        year: '',
-        department: '',
-        phone: '',
-        password: '',
-        confirmPassword: ''
-    });
 
-    const departments = [
-        'Computer Science & Engineering',
-        'Electrical & Electronic Engineering',
-        'English',
-        'Media & Journalism',
-        'Development Studies',
-        'Civil Engineering',
-        'Pharmacy',
-        'Biotechnology'
-    ];
-
-    const semesters = ['Fall', 'Spring', 'Summer'];
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-        setError('');
-    };
-
-    const handleSendOTP = async (e) => {
+    const handleRegister = (e) => {
         e.preventDefault();
-        
-        if (!formData.email) {
-            setError('Please enter your email');
-            return;
-        }
-        
-        if (!formData.email.endsWith('.uiu.ac.bd')) {
-            setError('Please use your UIU email address (.uiu.ac.bd)');
-            return;
-        }
-        
         setIsLoading(true);
-        setError('');
-        
-        try {
-            // Call the actual API to send OTP
-            const response = await authService.sendOtp(formData.email);
-            
-            // Store the OTP hash from server response
-            setOtpHash(response.hash);
-            setOtpSent(true);
-            setError('');
-        } catch (err) {
-            setError(err.message || 'Failed to send OTP. Please try again.');
-        } finally {
+        setTimeout(() => {
             setIsLoading(false);
-        }
-    };
-
-    const handleVerifyOTP = async (e) => {
-        e.preventDefault();
-        
-        if (!formData.otp || formData.otp.length !== 6) {
-            setError('Please enter the 6-digit OTP');
-            return;
-        }
-        
-        setIsLoading(true);
-        setError('');
-        
-        try {
-            // For now, just move to next step
-            // The actual OTP verification will happen during registration
-            setStep(3);
-        } catch (err) {
-            setError(err.message || 'Failed to verify OTP. Please try again.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        
-        // Validation
-        if (!formData.fullName) {
-            setError('Please enter your full name');
-            return;
-        }
-        
-        if (!formData.studentId || (formData.studentId.length !== 9 && formData.studentId.length !== 10)) {
-            setError('Student ID must be 9 or 10 digits');
-            return;
-        }
-        
-        if (!formData.year || formData.year.length !== 4) {
-            setError('Please enter a valid year');
-            return;
-        }
-        
-        if (!formData.department) {
-            setError('Please select a department');
-            return;
-        }
-        
-        if (!formData.phone) {
-            setError('Please enter your phone number');
-            return;
-        }
-        
-        if (!formData.password || formData.password.length < 8) {
-            setError('Password must be at least 8 characters');
-            return;
-        }
-        
-        if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match');
-            return;
-        }
-        
-        setIsLoading(true);
-        setError('');
-        
-        try {
-            // Create batch string
-            const batch = `${formData.semester} - ${formData.year}`;
-            
-            // Prepare registration data
-            const registrationData = {
-                email: formData.email,
-                otp: formData.otp,
-                hash: otpHash,
-                password: formData.password,
-                name: formData.fullName,
-                studentId: formData.studentId,
-                department: formData.department,
-                batch: batch,
-                phone: formData.phone
-            };
-            
-            // Call the register API
-            const response = await authService.register(registrationData);
-            
-            // Registration successful - navigate to dashboard
-            navigate('/dashboard');
-        } catch (err) {
-            setError(err.message || 'Registration failed. Please try again.');
-        } finally {
-            setIsLoading(false);
-        }
+            navigate('/verify-email');
+        }, 1500);
     };
 
     return (
@@ -196,206 +43,57 @@ const Register = () => {
 
                     <div className="max-w-xs w-full mx-auto mt-6">
                         <h1 className="text-2xl font-bold text-text-main mb-1">Create Account</h1>
-                        <p className="text-xs text-text-main-light mb-5">
-                            {step === 1 && 'Enter your UIU email to get started'}
-                            {step === 2 && 'Verify your email with OTP'}
-                            {step === 3 && 'Complete your profile'}
-                        </p>
+                        <p className="text-xs text-text-main-light mb-5">Join the academic community.</p>
 
-                        {error && (
-                            <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg">
-                                <p className="text-xs text-red-600">{error}</p>
+                        <form onSubmit={handleRegister} className="space-y-3">
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-text-main ml-1">First Name</label>
+                                    <input
+                                        type="text"
+                                        placeholder="John"
+                                        className="w-full h-10 px-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-text-main ml-1">Last Name</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Doe"
+                                        className="w-full h-10 px-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
+                                    />
+                                </div>
                             </div>
-                        )}
 
-                        {/* Step 1: Email */}
-                        {step === 1 && !otpSent && (
-                            <form onSubmit={handleSendOTP} className="space-y-3">
-                                <div className="space-y-1">
-                                    <label className="text-xs font-semibold text-text-main ml-1">University Email</label>
-                                    <div className="relative">
-                                        <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            value={formData.email}
-                                            onChange={handleInputChange}
-                                            placeholder="student@example.uiu.ac.bd"
-                                            className="w-full h-10 pl-10 pr-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
-                                        />
-                                    </div>
-                                </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-semibold text-text-main ml-1">University Email</label>
+                                <input
+                                    type="email"
+                                    placeholder="student@university.edu"
+                                    className="w-full h-10 px-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
+                                />
+                            </div>
 
-                                <Button
-                                    type="submit"
-                                    isLoading={isLoading}
-                                    className="w-full h-11 rounded-full bg-secondary hover:bg-secondary-light text-white font-bold text-sm shadow-md shadow-secondary/20 mt-3 border-none hover:scale-[1.02] transition-transform"
-                                >
-                                    Send OTP
-                                </Button>
-                            </form>
-                        )}
-
-                        {/* Step 2: OTP Verification */}
-                        {step === 1 && otpSent && (
-                            <form onSubmit={handleVerifyOTP} className="space-y-3">
-                                <div className="space-y-1">
-                                    <label className="text-xs font-semibold text-text-main ml-1">University Email</label>
+                            <div className="space-y-1">
+                                <label className="text-xs font-semibold text-text-main ml-1">Password</label>
+                                <div className="relative">
                                     <input
-                                        type="email"
-                                        value={formData.email}
-                                        disabled
-                                        className="w-full h-10 px-4 rounded-xl bg-gray-100 border border-gray-200 text-xs text-text-main outline-none"
-                                    />
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="text-xs font-semibold text-text-main ml-1">Enter OTP</label>
-                                    <div className="relative">
-                                        <Hash size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <input
-                                            type="text"
-                                            name="otp"
-                                            value={formData.otp}
-                                            onChange={handleInputChange}
-                                            placeholder="123456"
-                                            maxLength={6}
-                                            className="w-full h-10 pl-10 pr-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
-                                        />
-                                    </div>
-                                    <p className="text-xs text-gray-500 ml-1 mt-1">Check your email for the 6-digit code</p>
-                                </div>
-
-                                <Button
-                                    type="submit"
-                                    isLoading={isLoading}
-                                    className="w-full h-11 rounded-full bg-secondary hover:bg-secondary-light text-white font-bold text-sm shadow-md shadow-secondary/20 mt-3 border-none hover:scale-[1.02] transition-transform"
-                                >
-                                    Verify OTP
-                                </Button>
-                            </form>
-                        )}
-
-                        {/* Step 3: Complete Details */}
-                        {step === 3 && (
-                            <form onSubmit={handleRegister} className="space-y-3 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
-                                <div className="space-y-1">
-                                    <label className="text-xs font-semibold text-text-main ml-1">Full Name</label>
-                                    <input
-                                        type="text"
-                                        name="fullName"
-                                        value={formData.fullName}
-                                        onChange={handleInputChange}
-                                        placeholder="John Doe"
+                                        type="password"
+                                        placeholder="••••••••"
                                         className="w-full h-10 px-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
                                     />
                                 </div>
+                            </div>
 
-                                <div className="space-y-1">
-                                    <label className="text-xs font-semibold text-text-main ml-1">Student ID (9-10 digits)</label>
-                                    <input
-                                        type="text"
-                                        name="studentId"
-                                        value={formData.studentId}
-                                        onChange={handleInputChange}
-                                        placeholder="011221123"
-                                        maxLength={10}
-                                        className="w-full h-10 px-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
-                                    />
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="text-xs font-semibold text-text-main ml-1">Batch</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <select
-                                            name="semester"
-                                            value={formData.semester}
-                                            onChange={handleInputChange}
-                                            className="w-full h-10 px-3 rounded-xl bg-white border border-gray-200 text-xs text-text-main focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
-                                        >
-                                            {semesters.map(sem => (
-                                                <option key={sem} value={sem}>{sem}</option>
-                                            ))}
-                                        </select>
-                                        <input
-                                            type="text"
-                                            name="year"
-                                            value={formData.year}
-                                            onChange={handleInputChange}
-                                            placeholder="2023"
-                                            maxLength={4}
-                                            className="w-full h-10 px-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
-                                        />
-                                    </div>
-                                    <p className="text-xs text-gray-500 ml-1 mt-1">Will be saved as: {formData.semester} - {formData.year || 'YYYY'}</p>
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="text-xs font-semibold text-text-main ml-1">Department</label>
-                                    <select
-                                        name="department"
-                                        value={formData.department}
-                                        onChange={handleInputChange}
-                                        className="w-full h-10 px-3 rounded-xl bg-white border border-gray-200 text-xs text-text-main focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
-                                    >
-                                        <option value="">Select Department</option>
-                                        {departments.map(dept => (
-                                            <option key={dept} value={dept}>{dept}</option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="text-xs font-semibold text-text-main ml-1">Phone Number</label>
-                                    <input
-                                        type="tel"
-                                        name="phone"
-                                        value={formData.phone}
-                                        onChange={handleInputChange}
-                                        placeholder="+880 1234567890"
-                                        className="w-full h-10 px-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
-                                    />
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="text-xs font-semibold text-text-main ml-1">Password</label>
-                                    <div className="relative">
-                                        <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <input
-                                            type="password"
-                                            name="password"
-                                            value={formData.password}
-                                            onChange={handleInputChange}
-                                            placeholder="••••••••"
-                                            className="w-full h-10 pl-10 pr-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="text-xs font-semibold text-text-main ml-1">Confirm Password</label>
-                                    <div className="relative">
-                                        <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <input
-                                            type="password"
-                                            name="confirmPassword"
-                                            value={formData.confirmPassword}
-                                            onChange={handleInputChange}
-                                            placeholder="••••••••"
-                                            className="w-full h-10 pl-10 pr-4 rounded-xl bg-white border border-gray-200 text-xs text-text-main placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all outline-none"
-                                        />
-                                    </div>
-                                </div>
-
-                                <Button
-                                    type="submit"
-                                    isLoading={isLoading}
-                                    className="w-full h-11 rounded-full bg-secondary hover:bg-secondary-light text-white font-bold text-sm shadow-md shadow-secondary/20 mt-3 border-none hover:scale-[1.02] transition-transform"
-                                >
-                                    Register Now
-                                </Button>
-                            </form>
-                        )}
+                            <Button
+                                type="submit"
+                                isLoading={isLoading}
+                                className="w-full h-11 rounded-full bg-secondary hover:bg-secondary-light text-white font-bold text-sm shadow-md shadow-secondary/20 mt-3 border-none hover:scale-[1.02] transition-transform"
+                            >
+                                Register Now
+                            </Button>
+                        </form>
 
                         <div className="mt-6 flex items-center justify-between text-xs text-text-main-light">
                             <p>Already a member? <Link to="/login" className="text-secondary font-bold hover:underline">Log In</Link></p>

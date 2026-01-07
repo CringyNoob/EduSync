@@ -2,35 +2,18 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Apple, Chrome, X, GraduationCap, Users, BookOpen } from 'lucide-react';
 import Button from '../../components/Button';
-import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
     const navigate = useNavigate();
-    const { login } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
 
-    const handleLogin = async (e) => {
+    const handleLogin = (e) => {
         e.preventDefault();
-        
-        if (!email || !password) {
-            setError('Please enter both email and password');
-            return;
-        }
-        
         setIsLoading(true);
-        setError('');
-        
-        try {
-            await login(email, password);
-            navigate('/dashboard');
-        } catch (err) {
-            setError(err.message || 'Login failed. Please try again.');
-        } finally {
+        setTimeout(() => {
             setIsLoading(false);
-        }
+            navigate('/dashboard');
+        }, 1500);
     };
 
     return (
@@ -62,12 +45,6 @@ const Login = () => {
                         <h1 className="text-2xl font-bold text-text-main mb-1">Welcome Back!</h1>
                         <p className="text-sm text-text-main-light mb-6">Log in to access your study groups.</p>
 
-                        {error && (
-                            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                <p className="text-xs text-red-600">{error}</p>
-                            </div>
-                        )}
-
                         <form onSubmit={handleLogin} className="space-y-4">
 
                             <div className="space-y-1.5">
@@ -75,8 +52,6 @@ const Login = () => {
                                 <input
                                     type="email"
                                     placeholder="student@university.edu"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
                                     className="w-full h-11 px-4 rounded-xl bg-white border border-gray-200 text-sm text-text-main placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all outline-none"
                                 />
                             </div>
@@ -87,8 +62,6 @@ const Login = () => {
                                     <input
                                         type="password"
                                         placeholder="•••••••••••••••••"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
                                         className="w-full h-11 px-4 rounded-xl bg-white border border-gray-200 text-sm text-text-main placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all outline-none"
                                     />
                                 </div>

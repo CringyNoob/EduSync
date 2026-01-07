@@ -12,13 +12,14 @@ import {
     User,
     Settings,
     ChevronRight,
-    Sparkles
+    Sparkles,
+    Repeat
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
-    const { logout, user } = useAuth();
+    const { logout } = useAuth();
     const navigate = useNavigate();
     const [hoveredItem, setHoveredItem] = useState(null);
 
@@ -27,12 +28,12 @@ const Sidebar = () => {
         navigate('/');
     };
 
-    // Use actual user data from context
+    // Mock user data - Replace with actual user data from context
     const userData = {
-        name: user?.name || "User",
-        email: user?.email || "",
-        avatar: user?.avatarUrl || null,
-        role: user?.role || "Student"
+        name: "Alex Johnson",
+        email: "alex@university.edu",
+        avatar: null, // Will show initials if no avatar
+        role: "Student"
     };
 
     const navItems = [
@@ -40,6 +41,7 @@ const Sidebar = () => {
         { icon: ShoppingBag, label: 'Marketplace', path: '/marketplace', activeClass: 'text-indigo-600 bg-indigo-50 border-indigo-600' },
         { icon: MessageSquare, label: 'Forum', path: '/forum', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
         { icon: Bell, label: 'Notices', path: '/notices', activeClass: 'text-yellow-600 bg-yellow-50 border-yellow-600', badge: 3 },
+        { icon: Repeat, label: 'RentHub', path: '/renthub', activeClass: 'text-emerald-600 bg-emerald-50 border-emerald-600' },
         { icon: MessageCircle, label: 'Chat', path: '/chat', activeClass: 'text-green-600 bg-green-50 border-green-600', badge: 5 },
         { icon: AlertCircle, label: 'Issues', path: '/issues', activeClass: 'text-red-600 bg-red-50 border-red-600' },
     ];

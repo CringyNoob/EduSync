@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import authService from '../../services/authService';
 import {
     User,
     MapPin,
@@ -28,102 +26,23 @@ import Button from '../../components/Button';
 const Profile = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { user: currentUser } = useAuth();
-    const [profileData, setProfileData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
-    // Fetch profile data
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                setLoading(true);
-                // If viewing own profile (id === 'me' or no id)
-                const isOwnProfile = !id || id === 'me';
-                
-                if (isOwnProfile && currentUser) {
-                    // Use current user data from context
-                    setProfileData({
-                        id: currentUser.id,
-                        name: currentUser.name,
-                        role: currentUser.role || 'Student',
-                        major: currentUser.department || 'N/A',
-                        university: 'UIU',
-                        joined: new Date(currentUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) || 'Recently',
-                        bio: currentUser.bio || 'No bio yet.',
-                        email: currentUser.email,
-                        phone: currentUser.phone,
-                        studentId: currentUser.studentId,
-                        department: currentUser.department,
-                        batch: currentUser.batch,
-                        stats: {
-                            reputation: 5.0,
-                            listingsSold: 0,
-                            activeListings: 0
-                        },
-                        badges: currentUser.isVerified ? ['Verified Student'] : []
-                    });
-                } else {
-                    // Fetch other user's profile
-                    const response = await authService.getProfile();
-                    if (response.success && response.data) {
-                        const userData = response.data;
-                        setProfileData({
-                            id: userData.id,
-                            name: userData.name,
-                            role: userData.role || 'Student',
-                            major: userData.department || 'N/A',
-                            university: 'UIU',
-                            joined: new Date(userData.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) || 'Recently',
-                            bio: userData.bio || 'No bio yet.',
-                            email: userData.email,
-                            phone: userData.phone,
-                            studentId: userData.studentId,
-                            department: userData.department,
-                            batch: userData.batch,
-                            stats: {
-                                reputation: 5.0,
-                                listingsSold: 0,
-                                activeListings: 0
-                            },
-                            badges: userData.isVerified ? ['Verified Student'] : []
-                        });
-                    }
-                }
-            } catch (err) {
-                console.error('Error fetching profile:', err);
-                setError(err.message || 'Failed to load profile');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProfile();
-    }, [id, currentUser]);
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading profile...</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (error || !profileData) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-center">
-                    <p className="text-red-600 mb-4">{error || 'Profile not found'}</p>
-                    <Button onClick={() => navigate('/dashboard')}>Back to Dashboard</Button>
-                </div>
-            </div>
-        );
-    }
-
-    const user = profileData;
+    // Mock User Data
+    const user = {
+        id: id || 'u123',
+        name: 'John Doe',
+        role: 'Student',
+        major: 'Computer Science',
+        university: 'State University',
+        joined: 'September 2023',
+        bio: 'CS Sophomore interested in AI and Web Development. Usually selling textbooks from previous semesters.',
+        stats: {
+            reputation: 4.8,
+            listingsSold: 12,
+            activeListings: 3
+        },
+        badges: ['Verified Student', 'Quick Responder', 'Top Seller']
+    };
 
     return (
         <div className="relative min-h-screen p-6 font-sans">
