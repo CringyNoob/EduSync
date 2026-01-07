@@ -12,37 +12,68 @@ import {
     User,
     Settings,
     ChevronRight,
-    Sparkles
+    Store,
+    Shield,
+    Sparkles,
+    Repeat,
+    Package,
+    TrendingUp
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
-    const { logout, user } = useAuth();
+    const { user, logout, switchRole } = useAuth();
     const navigate = useNavigate();
     const [hoveredItem, setHoveredItem] = useState(null);
+    const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
 
     const handleLogout = () => {
         logout();
         navigate('/');
     };
 
-    // Use actual user data from context
+    // Use context user data defaulting to mock if partial info
     const userData = {
-        name: user?.name || "User",
-        email: user?.email || "",
-        avatar: user?.avatarUrl || null,
+        name: user?.name || "Alex Johnson",
+        email: user?.email || "alex@university.edu",
+        avatar: null, // Will show initials if no avatar
         role: user?.role || "Student"
     };
 
-    const navItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', activeClass: 'text-primary bg-primary/5 border-primary' },
-        { icon: ShoppingBag, label: 'Marketplace', path: '/marketplace', activeClass: 'text-indigo-600 bg-indigo-50 border-indigo-600' },
-        { icon: MessageSquare, label: 'Forum', path: '/forum', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
-        { icon: Bell, label: 'Notices', path: '/notices', activeClass: 'text-yellow-600 bg-yellow-50 border-yellow-600', badge: 3 },
-        { icon: MessageCircle, label: 'Chat', path: '/chat', activeClass: 'text-green-600 bg-green-50 border-green-600', badge: 5 },
-        { icon: AlertCircle, label: 'Issues', path: '/issues', activeClass: 'text-red-600 bg-red-50 border-red-600' },
-    ];
+    // Dynamic Navigation Items based on Role
+    const getNavItems = (role) => {
+        switch (role) {
+            case 'Vendor':
+                return [
+                    { icon: LayoutDashboard, label: 'Dashboard', path: '/vendor-dashboard', activeClass: 'text-pink-600 bg-pink-50 border-pink-600' },
+                    { icon: Store, label: 'My Shop', path: '/vendor/shop', activeClass: 'text-rose-600 bg-rose-50 border-rose-600' },
+                    { icon: ShoppingBag, label: 'Orders', path: '/vendor/orders', activeClass: 'text-orange-600 bg-orange-50 border-orange-600', badge: 12 },
+                    { icon: Package, label: 'Products', path: '/vendor/products', activeClass: 'text-amber-600 bg-amber-50 border-amber-600' },
+                    { icon: TrendingUp, label: 'Analytics', path: '/vendor/analytics', activeClass: 'text-green-600 bg-green-50 border-green-600' },
+                ];
+            case 'Admin':
+                return [
+                    { icon: LayoutDashboard, label: 'Overview', path: '/admin-dashboard', activeClass: 'text-red-600 bg-red-50 border-red-600' },
+                    { icon: User, label: 'Users', path: '/admin/users', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
+                    { icon: Shield, label: 'Approvals', path: '/admin/approvals', activeClass: 'text-purple-600 bg-purple-50 border-purple-600', badge: 5 },
+                    { icon: AlertCircle, label: 'Reports', path: '/admin/reports', activeClass: 'text-orange-600 bg-orange-50 border-orange-600' },
+                ];
+            case 'Student':
+            default:
+                return [
+                    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', activeClass: 'text-primary bg-primary/5 border-primary' },
+                    { icon: ShoppingBag, label: 'Marketplace', path: '/marketplace', activeClass: 'text-indigo-600 bg-indigo-50 border-indigo-600' },
+                    { icon: MessageSquare, label: 'Forum', path: '/forum', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
+                    { icon: Bell, label: 'Notices', path: '/notices', activeClass: 'text-yellow-600 bg-yellow-50 border-yellow-600', badge: 3 },
+                    { icon: Repeat, label: 'RentHub', path: '/renthub', activeClass: 'text-emerald-600 bg-emerald-50 border-emerald-600' },
+                    { icon: MessageCircle, label: 'Chat', path: '/chat', activeClass: 'text-green-600 bg-green-50 border-green-600', badge: 5 },
+                    { icon: AlertCircle, label: 'Issues', path: '/issues', activeClass: 'text-red-600 bg-red-50 border-red-600' },
+                ];
+        }
+    };
+
+    const navItems = getNavItems(userData.role);
 
     const getInitials = (name) => {
         return name
@@ -80,31 +111,77 @@ const Sidebar = () => {
                     </div>
                 </div>
 
-                {/* User Profile Section - Refined */}
-                <div className="mb-6">
-                    <NavLink
-                        to="/profile/me"
-                        className="group relative block p-1.5 rounded-[1.2rem] bg-white/60 border border-white shadow-sm hover:shadow-md hover:bg-white transition-all duration-300"
+                {/* User Profile & Switcher - Inline Accordion */}
+                <div className="mb-2 relative group/profile">
+                    <button
+                        onClick={() => setIsSwitcherOpen(!isSwitcherOpen)}
+                        className="w-full text-left p-1.5 rounded-[1.2rem] bg-white/60 border border-white shadow-sm hover:shadow-md hover:bg-white transition-all duration-300 group-hover/profile:ring-2 ring-primary/10"
                     >
                         <div className="flex items-center gap-3 p-1.5">
                             <div className="relative">
                                 {userData.avatar ? (
                                     <img src={userData.avatar} alt={userData.name} className="h-9 w-9 rounded-xl object-cover ring-2 ring-white" />
                                 ) : (
-                                    <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-gray-800 to-gray-600 flex items-center justify-center text-white font-bold text-xs shadow-sm ring-2 ring-white">
+                                    <div className={`h-9 w-9 rounded-xl bg-gradient-to-br ${userData.role === 'Admin' ? 'from-red-500 to-orange-600' :
+                                        userData.role === 'Vendor' ? 'from-pink-500 to-rose-600' :
+                                            'from-indigo-600 to-violet-600'
+                                        } flex items-center justify-center text-white font-bold text-xs shadow-sm ring-2 ring-white`}>
                                         {getInitials(userData.name)}
                                     </div>
                                 )}
-                                <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-white ring-1 ring-gray-100"></div>
+                                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 border-2 border-white"></div>
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-sm font-bold text-gray-900 truncate group-hover:text-primary transition-colors">
+                                <p className="text-sm font-bold text-gray-900 truncate">
                                     {userData.name}
                                 </p>
-                                <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">{userData.role}</p>
+                                <div className="flex items-center gap-1 text-[10px] text-gray-500 font-semibold uppercase tracking-wide">
+                                    {userData.role}
+                                    <span className="text-gray-300">|</span>
+                                    <span className="text-primary hover:underline flex items-center gap-0.5">Switch <Repeat size={8} /></span>
+                                </div>
+                            </div>
+                            <ChevronRight size={14} className={`text-gray-400 transition-transform duration-300 ${isSwitcherOpen ? 'rotate-90' : ''}`} />
+                        </div>
+                    </button>
+
+                    {/* Inline Menu */}
+                    {isSwitcherOpen && (
+                        <div className="mt-2 w-full bg-white/50 rounded-2xl border border-white/50 overflow-hidden animate-in slide-in-from-top-2 fade-in">
+                            <div className="p-1.5 space-y-1">
+                                <div className="px-3 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 mb-1">
+                                    Select Workspace
+                                </div>
+                                {[
+                                    { role: 'Student', icon: User, path: '/dashboard', color: 'text-indigo-600 bg-indigo-50' },
+                                    { role: 'Vendor', icon: Store, path: '/vendor-dashboard', color: 'text-pink-600 bg-pink-50' },
+                                    { role: 'Admin', icon: Shield, path: '/admin-dashboard', color: 'text-red-600 bg-red-50' }
+                                ].map((profile) => (
+                                    <button
+                                        key={profile.role}
+                                        onClick={() => {
+                                            if (switchRole) switchRole(profile.role);
+                                            navigate(profile.path);
+                                            setIsSwitcherOpen(false);
+                                        }}
+                                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all ${userData.role === profile.role
+                                            ? 'bg-white shadow-sm ring-1 ring-gray-100 text-gray-900'
+                                            : 'hover:bg-white/60 text-gray-600 hover:text-gray-900'
+                                            }`}
+                                    >
+                                        <div className={`h-6 w-6 rounded-lg flex items-center justify-center ${profile.color}`}>
+                                            <profile.icon size={12} />
+                                        </div>
+                                        <span className="flex-1 text-left">{profile.role}</span>
+                                        {userData.role === profile.role && <div className="h-1.5 w-1.5 rounded-full bg-green-500" />}
+                                    </button>
+                                ))}
+                                <NavLink to="/profile/me" className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-gray-500 hover:bg-white hover:text-primary transition-all mt-1">
+                                    <Settings size={12} /> Account Settings
+                                </NavLink>
                             </div>
                         </div>
-                    </NavLink>
+                    )}
                 </div>
 
                 {/* Navigation Items */}
