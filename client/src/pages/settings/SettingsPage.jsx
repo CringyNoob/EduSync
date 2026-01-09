@@ -1,21 +1,88 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     User, Bell, Shield, Moon, Globe,
-    Camera, Save, Lock, Mail, CreditCard,
-    ChevronRight, CheckCircle, AlertCircle
+    Camera, Save, Lock, Mail, Phone, Eye, EyeOff,
+    ChevronRight, CheckCircle, AlertCircle, Loader2
 } from 'lucide-react';
 import Button from '../../components/Button';
 import { useAuth } from '../../context/AuthContext';
+import authService from '../../services/authService';
 
 const SettingsPage = () => {
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
     const [activeTab, setActiveTab] = useState('profile');
     const [isLoading, setIsLoading] = useState(false);
+    const [isFetching, setIsFetching] = useState(true);
     const [saveStatus, setSaveStatus] = useState(null); // 'success' | 'error' | null
+    const [errorMessage, setErrorMessage] = useState('');
 
     // Image Upload State & Handlers
-    const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null);
+    const [avatarPreview, setAvatarPreview] = useState(null);
+    const [avatarFile, setAvatarFile] = useState(null);
     const fileInputRef = React.useRef(null);
+
+    // Profile Form State
+    const [profileData, setProfileData] = useState({
+        fullName: '',
+        email: '',
+        studentId: '',
+        department: '',
+        batch: '',
+        phone: '',
+        bio: '',
+        phoneVisible: true
+    });
+
+    const [notifications, setNotifications] = useState({
+        emailMessages: true,
+        pushMentions: true,
+        emailUpdates: false,
+        marketing: false
+    });
+
+    // Fetch profile on component mount
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                setIsFetching(true);
+                const response = await authService.getProfile();
+                if (response.success && response.profile) {
+                    const profile = response.profile;
+                    setProfileData({
+                        fullName: profile.fullName || '',
+                        email: profile.email || '',
+                        studentId: profile.studentId || '',
+                        department: profile.department || '',
+                        batch: profile.batch || '',
+                        phone: profile.phone || '',
+                        bio: profile.bio || '',
+                        phoneVisible: profile.phoneVisible !== false
+                    });
+                    if (profile.avatarUrl) {
+                        setAvatarPreview(profile.avatarUrl);
+                    }
+                    
+                    // Update auth context with fetched profile data (including avatar)
+                    if (updateUser) {
+                        updateUser({
+                            ...user,
+                            avatarUrl: profile.avatarUrl || null,
+                            phone: profile.phone || null,
+                            bio: profile.bio || null,
+                            name: profile.fullName || user?.name
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+                setErrorMessage('Failed to load profile data');
+            } finally {
+                setIsFetching(false);
+            }
+        };
+
+        fetchProfile();
+    }, []);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -24,6 +91,7 @@ const SettingsPage = () => {
                 alert("File size must be less than 2MB");
                 return;
             }
+            setAvatarFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setAvatarPreview(reader.result);
@@ -36,31 +104,51 @@ const SettingsPage = () => {
         fileInputRef.current?.click();
     };
 
-    // Mock Form State
-    const [profileData, setProfileData] = useState({
-        name: user?.name || 'Alex Johnson',
-        email: user?.email || 'alex@university.edu',
-        studentId: '0112330055',
-        department: 'Computer Science & Engineering',
-        bio: 'Tech enthusiast, coder, and coffee lover.',
-        phone: '+880 1700-000000'
-    });
-
-    const [notifications, setNotifications] = useState({
-        emailMessages: true,
-        pushMentions: true,
-        emailUpdates: false,
-        marketing: false
-    });
-
-    const handleSave = () => {
+    const handleSave = async () => {
         setIsLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            setIsLoading(false);
-            setSaveStatus('success');
+        setErrorMessage('');
+        setSaveStatus(null);
+
+        try {
+            // For now, we'll save the base64 avatar directly
+            // In production, you'd upload to a cloud storage first
+            const updateData = {
+                phone: profileData.phone || null,
+                bio: profileData.bio || null,
+                phoneVisible: profileData.phoneVisible,
+                avatarUrl: avatarPreview || null
+            };
+
+            const response = await authService.updateProfile(updateData);
+            
+            if (response.success) {
+                setSaveStatus('success');
+                // Update the auth context with new profile data
+                if (updateUser) {
+                    updateUser({
+                        ...user,
+                        avatarUrl: updateData.avatarUrl,
+                        phone: updateData.phone,
+                        bio: updateData.bio
+                    });
+                }
+                setTimeout(() => setSaveStatus(null), 3000);
+            } else {
+                throw new Error(response.error || 'Failed to update profile');
+            }
+        } catch (error) {
+            console.error('Error saving profile:', error);
+            setSaveStatus('error');
+            setErrorMessage(error.message || 'Failed to save changes');
             setTimeout(() => setSaveStatus(null), 3000);
-        }, 1500);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const getInitials = (name) => {
+        if (!name) return 'U';
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     };
 
     const tabs = [
@@ -69,6 +157,17 @@ const SettingsPage = () => {
         { id: 'security', label: 'Security & Login', icon: Shield, desc: 'Password and 2FA' },
         { id: 'appearance', label: 'Appearance', icon: Moon, desc: 'Theme preferences' },
     ];
+
+    if (isFetching) {
+        return (
+            <div className="min-h-screen p-6 font-sans flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+                    <p className="text-gray-500 font-medium">Loading profile...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen p-6 font-sans animate-in fade-in duration-500">
@@ -132,7 +231,7 @@ const SettingsPage = () => {
                                             {avatarPreview ? (
                                                 <img src={avatarPreview} alt="Profile" className="h-full w-full object-cover" />
                                             ) : (
-                                                <span>AJ</span>
+                                                <span>{getInitials(profileData.fullName)}</span>
                                             )}
                                         </div>
                                         <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -146,7 +245,10 @@ const SettingsPage = () => {
                                             <Button variant="outline" className="h-9 text-xs" onClick={triggerFileInput}>Upload New</Button>
                                             <button
                                                 className="text-xs font-bold text-red-500 hover:text-red-600"
-                                                onClick={() => setAvatarPreview(null)}
+                                                onClick={() => {
+                                                    setAvatarPreview(null);
+                                                    setAvatarFile(null);
+                                                }}
                                             >
                                                 Remove
                                             </button>
@@ -156,15 +258,21 @@ const SettingsPage = () => {
 
                                 {/* Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Full Name - Read Only */}
                                     <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Full Name</label>
-                                        <input
-                                            type="text"
-                                            value={profileData.name}
-                                            onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                                            className="w-full p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900"
-                                        />
+                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Full Name (Read Only)</label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={profileData.fullName}
+                                                readOnly
+                                                className="w-full p-4 rounded-xl bg-gray-50/50 border border-gray-100 font-bold text-gray-500 cursor-not-allowed"
+                                            />
+                                            <Lock size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                        </div>
                                     </div>
+
+                                    {/* Student ID - Read Only */}
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Student ID (Read Only)</label>
                                         <div className="relative">
@@ -177,34 +285,102 @@ const SettingsPage = () => {
                                             <Lock size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
                                         </div>
                                     </div>
+
+                                    {/* Email - Read Only */}
                                     <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Email Address</label>
+                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Email Address (Read Only)</label>
                                         <div className="relative">
                                             <input
                                                 type="email"
                                                 value={profileData.email}
                                                 readOnly
-                                                className="w-full p-4 pl-12 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900"
+                                                className="w-full p-4 pl-12 rounded-xl bg-gray-50/50 border border-gray-100 font-bold text-gray-500 cursor-not-allowed"
                                             />
                                             <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                            <Lock size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
                                         </div>
                                     </div>
+
+                                    {/* Department - Read Only */}
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Department (Read Only)</label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={profileData.department}
+                                                readOnly
+                                                className="w-full p-4 rounded-xl bg-gray-50/50 border border-gray-100 font-bold text-gray-500 cursor-not-allowed"
+                                            />
+                                            <Lock size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                        </div>
+                                    </div>
+
+                                    {/* Phone Number - Editable with visibility toggle */}
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Phone Number</label>
-                                        <input
-                                            type="tel"
-                                            value={profileData.phone}
-                                            onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                                            className="w-full p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900"
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type="tel"
+                                                value={profileData.phone}
+                                                onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                                                placeholder="Enter your phone number"
+                                                className="w-full p-4 pl-12 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900"
+                                            />
+                                            <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                        </div>
+                                        
+                                        {/* Phone Visibility Toggle */}
+                                        <div className="flex items-center justify-between mt-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                                            <div className="flex items-center gap-2">
+                                                {profileData.phoneVisible ? (
+                                                    <Eye size={16} className="text-green-600" />
+                                                ) : (
+                                                    <EyeOff size={16} className="text-gray-400" />
+                                                )}
+                                                <span className="text-sm font-medium text-gray-700">
+                                                    {profileData.phoneVisible ? 'Phone visible to others' : 'Phone hidden from others'}
+                                                </span>
+                                            </div>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    className="sr-only peer"
+                                                    checked={profileData.phoneVisible}
+                                                    onChange={() => setProfileData(prev => ({ 
+                                                        ...prev, 
+                                                        phoneVisible: !prev.phoneVisible 
+                                                    }))}
+                                                />
+                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                            </label>
+                                        </div>
                                     </div>
+
+                                    {/* Batch - Read Only */}
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Batch (Read Only)</label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={profileData.batch}
+                                                readOnly
+                                                className="w-full p-4 rounded-xl bg-gray-50/50 border border-gray-100 font-bold text-gray-500 cursor-not-allowed"
+                                            />
+                                            <Lock size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                        </div>
+                                    </div>
+
+                                    {/* Bio - Editable */}
                                     <div className="space-y-2 md:col-span-2">
                                         <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Bio / About</label>
                                         <textarea
                                             value={profileData.bio}
                                             onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                                            placeholder="Tell others about yourself..."
                                             className="w-full p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900 h-32 resize-none"
+                                            maxLength={500}
                                         />
+                                        <p className="text-xs text-gray-400 text-right">{profileData.bio.length}/500 characters</p>
                                     </div>
                                 </div>
                             </div>
@@ -319,13 +495,26 @@ const SettingsPage = () => {
                             <p className="text-xs text-gray-400 font-bold">
                                 {saveStatus === 'success' ? (
                                     <span className="text-green-500 flex items-center gap-1"><CheckCircle size={14} /> Saved Successfully</span>
-                                ) : 'Last saved: Just now'}
+                                ) : saveStatus === 'error' ? (
+                                    <span className="text-red-500 flex items-center gap-1"><AlertCircle size={14} /> {errorMessage || 'Failed to save'}</span>
+                                ) : 'Changes will be saved when you click Save'}
                             </p>
                             <Button
                                 onClick={handleSave}
+                                disabled={isLoading}
                                 className={`px-8 transition-all ${isLoading ? 'opacity-80 cursor-wait' : ''}`}
                             >
-                                {isLoading ? 'Saving...' : 'Save Changes'}
+                                {isLoading ? (
+                                    <span className="flex items-center gap-2">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Saving...
+                                    </span>
+                                ) : (
+                                    <span className="flex items-center gap-2">
+                                        <Save size={16} />
+                                        Save Changes
+                                    </span>
+                                )}
                             </Button>
                         </div>
 

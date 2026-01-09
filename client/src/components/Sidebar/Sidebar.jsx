@@ -37,7 +37,7 @@ const Sidebar = () => {
     const userData = {
         name: user?.name || "Alex Johnson",
         email: user?.email || "alex@university.edu",
-        avatar: null, // Will show initials if no avatar
+        avatar: user?.avatarUrl || null, // Use avatar from context
         role: user?.role || "Student"
     };
 
@@ -98,7 +98,7 @@ const Sidebar = () => {
             <div className="relative z-10 flex h-full flex-col px-5 py-6">
                 {/* Logo Section */}
                 <div className="mb-8 px-1">
-                    <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
+                    <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/dashboard')}>
                         <div className="p-1.5 rounded-xl bg-white shadow-sm border border-gray-100 group-hover:scale-110 transition-transform duration-300">
                             <img src="/logo.png" alt="EduSync" className="h-6 w-6 object-contain" />
                         </div>

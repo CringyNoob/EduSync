@@ -24,7 +24,9 @@ pool.on('error', (err) => {
     process.exit(-1);
 });
 
-// 3. Export a helper function to run queries
+// 3. Export helper functions to run queries and get client for transactions
 module.exports = {
     query: (text, params) => pool.query(text, params),
+    connect: () => pool.connect(), // For transactions
+    pool: pool, // Export pool for advanced usage
 };

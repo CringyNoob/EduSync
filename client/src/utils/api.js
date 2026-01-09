@@ -46,12 +46,12 @@ api.interceptors.response.use(
       switch (status) {
         case 400:
           // Bad request - show specific validation errors
-          errorMessage = data.message || 'Invalid request. Please check your input.';
+          errorMessage = data.message || data.error || 'Invalid request. Please check your input.';
           break;
 
         case 401:
           // Unauthorized - Clear token and redirect to login
-          errorMessage = data.message || 'Invalid credentials. Please try again.';
+          errorMessage = data.message || data.error || 'Invalid credentials. Please try again.';
           localStorage.removeItem('edusync_token');
           if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
             window.location.href = '/login';
@@ -60,24 +60,24 @@ api.interceptors.response.use(
 
         case 403:
           // Forbidden - User doesn't have permission
-          errorMessage = data.message || 'Access forbidden. You do not have permission.';
+          errorMessage = data.message || data.error || 'Access forbidden. You do not have permission.';
           break;
 
         case 404:
           // Not found
-          errorMessage = data.message || 'Resource not found.';
+          errorMessage = data.message || data.error || 'Resource not found.';
           break;
 
         case 429:
           // Rate limit exceeded
-          errorMessage = data.message || 'Too many requests. Please try again later.';
+          errorMessage = data.message || data.error || 'Too many requests. Please try again later.';
           break;
 
         case 500:
         case 502:
         case 503:
           // Server errors
-          errorMessage = data.message || 'Server error. Please try again later.';
+          errorMessage = data.message || data.error || 'Server error. Please try again later.';
           break;
 
         default:

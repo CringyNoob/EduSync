@@ -82,7 +82,52 @@ async function sendEmail(to, subject, htmlContent) {
     }
 }
 
+/**
+ * Send Password Reset OTP email
+ * @param {string} to - Recipient email address
+ * @param {string} otp - 6-digit OTP code
+ * @returns {Promise<object>} - Nodemailer response
+ */
+async function sendPasswordResetOtp(to, otp) {
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: to,
+        subject: 'EduSync - Password Reset OTP',
+        html: `
+            <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #333;">EduSync Password Reset</h2>
+                <p style="font-size: 16px; color: #555;">
+                    You requested to reset your password. Use the OTP below to proceed:
+                </p>
+                <div style="background-color: #f4f4f4; padding: 15px; text-align: center; margin: 20px 0;">
+                    <h1 style="color: #FF6B6B; letter-spacing: 5px; margin: 0;">${otp}</h1>
+                </div>
+                <p style="font-size: 14px; color: #777;">
+                    This OTP is valid for <strong>5 minutes</strong>.
+                </p>
+                <p style="font-size: 14px; color: #d32f2f;">
+                    ⚠️ If you didn't request this password reset, please ignore this email and ensure your account is secure.
+                </p>
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                <p style="font-size: 12px; color: #999;">
+                    EduSync - University Information System
+                </p>
+            </div>
+        `
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Password reset OTP sent successfully:', info.messageId);
+        return { success: true, messageId: info.messageId };
+    } catch (error) {
+        console.error('Error sending password reset OTP:', error);
+        throw new Error('Failed to send password reset OTP');
+    }
+}
+
 module.exports = {
     sendOtpEmail,
-    sendEmail
+    sendEmail,
+    sendPasswordResetOtp
 };

@@ -6,7 +6,8 @@ const authRoutes = require('./src/routes/authRoutes'); // Import auth routes
 require('dotenv').config();
 
 const app = express();
-app.use(express.json()); // Allow JSON data
+app.use(express.json({ limit: '10mb' })); // Allow JSON data up to 10MB (for base64 images)
+app.use(express.urlencoded({ limit: '10mb', extended: true })); // Also increase URL-encoded limit
 app.use(cors());         // Allow Frontend to talk to us
 
 // --- THE SPY LOGGER ---
