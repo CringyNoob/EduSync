@@ -1,0 +1,304 @@
+{
+  "clientName": "Thunder Client",
+  "collectionName": "NewsBox Service API",
+  "collectionId": "newsbox-api-collection",
+  "dateExported": "2026-01-09",
+  "version": "1.0",
+  "folders": [
+    {
+      "id": "health-folder",
+      "name": "1. Health & Info",
+      "requests": []
+    },
+    {
+      "id": "posts-folder",
+      "name": "2. Posts",
+      "requests": []
+    },
+    {
+      "id": "comments-folder",
+      "name": "3. Comments",
+      "requests": []
+    },
+    {
+      "id": "voting-folder",
+      "name": "4. Voting",
+      "requests": []
+    },
+    {
+      "id": "delete-folder",
+      "name": "5. Delete Operations",
+      "requests": []
+    }
+  ],
+  "requests": [
+    {
+      "id": "health-check",
+      "name": "Health Check",
+      "method": "GET",
+      "url": "http://localhost:8000/api/newsbox/health",
+      "folderId": "health-folder",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "id": "api-info",
+      "name": "API Info",
+      "method": "GET",
+      "url": "http://localhost:8000/api/newsbox/info",
+      "folderId": "health-folder",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "id": "create-accommodation-post",
+      "name": "Create Post - ACCOMMODATION",
+      "method": "POST",
+      "url": "http://localhost:8000/api/newsbox/posts",
+      "folderId": "posts-folder",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjMWEwYTE4LTAxNWYtNDdiZi04YmU0LWFiYzY1YzBlMjcyMiIsIm5hbWUiOiJXYWxpIFVsbGFoIEtoYW4iLCJlbWFpbCI6Im1raGFuMjIzNzU0QGJzY3NlLnVpdS5hYy5iZCIsImRlcGFydG1lbnQiOiJDb21wdXRlciBTY2llbmNlICYgRW5naW5lZXJpbmciLCJiYXRjaCI6IkZhbGwgLSAyMDIyIiwiaWF0IjoxNzY3OTc2NDE2LCJleHAiOjE3NjgwNjI4MTZ9.IkEHrjrkWtzBR3U_Ugtv-nTMafa8AVq0LfAeQ1ItQ54"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"title\": \"Looking for a Roommate - Spring 2026\",\n  \"description\": \"I have a 2-bedroom apartment near campus. Rent is $600/month including utilities. Looking for a quiet, tidy roommate who respects study hours.\",\n  \"images\": [\"https://example.com/apt1.jpg\", \"https://example.com/apt2.jpg\"],\n  \"tag\": \"ACCOMMODATION\"\n}"
+      },
+      "tests": []
+    },
+    {
+      "id": "create-query-post",
+      "name": "Create Post - QUERY",
+      "method": "POST",
+      "url": "http://localhost:8000/api/newsbox/posts",
+      "folderId": "posts-folder",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjMWEwYTE4LTAxNWYtNDdiZi04YmU0LWFiYzY1YzBlMjcyMiIsIm5hbWUiOiJXYWxpIFVsbGFoIEtoYW4iLCJlbWFpbCI6Im1raGFuMjIzNzU0QGJzY3NlLnVpdS5hYy5iZCIsImRlcGFydG1lbnQiOiJDb21wdXRlciBTY2llbmNlICYgRW5naW5lZXJpbmciLCJiYXRjaCI6IkZhbGwgLSAyMDIyIiwiaWF0IjoxNzY3OTc2NDE2LCJleHAiOjE3NjgwNjI4MTZ9.IkEHrjrkWtzBR3U_Ugtv-nTMafa8AVq0LfAeQ1ItQ54"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"title\": \"Best study spots on campus?\",\n  \"description\": \"Looking for quiet places to study with good wifi and comfortable seating. Any recommendations?\",\n  \"images\": [],\n  \"tag\": \"QUERY\"\n}"
+      },
+      "tests": []
+    },
+    {
+      "id": "create-job-post",
+      "name": "Create Post - JOB_POSTING",
+      "method": "POST",
+      "url": "http://localhost:8000/api/newsbox/posts",
+      "folderId": "posts-folder",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjMWEwYTE4LTAxNWYtNDdiZi04YmU0LWFiYzY1YzBlMjcyMiIsIm5hbWUiOiJXYWxpIFVsbGFoIEtoYW4iLCJlbWFpbCI6Im1raGFuMjIzNzU0QGJzY3NlLnVpdS5hYy5iZCIsImRlcGFydG1lbnQiOiJDb21wdXRlciBTY2llbmNlICYgRW5naW5lZXJpbmciLCJiYXRjaCI6IkZhbGwgLSAyMDIyIiwiaWF0IjoxNzY3OTc2NDE2LCJleHAiOjE3NjgwNjI4MTZ9.IkEHrjrkWtzBR3U_Ugtv-nTMafa8AVq0LfAeQ1ItQ54"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"title\": \"Hiring: Part-time React Developer\",\n  \"description\": \"Looking for a React developer with TypeScript experience. $25/hour, 10-15 hours/week. Flexible schedule. Contact me if interested!\",\n  \"images\": [],\n  \"tag\": \"JOB_POSTING\"\n}"
+      },
+      "tests": []
+    },
+    {
+      "id": "get-all-posts",
+      "name": "Get All Posts",
+      "method": "GET",
+      "url": "http://localhost:8000/api/newsbox/posts",
+      "folderId": "posts-folder",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "id": "get-posts-by-tag",
+      "name": "Get Posts - Filter by ACCOMMODATION",
+      "method": "GET",
+      "url": "http://localhost:8000/api/newsbox/posts?tag=ACCOMMODATION",
+      "folderId": "posts-folder",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "id": "get-posts-popular",
+      "name": "Get Posts - Sort by Popular",
+      "method": "GET",
+      "url": "http://localhost:8000/api/newsbox/posts?sort=popular",
+      "folderId": "posts-folder",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "id": "get-post-by-id",
+      "name": "Get Single Post by ID",
+      "method": "GET",
+      "url": "http://localhost:8000/api/newsbox/posts/{{POST_ID}}",
+      "folderId": "posts-folder",
+      "headers": [],
+      "tests": [],
+      "notes": "Replace {{POST_ID}} with actual post UUID"
+    },
+    {
+      "id": "add-comment",
+      "name": "Add Comment to Post",
+      "method": "POST",
+      "url": "http://localhost:8000/api/newsbox/posts/{{POST_ID}}/comments",
+      "folderId": "comments-folder",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjMWEwYTE4LTAxNWYtNDdiZi04YmU0LWFiYzY1YzBlMjcyMiIsIm5hbWUiOiJXYWxpIFVsbGFoIEtoYW4iLCJlbWFpbCI6Im1raGFuMjIzNzU0QGJzY3NlLnVpdS5hYy5iZCIsImRlcGFydG1lbnQiOiJDb21wdXRlciBTY2llbmNlICYgRW5naW5lZXJpbmciLCJiYXRjaCI6IkZhbGwgLSAyMDIyIiwiaWF0IjoxNzY3OTc2NDE2LCJleHAiOjE3NjgwNjI4MTZ9.IkEHrjrkWtzBR3U_Ugtv-nTMafa8AVq0LfAeQ1ItQ54"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"content\": \"This sounds perfect! Can I get more details about the location and amenities?\"\n}"
+      },
+      "tests": [],
+      "notes": "Replace {{POST_ID}} with actual post UUID"
+    },
+    {
+      "id": "get-comments",
+      "name": "Get Comments for Post",
+      "method": "GET",
+      "url": "http://localhost:8000/api/newsbox/posts/{{POST_ID}}/comments",
+      "folderId": "comments-folder",
+      "headers": [],
+      "tests": [],
+      "notes": "Replace {{POST_ID}} with actual post UUID"
+    },
+    {
+      "id": "upvote-post",
+      "name": "Upvote Post",
+      "method": "POST",
+      "url": "http://localhost:8000/api/newsbox/posts/{{POST_ID}}/vote",
+      "folderId": "voting-folder",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjMWEwYTE4LTAxNWYtNDdiZi04YmU0LWFiYzY1YzBlMjcyMiIsIm5hbWUiOiJXYWxpIFVsbGFoIEtoYW4iLCJlbWFpbCI6Im1raGFuMjIzNzU0QGJzY3NlLnVpdS5hYy5iZCIsImRlcGFydG1lbnQiOiJDb21wdXRlciBTY2llbmNlICYgRW5naW5lZXJpbmciLCJiYXRjaCI6IkZhbGwgLSAyMDIyIiwiaWF0IjoxNzY3OTc2NDE2LCJleHAiOjE3NjgwNjI4MTZ9.IkEHrjrkWtzBR3U_Ugtv-nTMafa8AVq0LfAeQ1ItQ54"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"vote_type\": \"UP\"\n}"
+      },
+      "tests": [],
+      "notes": "Replace {{POST_ID}} with actual post UUID. Run again to toggle off."
+    },
+    {
+      "id": "downvote-post",
+      "name": "Downvote Post",
+      "method": "POST",
+      "url": "http://localhost:8000/api/newsbox/posts/{{POST_ID}}/vote",
+      "folderId": "voting-folder",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjMWEwYTE4LTAxNWYtNDdiZi04YmU0LWFiYzY1YzBlMjcyMiIsIm5hbWUiOiJXYWxpIFVsbGFoIEtoYW4iLCJlbWFpbCI6Im1raGFuMjIzNzU0QGJzY3NlLnVpdS5hYy5iZCIsImRlcGFydG1lbnQiOiJDb21wdXRlciBTY2llbmNlICYgRW5naW5lZXJpbmciLCJiYXRjaCI6IkZhbGwgLSAyMDIyIiwiaWF0IjoxNzY3OTc2NDE2LCJleHAiOjE3NjgwNjI4MTZ9.IkEHrjrkWtzBR3U_Ugtv-nTMafa8AVq0LfAeQ1ItQ54"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"vote_type\": \"DOWN\"\n}"
+      },
+      "tests": [],
+      "notes": "Replace {{POST_ID}} with actual post UUID"
+    },
+    {
+      "id": "vote-status",
+      "name": "Get Vote Status",
+      "method": "GET",
+      "url": "http://localhost:8000/api/newsbox/posts/{{POST_ID}}/vote-status",
+      "folderId": "voting-folder",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjMWEwYTE4LTAxNWYtNDdiZi04YmU0LWFiYzY1YzBlMjcyMiIsIm5hbWUiOiJXYWxpIFVsbGFoIEtoYW4iLCJlbWFpbCI6Im1raGFuMjIzNzU0QGJzY3NlLnVpdS5hYy5iZCIsImRlcGFydG1lbnQiOiJDb21wdXRlciBTY2llbmNlICYgRW5naW5lZXJpbmciLCJiYXRjaCI6IkZhbGwgLSAyMDIyIiwiaWF0IjoxNzY3OTc2NDE2LCJleHAiOjE3NjgwNjI4MTZ9.IkEHrjrkWtzBR3U_Ugtv-nTMafa8AVq0LfAeQ1ItQ54"
+        }
+      ],
+      "tests": [],
+      "notes": "Replace {{POST_ID}} with actual post UUID"
+    },
+    {
+      "id": "vote-comment",
+      "name": "Vote on Comment",
+      "method": "POST",
+      "url": "http://localhost:8000/api/newsbox/comments/{{COMMENT_ID}}/vote",
+      "folderId": "voting-folder",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjMWEwYTE4LTAxNWYtNDdiZi04YmU0LWFiYzY1YzBlMjcyMiIsIm5hbWUiOiJXYWxpIFVsbGFoIEtoYW4iLCJlbWFpbCI6Im1raGFuMjIzNzU0QGJzY3NlLnVpdS5hYy5iZCIsImRlcGFydG1lbnQiOiJDb21wdXRlciBTY2llbmNlICYgRW5naW5lZXJpbmciLCJiYXRjaCI6IkZhbGwgLSAyMDIyIiwiaWF0IjoxNzY3OTc2NDE2LCJleHAiOjE3NjgwNjI4MTZ9.IkEHrjrkWtzBR3U_Ugtv-nTMafa8AVq0LfAeQ1ItQ54"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"vote_type\": \"UP\"\n}"
+      },
+      "tests": [],
+      "notes": "Replace {{COMMENT_ID}} with actual comment UUID"
+    },
+    {
+      "id": "delete-comment",
+      "name": "Delete Comment",
+      "method": "DELETE",
+      "url": "http://localhost:8000/api/newsbox/comments/{{COMMENT_ID}}",
+      "folderId": "delete-folder",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjMWEwYTE4LTAxNWYtNDdiZi04YmU0LWFiYzY1YzBlMjcyMiIsIm5hbWUiOiJXYWxpIFVsbGFoIEtoYW4iLCJlbWFpbCI6Im1raGFuMjIzNzU0QGJzY3NlLnVpdS5hYy5iZCIsImRlcGFydG1lbnQiOiJDb21wdXRlciBTY2llbmNlICYgRW5naW5lZXJpbmciLCJiYXRjaCI6IkZhbGwgLSAyMDIyIiwiaWF0IjoxNzY3OTc2NDE2LCJleHAiOjE3NjgwNjI4MTZ9.IkEHrjrkWtzBR3U_Ugtv-nTMafa8AVq0LfAeQ1ItQ54"
+        }
+      ],
+      "tests": [],
+      "notes": "Replace {{COMMENT_ID}} with actual comment UUID. Only works for your own comments."
+    },
+    {
+      "id": "delete-post",
+      "name": "Delete Post",
+      "method": "DELETE",
+      "url": "http://localhost:8000/api/newsbox/posts/{{POST_ID}}",
+      "folderId": "delete-folder",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjMWEwYTE4LTAxNWYtNDdiZi04YmU0LWFiYzY1YzBlMjcyMiIsIm5hbWUiOiJXYWxpIFVsbGFoIEtoYW4iLCJlbWFpbCI6Im1raGFuMjIzNzU0QGJzY3NlLnVpdS5hYy5iZCIsImRlcGFydG1lbnQiOiJDb21wdXRlciBTY2llbmNlICYgRW5naW5lZXJpbmciLCJiYXRjaCI6IkZhbGwgLSAyMDIyIiwiaWF0IjoxNzY3OTc2NDE2LCJleHAiOjE3NjgwNjI4MTZ9.IkEHrjrkWtzBR3U_Ugtv-nTMafa8AVq0LfAeQ1ItQ54"
+        }
+      ],
+      "tests": [],
+      "notes": "Replace {{POST_ID}} with actual post UUID. Only works for your own posts."
+    }
+  ]
+}

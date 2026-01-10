@@ -74,6 +74,22 @@ app.use('/api/renthub', createProxyMiddleware({
     },
 }));
 
+// 4. NewsBox Proxy
+app.use('/api/newsbox', createProxyMiddleware({
+    target: 'http://localhost:3004',
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api/newsbox': '/',
+    },
+    onProxyReq: (proxyReq, req, res) => {
+        console.log('→ Proxying to NewsBox Service:', req.method, req.url);
+    },
+    onError: (err, req, res) => {
+        console.error('❌ NewsBox Proxy Error:', err.message);
+        res.status(500).json({ error: 'Could not reach NewsBox Service' });
+    },
+}));
+
 app.listen(PORT, () => {
     console.log(`🚀 Gateway running on http://localhost:${PORT}`);
 });

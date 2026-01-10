@@ -10,6 +10,7 @@ services:
       - auth-service
       - marketplace-service
       - renthub-service
+      - newsbox-service
     environment:
       - NODE_ENV=production
 
@@ -40,6 +41,16 @@ services:
       - "3003:3003"
     env_file:
       - ./renthub-service/.env
+    environment:
+      - NODE_ENV=production
+
+  # NewsBox Service
+  newsbox-service:
+    build: ./newsbox-service
+    ports:
+      - "3004:3004"
+    env_file:
+      - ./newsbox-service/.env
     environment:
       - NODE_ENV=production
 

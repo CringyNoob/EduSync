@@ -6,7 +6,7 @@ Write-Host "🚀 Starting All EduSync Services..." -ForegroundColor Cyan
 # Kill any existing processes on these ports
 Write-Host "Cleaning up existing processes..." -ForegroundColor Yellow
 try {
-    npx kill-port 3001 3002 3003 8000 5173 2>$null
+    npx kill-port 3001 3002 3003 3004 8000 5173 2>$null
     Start-Sleep -Seconds 2
 } catch {
     Write-Host "No existing processes to kill" -ForegroundColor Gray
@@ -23,6 +23,10 @@ Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\m
 # Start RentHub Service (Port 3003)
 Write-Host "Starting RentHub Service (Port 3003)..." -ForegroundColor Green
 Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\renthub-service; Write-Host '🏠 RENTHUB SERVICE' -ForegroundColor Yellow; npm start"
+
+# Start NewsBox Service (Port 3004)
+Write-Host "Starting NewsBox Service (Port 3004)..." -ForegroundColor Green
+Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\newsbox-service; Write-Host '📰 NEWSBOX SERVICE' -ForegroundColor Magenta; npm start"
 
 # Start Gateway (Port 8000)
 Write-Host "Starting API Gateway (Port 8000)..." -ForegroundColor Green
@@ -42,6 +46,7 @@ Write-Host "Services will open in separate terminal windows:" -ForegroundColor W
 Write-Host "  🔐 Auth Service:        http://localhost:3001" -ForegroundColor Cyan
 Write-Host "  🛒 Marketplace Service: http://localhost:3002" -ForegroundColor Magenta
 Write-Host "  🏠 RentHub Service:     http://localhost:3003" -ForegroundColor Yellow
+Write-Host "  📰 NewsBox Service:     http://localhost:3004" -ForegroundColor Magenta
 Write-Host "  🌐 API Gateway:         http://localhost:8000" -ForegroundColor Blue
 Write-Host "  ⚛️  React Client:        http://localhost:5173" -ForegroundColor Cyan
 Write-Host ""
