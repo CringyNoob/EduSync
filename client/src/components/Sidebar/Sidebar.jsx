@@ -17,7 +17,8 @@ import {
     Sparkles,
     Repeat,
     TrendingUp,
-    Newspaper
+    Newspaper,
+    Package
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useAuth } from '../../context/AuthContext';

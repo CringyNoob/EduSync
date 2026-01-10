@@ -50,19 +50,19 @@ const router = createBrowserRouter([
         element: <ForgotPassword />,
     },
     {
+        path: '/admin-dashboard',
+        element: <AdminDashboard />,
+    },
+    {
+        path: '/vendor-dashboard',
+        element: <VendorDashboard />,
+    },
+    {
         element: <Layout />,
         children: [
             {
                 path: '/dashboard',
                 element: <Home />,
-            },
-            {
-                path: '/admin-dashboard',
-                element: <AdminDashboard />,
-            },
-            {
-                path: '/vendor-dashboard',
-                element: <VendorDashboard />,
             },
             {
                 path: '/marketplace',
