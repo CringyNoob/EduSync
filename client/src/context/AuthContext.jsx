@@ -90,8 +90,21 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('edusync_user', JSON.stringify(updatedUser));
     };
 
+    // Update user profile data (used after profile update)
+    const updateUser = (updatedData) => {
+        const updatedUser = {
+            ...user,
+            ...updatedData
+        };
+        setUser(updatedUser);
+        localStorage.setItem('edusync_user', JSON.stringify(updatedUser));
+        
+        // Trigger custom event to notify other components
+        window.dispatchEvent(new Event('tokenUpdated'));
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, switchRole }}>
+        <AuthContext.Provider value={{ user, login, logout, switchRole, updateUser }}>
             {children}
         </AuthContext.Provider>
     );

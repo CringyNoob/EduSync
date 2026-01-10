@@ -1,9 +1,17 @@
 import React from 'react';
 import { Search, Bell, User } from 'lucide-react';
-import Input from '../Form/Input';
 import Button from '../Button';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
+    const { user } = useAuth();
+
+    // Get user initials for avatar fallback
+    const getInitials = (name) => {
+        if (!name) return 'U';
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    };
+
     return (
         <nav className="fixed top-0 z-30 w-full border-b border-gray-200 bg-white pl-64 transition-all">
             <div className="flex items-center justify-between px-6 py-3">
@@ -28,11 +36,21 @@ const Navbar = () => {
 
                     <div className="flex items-center gap-3">
                         <div className="text-right hidden sm:block">
-                            <p className="text-sm font-medium text-gray-900">John Doe</p>
-                            <p className="text-xs text-gray-500">Student</p>
+                            <p className="text-sm font-medium text-gray-900">{user?.name || 'Guest'}</p>
+                            <p className="text-xs text-gray-500 capitalize">{user?.role || 'Student'}</p>
                         </div>
-                        <div className="h-10 w-10 overflow-hidden rounded-full bg-gray-200">
-                            <User className="h-full w-full p-2 text-gray-400" />
+                        <div className="h-10 w-10 overflow-hidden rounded-full bg-indigo-100 flex items-center justify-center">
+                            {user?.avatarUrl ? (
+                                <img 
+                                    src={user.avatarUrl} 
+                                    alt={user?.name || 'Profile'} 
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : (
+                                <span className="text-sm font-bold text-indigo-600">
+                                    {getInitials(user?.name)}
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>

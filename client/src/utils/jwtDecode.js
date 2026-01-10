@@ -47,7 +47,18 @@ export const getUserFromToken = () => {
   const decoded = decodeToken(token);
   if (!decoded) return null;
 
-  // Extract user info from token payload
+  // Get additional user data from localStorage (like avatarUrl, phone, bio)
+  let additionalData = {};
+  try {
+    const storedUser = localStorage.getItem('edusync_user');
+    if (storedUser) {
+      additionalData = JSON.parse(storedUser);
+    }
+  } catch (e) {
+    console.error('Error parsing stored user data:', e);
+  }
+
+  // Extract user info from token payload and merge with stored data
   // Token structure from auth-service: { id, name, email, department, batch }
   return {
     id: decoded.id,
@@ -56,5 +67,9 @@ export const getUserFromToken = () => {
     role: 'Student', // Default role, can be added to token later
     department: decoded.department,
     batch: decoded.batch,
+    // Merge additional data from localStorage (avatarUrl, phone, bio, etc.)
+    avatarUrl: additionalData.avatarUrl || null,
+    phone: additionalData.phone || null,
+    bio: additionalData.bio || null,
   };
 };

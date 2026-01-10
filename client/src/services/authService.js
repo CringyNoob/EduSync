@@ -22,18 +22,16 @@ const authService = {
    * @param {string} userData.otp - OTP code from email
    * @param {string} userData.hash - Hash received from send-otp
    * @param {string} userData.password - User's password
-   * @param {string} userData.name - User's full name
-   * @param {string} userData.studentId - Student ID
-   * @param {string} userData.department - Department
-   * @param {string} userData.batch - Batch year
+   * @param {string} userData.fullName - User's full name
+   * @param {string} userData.studentId - Student ID (9-10 digits)
+   * @param {string} userData.department - Department code
+   * @param {string} userData.trimester - Trimester (Spring/Summer/Fall)
+   * @param {string} userData.year - Batch year
    * @param {string} [userData.phone] - Phone number (optional)
-   * @param {string} [userData.bio] - User bio (optional)
    * @returns {Promise} Response with user data and token
    */
   register: async (userData) => {
-    const registrationData = userData;
-
-    const response = await api.post('/auth/register', registrationData);
+    const response = await api.post('/auth/register', userData);
     
     // Save token if registration successful
     if (response.data.token) {
