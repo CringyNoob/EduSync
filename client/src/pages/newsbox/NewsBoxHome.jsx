@@ -20,7 +20,7 @@ import {
     LayoutDashboard,
     Settings
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/Cards/Card';
 import Button from '../../components/Button';
 import RichTextEditor from '../../components/RichTextEditor';
@@ -31,6 +31,7 @@ import 'react-quill-new/dist/quill.snow.css';
 const NewsBoxHome = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     // Initial Mock Data
     const [posts, setPosts] = useState([
         {
@@ -93,6 +94,15 @@ const NewsBoxHome = () => {
         }, 5000);
         return () => clearInterval(timer);
     }, [featuredNews.length]);
+
+    // Check for create intent from navigation
+    useEffect(() => {
+        if (location.state?.create) {
+            setShowCreateModal(true);
+            // Clear the state so it doesn't reopen on refresh
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state]);
 
     // Handle Image Change
     const handleImageChange = (e) => {

@@ -6,10 +6,17 @@ const AuthContext = createContext(null);
 // Helper to get user from token or localStorage
 const getStoredUser = () => {
     try {
-        // First, try to get user from JWT token
+        // First, check if there's a temporary role override in sessionStorage
+        const sessionRole = sessionStorage.getItem('edusync_temp_role');
+
+        // Try to get user from JWT token
         const userFromToken = getUserFromToken();
         if (userFromToken && userFromToken.id && userFromToken.name) {
             console.log('User loaded from token:', userFromToken.name);
+            // Apply session role override if exists
+            if (sessionRole) {
+                return { ...userFromToken, role: sessionRole };
+            }
             return userFromToken;
         }
 
@@ -19,13 +26,17 @@ const getStoredUser = () => {
             const parsedUser = JSON.parse(storedUser);
             if (parsedUser.id && parsedUser.name) {
                 console.log('User loaded from localStorage:', parsedUser.name);
+                // Apply session role override if exists
+                if (sessionRole) {
+                    return { ...parsedUser, role: sessionRole };
+                }
                 return parsedUser;
             }
         }
     } catch (error) {
         console.error('Error reading stored user:', error);
     }
-    
+
     // Fallback to mock data if no real user found
     console.warn('No authenticated user found, using mock data');
     return {
@@ -52,7 +63,7 @@ export const AuthProvider = ({ children }) => {
 
         // Listen for storage changes (e.g., login/logout in another tab)
         window.addEventListener('storage', refreshUser);
-        
+
         // Custom event for same-tab token updates
         window.addEventListener('tokenUpdated', refreshUser);
 
@@ -67,7 +78,7 @@ export const AuthProvider = ({ children }) => {
         // Just refresh the user data from token
         const userData = getStoredUser();
         setUser(userData);
-        
+
         // Trigger custom event to notify other components
         window.dispatchEvent(new Event('tokenUpdated'));
     };
@@ -76,18 +87,21 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         localStorage.removeItem('edusync_user');
         localStorage.removeItem('edusync_token');
-        
+        sessionStorage.removeItem('edusync_temp_role');
+
         // Trigger custom event
         window.dispatchEvent(new Event('tokenUpdated'));
     };
 
     const switchRole = (newRole) => {
+        // Store role temporarily in sessionStorage (clears on tab close or navigation)
+        sessionStorage.setItem('edusync_temp_role', newRole);
+
         const updatedUser = {
             ...user,
             role: newRole
         };
         setUser(updatedUser);
-        localStorage.setItem('edusync_user', JSON.stringify(updatedUser));
     };
 
     return (

@@ -7,6 +7,7 @@ import {
 import Button from '../../components/Button';
 import { useAuth } from '../../context/AuthContext';
 
+
 const SettingsPage = () => {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('profile');
@@ -67,31 +68,30 @@ const SettingsPage = () => {
         { id: 'profile', label: 'Profile Settings', icon: User, desc: 'Manage your personal info' },
         { id: 'notifications', label: 'Notifications', icon: Bell, desc: 'Customize your alerts' },
         { id: 'security', label: 'Security & Login', icon: Shield, desc: 'Password and 2FA' },
-        { id: 'appearance', label: 'Appearance', icon: Moon, desc: 'Theme preferences' },
     ];
 
     return (
-        <div className="min-h-screen p-6 font-sans animate-in fade-in duration-500">
+        <div className="min-h-screen p-6 font-sans animate-in fade-in duration-500 text-gray-900 dark:text-gray-100 transition-colors duration-300">
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-2">Settings</h1>
-                <p className="text-lg text-gray-500 font-medium">Manage your account preferences and settings.</p>
+                <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">Settings</h1>
+                <p className="text-lg text-gray-500 dark:text-gray-400 font-medium">Manage your account preferences and settings.</p>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* Sidebar Navigation */}
                 <div className="w-full lg:w-80 space-y-2 shrink-0">
-                    <div className="bg-white rounded-[2rem] p-4 shadow-sm border border-gray-100 sticky top-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-[2rem] p-4 shadow-sm border border-gray-100 dark:border-gray-700 sticky top-6 transition-colors duration-300">
                         {tabs.map(tab => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all duration-300 group text-left ${activeTab === tab.id
-                                    ? 'bg-gray-900 text-white shadow-lg shadow-gray-200'
-                                    : 'hover:bg-gray-50 text-gray-500 hover:text-gray-900'
+                                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg shadow-gray-200 dark:shadow-none'
+                                    : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                     }`}
                             >
-                                <div className={`p-2 rounded-lg ${activeTab === tab.id ? 'bg-white/10' : 'bg-gray-100 group-hover:bg-white group-hover:shadow-sm'
+                                <div className={`p-2 rounded-lg ${activeTab === tab.id ? 'bg-white/10 dark:bg-gray-900/10' : 'bg-gray-100 dark:bg-gray-700 group-hover:bg-white dark:group-hover:bg-gray-600 group-hover:shadow-sm'
                                     }`}>
                                     <tab.icon size={20} />
                                 </div>
@@ -109,7 +109,7 @@ const SettingsPage = () => {
 
                 {/* Content Area */}
                 <div className="flex-1">
-                    <div className="bg-white rounded-[2.5rem] p-8 shadow-md shadow-gray-100/50 border border-gray-100 relative overflow-hidden min-h-[600px]">
+                    <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 shadow-md shadow-gray-100/50 dark:shadow-none border border-gray-100 dark:border-gray-700 relative overflow-hidden min-h-[600px] transition-colors duration-300">
 
                         {/* Decorative Gradient */}
                         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
@@ -140,8 +140,8 @@ const SettingsPage = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-bold text-gray-900">Profile Photo</h3>
-                                        <p className="text-sm text-gray-500 mb-3">Accepts JPG, PNG or GIF (Max 2MB)</p>
+                                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">Profile Photo</h3>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Accepts JPG, PNG or GIF (Max 2MB)</p>
                                         <div className="flex gap-3">
                                             <Button variant="outline" className="h-9 text-xs" onClick={triggerFileInput}>Upload New</Button>
                                             <button
@@ -157,22 +157,22 @@ const SettingsPage = () => {
                                 {/* Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Full Name</label>
+                                        <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Full Name</label>
                                         <input
                                             type="text"
                                             value={profileData.name}
                                             onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                                            className="w-full p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900"
+                                            className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border-2 border-transparent dark:border-gray-700 focus:bg-white dark:focus:bg-gray-800 focus:border-indigo-500 dark:focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900 dark:text-white"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Student ID (Read Only)</label>
+                                        <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Student ID (Read Only)</label>
                                         <div className="relative">
                                             <input
                                                 type="text"
                                                 value={profileData.studentId}
                                                 readOnly
-                                                className="w-full p-4 rounded-xl bg-gray-50/50 border border-gray-100 font-mono font-bold text-gray-500 cursor-not-allowed"
+                                                className="w-full p-4 rounded-xl bg-gray-50/50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 font-mono font-bold text-gray-500 dark:text-gray-400 cursor-not-allowed"
                                             />
                                             <Lock size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
                                         </div>
@@ -184,26 +184,26 @@ const SettingsPage = () => {
                                                 type="email"
                                                 value={profileData.email}
                                                 readOnly
-                                                className="w-full p-4 pl-12 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900"
+                                                className="w-full p-4 pl-12 rounded-xl bg-gray-50 dark:bg-gray-900 border-2 border-transparent dark:border-gray-700 focus:bg-white dark:focus:bg-gray-800 focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900 dark:text-white"
                                             />
                                             <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Phone Number</label>
+                                        <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Phone Number</label>
                                         <input
                                             type="tel"
                                             value={profileData.phone}
                                             onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                                            className="w-full p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900"
+                                            className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border-2 border-transparent dark:border-gray-700 focus:bg-white dark:focus:bg-gray-800 focus:border-indigo-500 dark:focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900 dark:text-white"
                                         />
                                     </div>
                                     <div className="space-y-2 md:col-span-2">
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Bio / About</label>
+                                        <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Bio / About</label>
                                         <textarea
                                             value={profileData.bio}
                                             onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
-                                            className="w-full p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900 h-32 resize-none"
+                                            className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border-2 border-transparent dark:border-gray-700 focus:bg-white dark:focus:bg-gray-800 focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900 dark:text-white h-32 resize-none"
                                         />
                                     </div>
                                 </div>
@@ -213,7 +213,7 @@ const SettingsPage = () => {
                         {/* Notifications Tab */}
                         {activeTab === 'notifications' && (
                             <div className="space-y-8 animate-in slide-in-from-right duration-300">
-                                <h2 className="text-2xl font-black text-gray-900">Updates & Alerts</h2>
+                                <h2 className="text-2xl font-black text-gray-900 dark:text-white">Updates & Alerts</h2>
                                 <div className="space-y-4">
                                     {[
                                         { id: 'emailMessages', label: 'Email Messages', desc: 'Receive emails about new messages and mentions' },
@@ -221,10 +221,10 @@ const SettingsPage = () => {
                                         { id: 'emailUpdates', label: 'News & Updates', desc: 'Stay up to date with platform news' },
                                         { id: 'marketing', label: 'Marketing', desc: 'Receive special offers and promos' },
                                     ].map(item => (
-                                        <div key={item.id} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                                        <div key={item.id} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-700/30 border border-gray-100 dark:border-gray-700">
                                             <div>
-                                                <h4 className="font-bold text-gray-900">{item.label}</h4>
-                                                <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                                                <h4 className="font-bold text-gray-900 dark:text-white">{item.label}</h4>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{item.desc}</p>
                                             </div>
                                             <label className="relative inline-flex items-center cursor-pointer">
                                                 <input
@@ -244,78 +244,38 @@ const SettingsPage = () => {
                         {/* Security Tab */}
                         {activeTab === 'security' && (
                             <div className="space-y-8 animate-in slide-in-from-right duration-300">
-                                <h2 className="text-2xl font-black text-gray-900">Security</h2>
+                                <h2 className="text-2xl font-black text-gray-900 dark:text-white">Security</h2>
                                 <div className="space-y-6">
-                                    <div className="p-6 rounded-2xl bg-orange-50 border border-orange-100">
-                                        <h3 className="font-bold text-orange-800 mb-2 flex items-center gap-2">
+                                    <div className="p-6 rounded-2xl bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30">
+                                        <h3 className="font-bold text-orange-800 dark:text-orange-200 mb-2 flex items-center gap-2">
                                             <AlertCircle size={18} /> Two-Factor Authentication (2FA)
                                         </h3>
-                                        <p className="text-sm text-orange-700/80 mb-4">
+                                        <p className="text-sm text-orange-700/80 dark:text-orange-300/80 mb-4">
                                             Protect your account by adding an extra layer of security.
                                         </p>
                                         <Button className="bg-orange-600 text-white hover:bg-orange-700 h-9 text-xs">Enable 2FA</Button>
                                     </div>
 
                                     <div className="space-y-4">
-                                        <h3 className="font-bold text-gray-900">Change Password</h3>
+                                        <h3 className="font-bold text-gray-900 dark:text-white">Change Password</h3>
                                         <div className="space-y-3 max-w-md">
-                                            <input type="password" placeholder="Current Password" className="w-full p-3 rounded-xl bg-gray-50 border border-gray-200" />
-                                            <input type="password" placeholder="New Password" className="w-full p-3 rounded-xl bg-gray-50 border border-gray-200" />
-                                            <input type="password" placeholder="Confirm New Password" className="w-full p-3 rounded-xl bg-gray-50 border border-gray-200" />
+                                            <input type="password" placeholder="Current Password" className="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white" />
+                                            <input type="password" placeholder="New Password" className="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white" />
+                                            <input type="password" placeholder="Confirm New Password" className="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white" />
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* Appearance Tab (New) */}
-                        {activeTab === 'appearance' && (
-                            <div className="space-y-8 animate-in slide-in-from-right duration-300">
-                                <h2 className="text-2xl font-black text-gray-900">Appearance</h2>
+                        {/* Digital ID Tab (New Creative Feature) */}
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <button className="p-4 rounded-2xl border-2 border-indigo-600 bg-indigo-50 flex flex-col items-center gap-2 transition-all">
-                                        <div className="h-20 w-full bg-white rounded-lg border-2 border-indigo-100 shadow-sm flex items-center justify-center">
-                                            <span className="text-2xl">☀️</span>
-                                        </div>
-                                        <span className="font-bold text-indigo-900">Light Mode</span>
-                                        <span className="text-xs font-semibold text-indigo-600">Active</span>
-                                    </button>
-                                    <button className="p-4 rounded-2xl border-2 border-transparent hover:bg-gray-50 flex flex-col items-center gap-2 transition-all group opacity-50">
-                                        <div className="h-20 w-full bg-gray-900 rounded-lg border border-gray-700 shadow-sm flex items-center justify-center">
-                                            <span className="text-2xl">🌙</span>
-                                        </div>
-                                        <span className="font-bold text-gray-500 group-hover:text-gray-900">Dark Mode</span>
-                                        <span className="text-xs font-semibold text-indigo-600 opacity-0 group-hover:opacity-100">Coming Soon</span>
-                                    </button>
-                                    <button className="p-4 rounded-2xl border-2 border-transparent hover:bg-gray-50 flex flex-col items-center gap-2 transition-all group">
-                                        <div className="h-20 w-full bg-gray-100 rounded-lg border border-gray-200 shadow-sm flex items-center justify-center">
-                                            <span className="text-2xl">💻</span>
-                                        </div>
-                                        <span className="font-bold text-gray-500 group-hover:text-gray-900">System</span>
-                                    </button>
-                                </div>
 
-                                <div className="space-y-4 pt-6 border-t border-gray-100">
-                                    <h3 className="font-bold text-gray-900">Accessibility</h3>
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 border border-gray-100">
-                                            <div>
-                                                <h4 className="font-bold text-gray-900">Reduced Motion</h4>
-                                                <p className="text-xs text-gray-500 mt-0.5">Minimize animations across the app</p>
-                                            </div>
-                                            <label className="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" className="sr-only peer" />
-                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        {/* Appearance Tab */}
+
 
                         {/* Footer Action */}
-                        <div className="mt-12 pt-6 border-t border-gray-100 flex items-center justify-between">
+                        <div className="mt-12 pt-6 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
                             <p className="text-xs text-gray-400 font-bold">
                                 {saveStatus === 'success' ? (
                                     <span className="text-green-500 flex items-center gap-1"><CheckCircle size={14} /> Saved Successfully</span>
@@ -332,7 +292,7 @@ const SettingsPage = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

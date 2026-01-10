@@ -9,7 +9,7 @@ const Layout = () => {
     const isLoggedIn = user && user.id && !user.id.startsWith('temp-');
 
     return (
-        <div className="min-h-screen bg-indigo-50/30 flex">
+        <div className="min-h-screen bg-indigo-50/30 dark:bg-gray-900 flex transition-colors duration-300">
             {isLoggedIn && (
                 <div className="animate-in fade-in duration-200">
                     <Sidebar />

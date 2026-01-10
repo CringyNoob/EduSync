@@ -89,9 +89,9 @@ const Sidebar = () => {
     return (
         <aside className="fixed left-4 top-4 z-50 h-[calc(100vh-2rem)] w-[246px] transition-transform">
             {/* Sidebar Card - Floating Glass Effect */}
-            <div className="absolute inset-0 overflow-hidden rounded-[2rem] border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)] bg-white/70 backdrop-blur-3xl">
+            <div className="absolute inset-0 overflow-hidden rounded-[2rem] border border-white/60 dark:border-gray-700/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)] bg-white/70 dark:bg-gray-800/70 backdrop-blur-3xl transition-colors duration-300">
                 {/* Subtle Inner Gradient for Depth */}
-                <div className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-white/60 to-transparent z-0"></div>
+                <div className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-white/60 to-transparent dark:from-gray-700/60 z-0"></div>
 
                 {/* Subtle Noise Texture */}
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:16px_16px] opacity-20 z-0"></div>
@@ -101,14 +101,14 @@ const Sidebar = () => {
                 {/* Logo Section */}
                 <div className="mb-8 px-1">
                     <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
-                        <div className="p-1.5 rounded-xl bg-white shadow-sm border border-gray-100 group-hover:scale-110 transition-transform duration-300">
+                        <div className="p-1.5 rounded-xl bg-white dark:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-600 group-hover:scale-110 transition-transform duration-300">
                             <img src="/logo.png" alt="EduSync" className="h-6 w-6 object-contain" />
                         </div>
                         <div>
-                            <span className="block text-xl font-extrabold text-gray-900 leading-none tracking-tight">
+                            <span className="block text-xl font-extrabold text-gray-900 dark:text-white leading-none tracking-tight">
                                 EduSync
                             </span>
-                            <span className="block text-[10px] text-primary font-bold tracking-widest mt-0.5">STUDENT HUB</span>
+                            <span className="block text-[10px] text-primary dark:text-primary-light font-bold tracking-widest mt-0.5">STUDENT HUB</span>
                         </div>
                     </div>
                 </div>
@@ -134,10 +134,10 @@ const Sidebar = () => {
                                 <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 border-2 border-white"></div>
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-sm font-bold text-gray-900 truncate">
+                                <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
                                     {userData.name}
                                 </p>
-                                <div className="flex items-center gap-1 text-[10px] text-gray-500 font-semibold uppercase tracking-wide">
+                                <div className="flex items-center gap-1 text-[10px] text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wide">
                                     {userData.role}
                                     <span className="text-gray-300">|</span>
                                     <span className="text-primary hover:underline flex items-center gap-0.5">Switch <Repeat size={8} /></span>
@@ -201,8 +201,8 @@ const Sidebar = () => {
                                 cn(
                                     "group relative flex items-center rounded-xl px-3 py-2.5 transition-all duration-300",
                                     isActive
-                                        ? `${item.activeClass} border-l-4 shadow-sm bg-opacity-100`
-                                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 border-l-4 border-transparent"
+                                        ? `${item.activeClass} border-l-4 shadow-sm bg-opacity-100 dark:bg-opacity-20`
+                                        : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-gray-100 border-l-4 border-transparent"
                                 )
                             }
                         >
