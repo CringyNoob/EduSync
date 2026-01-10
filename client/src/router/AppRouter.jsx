@@ -69,6 +69,18 @@ const router = createBrowserRouter([
                 element: <MarketplaceHome />,
             },
             {
+                path: '/marketplace/foods',
+                element: <MarketplaceHome />,
+            },
+            {
+                path: '/marketplace/pre-owned',
+                element: <MarketplaceHome />,
+            },
+            {
+                path: '/marketplace/shops',
+                element: <MarketplaceHome />,
+            },
+            {
                 path: '/marketplace/new',
                 element: <PlaceholderPage title="Create New Listing" />,
             },

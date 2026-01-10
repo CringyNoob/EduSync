@@ -45,18 +45,18 @@ const CartPage = () => {
 
     const calculateSectionSummary = (sectionItems, sectionName) => {
         const subtotal = sectionItems.reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0);
-        const shipping = 2.50;
+        const shipping = 280;
         const coupon = appliedCoupons[sectionName];
 
         let discount = 0;
         if (sectionName === 'Foods') {
             if (coupon === 'SNACK20') discount = subtotal * 0.20;
-            else if (coupon === 'CANTEEN5') discount = Math.min(5, subtotal);
+            else if (coupon === 'CANTEEN5') discount = Math.min(500, subtotal);
         } else if (sectionName === 'Shops') {
             if (coupon === 'TECH10') discount = subtotal * 0.10;
-            else if (coupon === 'SYNC25') discount = 2.50;
+            else if (coupon === 'SYNC25') discount = 280;
         } else {
-            if (coupon === 'STUDENT10') discount = Math.min(10, subtotal);
+            if (coupon === 'STUDENT10') discount = Math.min(1000, subtotal);
         }
 
         return { subtotal, shipping, discount, total: Math.max(0, subtotal - discount + shipping) };
@@ -109,14 +109,14 @@ const CartPage = () => {
                     <div className="flex flex-col gap-3">
                         <Button
                             className="w-full py-4 rounded-2xl shadow-lg"
-                            onClick={() => navigate('/marketplace')}
+                            onClick={() => navigate(`/marketplace/${sectionCheckingOut?.toLowerCase() || 'foods'}`)}
                         >
-                            Return to Marketplace
+                            Return to {sectionCheckingOut || 'Marketplace'}
                         </Button>
                         <Button
                             variant="outline"
                             className="w-full py-4 rounded-2xl"
-                            onClick={() => navigate('/marketplace', { state: { viewOrders: true, section: sectionCheckingOut } })}
+                            onClick={() => navigate(`/marketplace/${sectionCheckingOut?.toLowerCase() || 'foods'}`, { state: { viewOrders: true, section: sectionCheckingOut } })}
                         >
                             View My Orders
                         </Button>
@@ -128,7 +128,7 @@ const CartPage = () => {
 
     if (cartItems.length === 0) {
         return (
-            <div className="min-h-screen p-6 flex flex-col items-center justify-center space-y-6">
+            <div className="min-h-screen p-6 flex flex-col items-center justify-center space-y-8">
                 <div className="w-32 h-32 bg-gray-50 text-gray-200 rounded-full flex items-center justify-center shadow-inner">
                     <ShoppingBag size={64} />
                 </div>
@@ -136,9 +136,68 @@ const CartPage = () => {
                     <h2 className="text-2xl font-black text-gray-900">Your cart is empty</h2>
                     <p className="text-gray-500 font-medium max-w-xs mx-auto">Looks like you haven't added anything to your cart yet.</p>
                 </div>
-                <Button onClick={() => navigate('/marketplace')} className="px-8 rounded-2xl py-4 font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/20">
-                    Start Shopping
-                </Button>
+
+                <div className="w-full max-w-2xl">
+                    <p className="text-center text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Where would you like to shop?</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Foods Card */}
+                        <button
+                            onClick={() => navigate('/marketplace/foods')}
+                            className="group relative bg-white hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 border-2 border-gray-100 hover:border-orange-300 rounded-3xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                        >
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="p-4 bg-orange-100 text-orange-600 rounded-2xl group-hover:scale-110 transition-transform">
+                                    <Utensils size={32} />
+                                </div>
+                                <div className="text-center">
+                                    <h3 className="text-lg font-black text-gray-900">Foods</h3>
+                                    <p className="text-xs text-gray-500 font-medium mt-1">Fresh meals & snacks</p>
+                                </div>
+                                <div className="flex items-center gap-1 text-xs font-bold text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Browse Now <ChevronRight size={14} />
+                                </div>
+                            </div>
+                        </button>
+
+                        {/* Pre-Owned Card */}
+                        <button
+                            onClick={() => navigate('/marketplace/pre-owned')}
+                            className="group relative bg-white hover:bg-gradient-to-br hover:from-indigo-50 hover:to-purple-50 border-2 border-gray-100 hover:border-indigo-300 rounded-3xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                        >
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="p-4 bg-indigo-100 text-indigo-600 rounded-2xl group-hover:scale-110 transition-transform">
+                                    <ShoppingBag size={32} />
+                                </div>
+                                <div className="text-center">
+                                    <h3 className="text-lg font-black text-gray-900">Pre-Owned</h3>
+                                    <p className="text-xs text-gray-500 font-medium mt-1">Student marketplace</p>
+                                </div>
+                                <div className="flex items-center gap-1 text-xs font-bold text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Browse Now <ChevronRight size={14} />
+                                </div>
+                            </div>
+                        </button>
+
+                        {/* Shops Card */}
+                        <button
+                            onClick={() => navigate('/marketplace/shops')}
+                            className="group relative bg-white hover:bg-gradient-to-br hover:from-blue-50 hover:to-cyan-50 border-2 border-gray-100 hover:border-blue-300 rounded-3xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                        >
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="p-4 bg-blue-100 text-blue-600 rounded-2xl group-hover:scale-110 transition-transform">
+                                    <BookOpen size={32} />
+                                </div>
+                                <div className="text-center">
+                                    <h3 className="text-lg font-black text-gray-900">Shops</h3>
+                                    <p className="text-xs text-gray-500 font-medium mt-1">Campus stores</p>
+                                </div>
+                                <div className="flex items-center gap-1 text-xs font-bold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Browse Now <ChevronRight size={14} />
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -221,8 +280,8 @@ const CartPage = () => {
                                                             </div>
 
                                                             <div className="text-right min-w-[80px]">
-                                                                <div className="text-xl font-black text-gray-900 leading-none">${(parseFloat(item.price) * item.quantity).toFixed(2)}</div>
-                                                                <div className="text-[10px] text-gray-400 font-bold mt-1">${item.price} / unit</div>
+                                                                <div className="text-xl font-black text-gray-900 leading-none">৳{(parseFloat(item.price) * item.quantity).toFixed(2)}</div>
+                                                                <div className="text-[10px] text-gray-400 font-bold mt-1">৳{item.price} / unit</div>
                                                             </div>
 
                                                             <button
@@ -246,21 +305,21 @@ const CartPage = () => {
                                             <div className="space-y-3">
                                                 <div className="flex justify-between text-sm font-bold text-gray-500">
                                                     <span>Subtotal</span>
-                                                    <span className="text-gray-900">${summary.subtotal.toFixed(2)}</span>
+                                                    <span className="text-gray-900">৳{summary.subtotal.toFixed(2)}</span>
                                                 </div>
                                                 <div className="flex justify-between text-sm font-bold text-gray-500">
                                                     <span>Delivery Fee</span>
-                                                    <span className="text-gray-900">${summary.shipping.toFixed(2)}</span>
+                                                    <span className="text-gray-900">৳{summary.shipping.toFixed(2)}</span>
                                                 </div>
                                                 {summary.discount > 0 && (
                                                     <div className="flex justify-between text-sm font-bold text-green-600">
                                                         <span>Discount ({appliedCoupons[sectionName]})</span>
-                                                        <span>-${summary.discount.toFixed(2)}</span>
+                                                        <span>-৳{summary.discount.toFixed(2)}</span>
                                                     </div>
                                                 )}
                                                 <div className="pt-3 border-t border-gray-100 flex justify-between">
                                                     <span className="text-sm font-black text-gray-900 uppercase">Total</span>
-                                                    <span className="text-xl font-black text-primary">${summary.total.toFixed(2)}</span>
+                                                    <span className="text-xl font-black text-primary">৳{summary.total.toFixed(2)}</span>
                                                 </div>
                                             </div>
 
@@ -379,7 +438,7 @@ const CartPage = () => {
                             <div className="py-4 border-t border-gray-100 flex items-center justify-between">
                                 <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Final Total</div>
                                 <div className="text-2xl font-black text-primary">
-                                    ${calculateSectionSummary(groupedItems[sectionCheckingOut], sectionCheckingOut).total.toFixed(2)}
+                                    ৳{calculateSectionSummary(groupedItems[sectionCheckingOut], sectionCheckingOut).total.toFixed(2)}
                                 </div>
                             </div>
                         </div>

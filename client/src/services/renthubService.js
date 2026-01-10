@@ -1,5 +1,14 @@
 import api from '../utils/api';
 
+const BDT_RATE = 115;
+
+const convertPrice = (price) => {
+  if (!price) return 0;
+  // If price is already high (likely BDT), don't convert again
+  if (parseFloat(price) > 100) return parseFloat(price);
+  return parseFloat(price) * BDT_RATE;
+};
+
 const renthubService = {
   // =====================================================
   // RENTAL LISTINGS
@@ -13,6 +22,12 @@ const renthubService = {
   getAllListings: async (params = {}) => {
     try {
       const response = await api.get('/renthub/listings', { params });
+      if (response.data && Array.isArray(response.data)) {
+        response.data = response.data.map(listing => ({
+          ...listing,
+          daily_price: convertPrice(listing.daily_price)
+        }));
+      }
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -27,6 +42,9 @@ const renthubService = {
   getListingById: async (id) => {
     try {
       const response = await api.get(`/renthub/listings/${id}`);
+      if (response.data) {
+        response.data.daily_price = convertPrice(response.data.daily_price);
+      }
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -84,6 +102,12 @@ const renthubService = {
   getUserListings: async (userId) => {
     try {
       const response = await api.get(`/renthub/user/${userId}/listings`);
+      if (response.data && Array.isArray(response.data)) {
+        response.data = response.data.map(listing => ({
+          ...listing,
+          daily_price: convertPrice(listing.daily_price)
+        }));
+      }
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -116,6 +140,13 @@ const renthubService = {
   getUserRentals: async (userId) => {
     try {
       const response = await api.get(`/renthub/user/${userId}/rentals`);
+      if (response.data && Array.isArray(response.data)) {
+        response.data = response.data.map(rental => ({
+          ...rental,
+          daily_price: convertPrice(rental.daily_price),
+          total_price: convertPrice(rental.total_price)
+        }));
+      }
       return response.data;
     } catch (error) {
       throw error.response?.data || error;

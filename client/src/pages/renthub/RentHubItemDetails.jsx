@@ -119,9 +119,9 @@ const RentHubItemDetails = () => {
             };
 
             const response = await renthubService.createTransaction(transactionData);
-            
+
             if (response.success) {
-                alert(`Rental confirmed! Total: $${calculateTotal()}\nDuration: ${getDurationDays()} days`);
+                alert(`Rental confirmed! Total: ৳${calculateTotal()}\nDuration: ${getDurationDays()} days`);
                 navigate('/renthub/my-rentals');
             }
         } catch (err) {
@@ -285,11 +285,11 @@ const RentHubItemDetails = () => {
                             <div className="flex justify-between items-end">
                                 <div>
                                     <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Rental Rate</p>
-                                    <h3 className="text-4xl font-black">${item.price}<span className="text-lg font-normal text-gray-500"> /day</span></h3>
+                                    <h3 className="text-4xl font-black">৳{item.price}<span className="text-lg font-normal text-gray-500"> /day</span></h3>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-xs font-black text-emerald-600 uppercase tracking-widest mb-1">Security Deposit</p>
-                                    <h4 className="text-2xl font-black text-emerald-600">${item.deposit}</h4>
+                                    <h4 className="text-2xl font-black text-emerald-600">৳{item.deposit}</h4>
                                 </div>
                             </div>
 
@@ -329,12 +329,12 @@ const RentHubItemDetails = () => {
                             {getDurationDays() > 0 && (
                                 <div className="pt-4 space-y-3">
                                     <div className="flex justify-between text-sm font-bold text-gray-500">
-                                        <span>${item.price} x {getDurationDays()} days</span>
-                                        <span>${calculateTotal()}</span>
+                                        <span>৳{item.price} x {getDurationDays()} days</span>
+                                        <span>৳{calculateTotal()}</span>
                                     </div>
                                     <div className="pt-4 border-t border-gray-100 flex justify-between">
-                                        <span className="text-lg font-black">Total to pay</span>
-                                        <span className="text-2xl font-black">${calculateTotal()}</span>
+                                        <span className="text-lg font-black" >Total to pay</span>
+                                        <span className="text-2xl font-black">৳{calculateTotal()}</span>
                                     </div>
                                 </div>
                             )}
