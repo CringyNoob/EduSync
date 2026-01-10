@@ -12,7 +12,8 @@ import VendorDashboard from '../pages/dashboard/VendorDashboard';
 import MarketplaceHome from '../pages/marketplace/MarketplaceHome';
 import MarketplaceItemDetails from '../pages/marketplace/MarketplaceItemDetails';
 import CartPage from '../pages/marketplace/CartPage';
-import ForumHome from '../pages/forum/ForumHome';
+import NewsBoxHome from '../pages/newsbox/NewsBoxHome';
+import NewsManagement from '../pages/newsbox/NewsManagement';
 import NoticeFeed from '../pages/notices/NoticeFeed';
 import ChatList from '../pages/chat/ChatList';
 import IssueFeed from '../pages/issues/IssueFeed';
@@ -96,16 +97,20 @@ const router = createBrowserRouter([
                 element: <RentHubDashboard />,
             },
             {
-                path: '/forum',
-                element: <ForumHome />,
+                path: '/newsbox',
+                element: <NewsBoxHome />,
             },
             {
-                path: '/forum/new',
-                element: <PlaceholderPage title="Start New Discussion" />,
+                path: '/newsbox/manage',
+                element: <NewsManagement />,
             },
             {
-                path: '/forum/:id',
-                element: <PlaceholderPage title="Discussion Details" />,
+                path: '/newsbox/new',
+                element: <PlaceholderPage title="Create News Post" />,
+            },
+            {
+                path: '/newsbox/:id',
+                element: <PlaceholderPage title="News Details" />,
             },
             {
                 path: '/notices',

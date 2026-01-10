@@ -3,77 +3,90 @@ const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 require('dotenv').config();
 
+const fs = require('fs');
+const path = require('path');
+
 const app = express();
 const PORT = 8000;
 
+// 0. File Logging (Diagnostic mechanism)
+const logFile = path.join(__dirname, 'gateway.log');
+const logStream = fs.createWriteStream(logFile, { flags: 'a' });
+
+function log(msg) {
+    const timestamp = new Date().toISOString();
+    const formatted = `[${timestamp}] ${msg}\n`;
+    console.log(msg);
+    logStream.write(formatted);
+}
+
 // Logging middleware
 app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    log(`${req.method} ${req.url}`);
     next();
 });
 
-// 1. CORS Setup: Allow your Frontend (Port 5173) to talk to this Gateway
+// 1. CORS Setup: Allow both localhost and 127.0.0.1
 app.use(cors({
-    origin: 'http://localhost:5173', // Your React Frontend URL
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
     credentials: true
 }));
 
-// 2. Health Check (To test Gateway itself)
+// 2. Health Check
 app.get('/', (req, res) => {
     res.send('Gateway is Running');
 });
 
-// IMPORTANT: Proxy middleware MUST come BEFORE body parsers
-// The proxy needs access to the raw request stream
-
-// 3. Proxy Configuration: Route /api/auth -> Auth Service (Port 3001)
+// 3. Proxy Configuration
+// Auth Service (Port 3001)
 app.use('/api/auth', createProxyMiddleware({
     target: 'http://localhost:3001',
     changeOrigin: true,
     pathRewrite: {
-        '^/api/auth': '/auth',
+        '^/api/auth': '',
     },
     onProxyReq: (proxyReq, req, res) => {
-        console.log('→ Proxying to Auth Service:', req.method, req.url);
+        log(`→ Proxying to Auth Service: ${req.method} ${req.url}`);
     },
     onError: (err, req, res) => {
-        console.error('❌ Auth Proxy Error:', err.message);
-        res.status(500).json({ error: 'Could not reach Auth Service' });
+        log(`❌ Auth Proxy Error: ${err.message}`);
+        res.status(500).json({ error: 'Could not reach Auth Service', details: err.message });
     },
 }));
 
-// 2. Marketplace Proxy
+// Marketplace Service (Port 3002)
 app.use('/api/market', createProxyMiddleware({
     target: 'http://localhost:3002',
     changeOrigin: true,
     pathRewrite: {
-        '^/api/market': '/',
+        '^/api/market': '',
     },
     onProxyReq: (proxyReq, req, res) => {
-        console.log('→ Proxying to Marketplace Service:', req.method, req.url);
+        log(`→ Proxying to Marketplace Service: ${req.method} ${req.url}`);
     },
     onError: (err, req, res) => {
-        console.error('❌ Marketplace Proxy Error:', err.message);
-        res.status(500).json({ error: 'Could not reach Marketplace Service' });
+        log(`❌ Marketplace Proxy Error: ${err.message}`);
+        res.status(500).json({ error: 'Could not reach Marketplace Service', details: err.message });
     },
 }));
 
-// 3. RentHub Proxy
+// RentHub Service (Port 3003)
 app.use('/api/renthub', createProxyMiddleware({
     target: 'http://localhost:3003',
     changeOrigin: true,
     pathRewrite: {
-        '^/api/renthub': '/',
+        '^/api/renthub': '',
     },
     onProxyReq: (proxyReq, req, res) => {
-        console.log('→ Proxying to RentHub Service:', req.method, req.url);
+        log(`→ Proxying to RentHub Service: ${req.method} ${req.url}`);
     },
     onError: (err, req, res) => {
-        console.error('❌ RentHub Proxy Error:', err.message);
-        res.status(500).json({ error: 'Could not reach RentHub Service' });
+        log(`❌ RentHub Proxy Error: ${err.message}`);
+        res.status(500).json({ error: 'Could not reach RentHub Service', details: err.message });
     },
 }));
 
+app.use(express.json());
 app.listen(PORT, () => {
-    console.log(`🚀 Gateway running on http://localhost:${PORT}`);
+    log(`🚀 Gateway running on http://localhost:${PORT}`);
 });

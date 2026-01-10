@@ -16,17 +16,17 @@ async function sendOtp(req, res) {
 
         // Validation: Check if email is provided
         if (!email) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                error: 'Email is required' 
+                error: 'Email is required'
             });
         }
 
         // Validation: Email must end with uiu.ac.bd
         if (!email.endsWith('uiu.ac.bd')) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                error: 'Only UIU email addresses (uiu.ac.bd) are allowed' 
+                error: 'Only UIU email addresses (uiu.ac.bd) are allowed'
             });
         }
 
@@ -37,9 +37,9 @@ async function sendOtp(req, res) {
         );
 
         if (existingUser.rows.length > 0) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                error: 'User with this email already exists' 
+                error: 'User with this email already exists'
             });
         }
 
@@ -58,9 +58,9 @@ async function sendOtp(req, res) {
 
     } catch (error) {
         console.error('Error in sendOtp:', error);
-        return res.status(500).json({ 
+        return res.status(500).json({
             success: false,
-            error: 'Failed to send OTP. Please try again.' 
+            error: 'Failed to send OTP. Please try again.'
         });
     }
 }
@@ -76,17 +76,17 @@ async function register(req, res) {
 
         // Validation: Check all required fields
         if (!name || !email || !password || !department || !batch || !otp || !hash) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                error: 'All fields are required (name, email, password, department, batch, otp, hash)' 
+                error: 'All fields are required (name, email, password, department, batch, otp, hash)'
             });
         }
 
         // Validation: Email must end with uiu.ac.bd
         if (!email.endsWith('uiu.ac.bd')) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                error: 'Only UIU email addresses (uiu.ac.bd) are allowed' 
+                error: 'Only UIU email addresses (uiu.ac.bd) are allowed'
             });
         }
 
@@ -94,9 +94,9 @@ async function register(req, res) {
         const isValidOtp = otpService.verifyOtp(email, otp, hash);
 
         if (!isValidOtp) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                error: 'Invalid or expired OTP. Please request a new one.' 
+                error: 'Invalid or expired OTP. Please request a new one.'
             });
         }
 
@@ -107,9 +107,9 @@ async function register(req, res) {
         );
 
         if (existingUser.rows.length > 0) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                error: 'User with this email already exists' 
+                error: 'User with this email already exists'
             });
         }
 
@@ -143,9 +143,9 @@ async function register(req, res) {
 
     } catch (error) {
         console.error('Error in register:', error);
-        return res.status(500).json({ 
+        return res.status(500).json({
             success: false,
-            error: 'Registration failed. Please try again.' 
+            error: 'Registration failed. Please try again.'
         });
     }
 }
@@ -161,9 +161,9 @@ async function login(req, res) {
 
         // Validation
         if (!email || !password) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                error: 'Email and password are required' 
+                error: 'Email and password are required'
             });
         }
 
@@ -187,9 +187,9 @@ async function login(req, res) {
         );
 
         if (result.rows.length === 0) {
-            return res.status(401).json({ 
+            return res.status(401).json({
                 success: false,
-                error: 'Invalid email or password' 
+                error: 'Invalid email or password'
             });
         }
 
@@ -199,29 +199,29 @@ async function login(req, res) {
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
         if (!isPasswordValid) {
-            return res.status(401).json({ 
+            return res.status(401).json({
                 success: false,
-                error: 'Invalid email or password' 
+                error: 'Invalid email or password'
             });
         }
 
         // Generate token AFTER successful password validation
         const token = jwt.sign(
-            { 
+            {
                 id: user.id,
                 name: user.name,
                 email: user.email,
                 department: user.department,
                 batch: user.batch
-            }, 
-            process.env.JWT_SECRET, 
+            },
+            process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
 
         if (!isPasswordValid) {
-            return res.status(401).json({ 
+            return res.status(401).json({
                 success: false,
-                error: 'Invalid email or password' 
+                error: 'Invalid email or password'
             });
         }
 
@@ -242,10 +242,11 @@ async function login(req, res) {
         });
 
     } catch (error) {
-        console.error('Error in login:', error);
-        return res.status(500).json({ 
+        console.error('CRITICAL: Error in login function:', error);
+        return res.status(500).json({
             success: false,
-            error: 'Login failed. Please try again.' 
+            error: 'Login failed. Please try again.',
+            debug_info: error.message
         });
     }
 }

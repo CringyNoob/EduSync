@@ -4,14 +4,28 @@ const cors = require('cors');
 const db = require('./src/config/db'); // Import the db connection
 const authRoutes = require('./src/routes/authRoutes'); // Import auth routes
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
+
+// 0. File Logging
+const logFile = path.join(__dirname, 'auth-service.log');
+const logStream = fs.createWriteStream(logFile, { flags: 'a' });
+
+function log(msg) {
+    const timestamp = new Date().toISOString();
+    const formatted = `[${timestamp}] ${msg}\n`;
+    console.log(msg);
+    logStream.write(formatted);
+}
+
 app.use(express.json()); // Allow JSON data
 app.use(cors());         // Allow Frontend to talk to us
 
 // --- THE SPY LOGGER ---
 app.use((req, res, next) => {
-    console.log(`[Auth Service] Received Request: ${req.method} ${req.url}`);
+    log(`Received Request: ${req.method} ${req.url}`);
     next();
 });
 

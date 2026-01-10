@@ -16,8 +16,8 @@ import {
     Shield,
     Sparkles,
     Repeat,
-    Package,
-    TrendingUp
+    TrendingUp,
+    Newspaper
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useAuth } from '../../context/AuthContext';
@@ -55,6 +55,7 @@ const Sidebar = () => {
             case 'Admin':
                 return [
                     { icon: LayoutDashboard, label: 'Overview', path: '/admin-dashboard', activeClass: 'text-red-600 bg-red-50 border-red-600' },
+                    { icon: Newspaper, label: 'News Manager', path: '/newsbox/manage', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
                     { icon: User, label: 'Users', path: '/admin/users', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
                     { icon: Shield, label: 'Approvals', path: '/admin/approvals', activeClass: 'text-purple-600 bg-purple-50 border-purple-600', badge: 5 },
                     { icon: AlertCircle, label: 'Reports', path: '/admin/reports', activeClass: 'text-orange-600 bg-orange-50 border-orange-600' },
@@ -64,7 +65,7 @@ const Sidebar = () => {
                 return [
                     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', activeClass: 'text-primary bg-primary/5 border-primary' },
                     { icon: ShoppingBag, label: 'Marketplace', path: '/marketplace', activeClass: 'text-indigo-600 bg-indigo-50 border-indigo-600' },
-                    { icon: MessageSquare, label: 'Forum', path: '/forum', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
+                    { icon: Newspaper, label: 'NewsBox', path: '/newsbox', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
                     { icon: Bell, label: 'Notices', path: '/notices', activeClass: 'text-yellow-600 bg-yellow-50 border-yellow-600', badge: 3 },
                     { icon: Repeat, label: 'RentHub', path: '/renthub', activeClass: 'text-emerald-600 bg-emerald-50 border-emerald-600' },
                     { icon: MessageCircle, label: 'Chat', path: '/chat', activeClass: 'text-green-600 bg-green-50 border-green-600', badge: 5 },
