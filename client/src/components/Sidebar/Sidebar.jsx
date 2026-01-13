@@ -89,9 +89,9 @@ const Sidebar = () => {
     return (
         <aside className="fixed left-4 top-4 z-50 h-[calc(100vh-2rem)] w-[246px] transition-transform">
             {/* Sidebar Card - Floating Glass Effect */}
-            <div className="absolute inset-0 overflow-hidden rounded-[2rem] border border-white/60 dark:border-gray-700/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)] bg-white/70 dark:bg-gray-800/70 backdrop-blur-3xl transition-colors duration-300">
+            <div className="absolute inset-0 overflow-hidden rounded-[2rem] border border-white/60 dark:border-gray-700/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)] bg-white/70 dark:bg-gray-900/80 backdrop-blur-3xl transition-colors duration-300">
                 {/* Subtle Inner Gradient for Depth */}
-                <div className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-white/60 to-transparent dark:from-gray-700/60 z-0"></div>
+                <div className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-white/60 to-transparent dark:from-gray-800/60 z-0"></div>
 
                 {/* Subtle Noise Texture */}
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:16px_16px] opacity-20 z-0"></div>
@@ -101,7 +101,7 @@ const Sidebar = () => {
                 {/* Logo Section */}
                 <div className="mb-8 px-1">
                     <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
-                        <div className="p-1.5 rounded-xl bg-white dark:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-600 group-hover:scale-110 transition-transform duration-300">
+                        <div className="p-1.5 rounded-xl bg-white dark:bg-white/90 shadow-sm border border-gray-100 dark:border-gray-700 group-hover:scale-110 transition-transform duration-300">
                             <img src="/logo.png" alt="EduSync" className="h-6 w-6 object-contain" />
                         </div>
                         <div>
@@ -117,7 +117,7 @@ const Sidebar = () => {
                 <div className="mb-2 relative group/profile">
                     <button
                         onClick={() => setIsSwitcherOpen(!isSwitcherOpen)}
-                        className="w-full text-left p-1.5 rounded-[1.2rem] bg-white/60 border border-white shadow-sm hover:shadow-md hover:bg-white transition-all duration-300 group-hover/profile:ring-2 ring-primary/10"
+                        className="w-full text-left p-1.5 rounded-[1.2rem] bg-white/60 dark:bg-gray-800/60 border border-white dark:border-gray-700 shadow-sm hover:shadow-md hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 group-hover/profile:ring-2 ring-primary/10"
                     >
                         <div className="flex items-center gap-3 p-1.5">
                             <div className="relative">
@@ -149,7 +149,7 @@ const Sidebar = () => {
 
                     {/* Inline Menu */}
                     {isSwitcherOpen && (
-                        <div className="mt-2 w-full bg-white/50 rounded-2xl border border-white/50 overflow-hidden animate-in slide-in-from-top-2 fade-in">
+                        <div className="mt-2 w-full bg-white/50 dark:bg-gray-800/50 rounded-2xl border border-white/50 dark:border-gray-700/50 overflow-hidden animate-in slide-in-from-top-2 fade-in">
                             <div className="p-1.5 space-y-1">
                                 <div className="px-3 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 mb-1">
                                     Select Workspace
@@ -167,8 +167,8 @@ const Sidebar = () => {
                                             setIsSwitcherOpen(false);
                                         }}
                                         className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all ${userData.role === profile.role
-                                            ? 'bg-white shadow-sm ring-1 ring-gray-100 text-gray-900'
-                                            : 'hover:bg-white/60 text-gray-600 hover:text-gray-900'
+                                            ? 'bg-white dark:bg-gray-700 shadow-sm ring-1 ring-gray-100 dark:ring-gray-600 text-gray-900 dark:text-white'
+                                            : 'hover:bg-white/60 dark:hover:bg-gray-700/60 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                             }`}
                                     >
                                         <div className={`h-6 w-6 rounded-lg flex items-center justify-center ${profile.color}`}>
@@ -201,8 +201,8 @@ const Sidebar = () => {
                                 cn(
                                     "group relative flex items-center rounded-xl px-3 py-2.5 transition-all duration-300",
                                     isActive
-                                        ? `${item.activeClass} border-l-4 shadow-sm bg-opacity-100 dark:bg-opacity-20`
-                                        : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-gray-100 border-l-4 border-transparent"
+                                        ? `${item.activeClass} border-l-4 shadow-sm bg-opacity-100 dark:bg-opacity-20 text-gray-900 dark:text-white`
+                                        : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-100 border-l-4 border-transparent"
                                 )
                             }
                         >

@@ -32,29 +32,29 @@ const NoticeFeed = () => {
 
     return (
         <div className="space-y-6">
-            <h1 className="text-2xl font-bold text-gray-900">Notice Board</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Notice Board</h1>
 
             <div className="grid gap-4">
                 {notices.map((notice) => (
-                    <Card key={notice.id} className={`transition-all hover:shadow-md ${notice.pinned ? 'border-l-4 border-l-blue-500 bg-blue-50/30' : ''}`}>
+                    <Card key={notice.id} className={`transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800 ${notice.pinned ? 'border-l-4 border-l-blue-500 bg-blue-50/30 dark:bg-blue-900/10' : ''}`}>
                         <CardContent className="p-6">
                             <div className="flex items-start justify-between">
                                 <div className="flex items-start gap-4">
-                                    <div className={`p-3 rounded-full ${notice.pinned ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'}`}>
+                                    <div className={`p-3 rounded-full ${notice.pinned ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}>
                                         {notice.pinned ? <Pin className="h-5 w-5" /> : <Bell className="h-5 w-5" />}
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="font-semibold text-gray-900">{notice.title}</h3>
-                                            {notice.pinned && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Pinned</span>}
+                                            <h3 className="font-semibold text-gray-900 dark:text-white">{notice.title}</h3>
+                                            {notice.pinned && <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">Pinned</span>}
                                         </div>
-                                        <p className="text-gray-600 mb-3">{notice.content}</p>
-                                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                                        <p className="text-gray-600 dark:text-gray-300 mb-3">{notice.content}</p>
+                                        <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                                             <span className="flex items-center gap-1">
                                                 <Calendar className="h-3 w-3" />
                                                 {notice.date}
                                             </span>
-                                            <span className="bg-gray-100 px-2 py-0.5 rounded-full">{notice.type}</span>
+                                            <span className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full">{notice.type}</span>
                                         </div>
                                     </div>
                                 </div>

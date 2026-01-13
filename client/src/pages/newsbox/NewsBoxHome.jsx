@@ -18,7 +18,8 @@ import {
     ArrowLeft,
     Clock,
     LayoutDashboard,
-    Settings
+    Settings,
+    Send
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/Cards/Card';
@@ -84,6 +85,7 @@ const NewsBoxHome = () => {
     const [imagePreview, setImagePreview] = useState(null);
     const [expandedPost, setExpandedPost] = useState(null);
     const [currentSliderIndex, setCurrentSliderIndex] = useState(0);
+    const [newComment, setNewComment] = useState('');
 
     const featuredNews = useMemo(() => posts.slice(0, 3), [posts]);
 
@@ -161,6 +163,31 @@ const NewsBoxHome = () => {
         }));
     };
 
+    // Handle Add Comment
+    const handleAddComment = (postId) => {
+        if (!newComment.trim()) return;
+
+        setPosts(prev => prev.map(post => {
+            if (post.id === postId) {
+                return {
+                    ...post,
+                    comments: [
+                        ...post.comments,
+                        {
+                            id: Date.now(),
+                            user: "Me", // In real app, get from user context
+                            content: newComment,
+                            upboard: 0,
+                            downboard: 0
+                        }
+                    ]
+                };
+            }
+            return post;
+        }));
+        setNewComment('');
+    };
+
     // Handle New Post
     const handleSubmitPost = () => {
         if (!newPost.title || !newPost.content) return;
@@ -182,7 +209,7 @@ const NewsBoxHome = () => {
     };
 
     return (
-        <div className="relative min-h-screen p-3 md:p-5 space-y-6 font-sans">
+        <div className="relative min-h-screen p-3 md:p-5 space-y-6 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300">
             {/* Background Details */}
             <div className="fixed inset-0 -z-50 pointer-events-none">
                 <div className="absolute top-0 left-[-100px] w-[600px] h-[800px] bg-gradient-to-br from-primary/10 via-secondary/10 to-transparent rounded-full mix-blend-multiply blur-[80px]"></div>
@@ -202,11 +229,11 @@ const NewsBoxHome = () => {
                             </span>
                             Live Campus Pulse
                         </div>
-                        <h2 className="text-4xl md:text-6xl font-black text-gray-900 leading-[1.1]">
+                        <h2 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white leading-[1.1]">
                             Stay <span className="text-primary italic">Connected</span>, <br />
                             Stay Informed.
                         </h2>
-                        <p className="text-gray-500 font-medium max-w-md">
+                        <p className="text-gray-500 dark:text-gray-400 font-medium max-w-md">
                             Your daily dose of campus news, events, and community stories. Share what's happening around you.
                         </p>
                     </div>
@@ -266,13 +293,13 @@ const NewsBoxHome = () => {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="p-1.5 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 hover:border-blue-500/50 transition-all group"
+                        className="p-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-blue-500/50 transition-all group"
                     >
                         <ArrowLeft size={18} className="text-gray-500 group-hover:text-blue-600" />
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 leading-none">NewsBox</h1>
-                        <p className="text-xs text-gray-500 mt-1">The pulse of your campus community</p>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-none">NewsBox</h1>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">The pulse of your campus community</p>
                     </div>
                 </div>
 
@@ -292,7 +319,7 @@ const NewsBoxHome = () => {
             </div>
 
             {/* Combined Filter Bar */}
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/60 shadow-sm max-w-7xl mx-auto">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-4 border border-white/60 dark:border-gray-700 shadow-sm max-w-7xl mx-auto">
                 <div className="flex flex-col md:flex-row gap-4">
                     {/* Search Bar */}
                     <div className="relative flex-1 group">
@@ -302,7 +329,7 @@ const NewsBoxHome = () => {
                             placeholder="Search campus news..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100 focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all text-sm font-medium"
+                            className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 dark:text-white border border-gray-100 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all text-sm font-medium"
                         />
                     </div>
 
@@ -313,7 +340,7 @@ const NewsBoxHome = () => {
                             <select
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
-                                className="appearance-none pl-9 pr-8 py-2.5 rounded-xl bg-gray-50 border border-gray-100 text-sm font-bold text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/10 cursor-pointer transition-all"
+                                className="appearance-none pl-9 pr-8 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-bold text-gray-700 dark:text-gray-300 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/10 cursor-pointer transition-all"
                             >
                                 <option value="newest">Newest</option>
                                 <option value="upboard">Most Liked</option>
@@ -325,7 +352,7 @@ const NewsBoxHome = () => {
                         {user?.role === 'Admin' && (
                             <Button
                                 variant="outline"
-                                className="h-[42px] border-primary text-primary hover:bg-primary/5 rounded-xl font-bold"
+                                className="h-[42px] border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10 rounded-xl font-bold"
                                 onClick={() => navigate('/newsbox/manage')}
                             >
                                 <Settings className="mr-1.5 h-4 w-4" />
@@ -353,7 +380,7 @@ const NewsBoxHome = () => {
                                 "px-5 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap border-2",
                                 selectedCategory === cat
                                     ? "bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-105"
-                                    : "bg-white border-gray-100 text-gray-500 hover:border-primary/30 hover:text-primary"
+                                    : "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-primary/30 hover:text-primary"
                             )}
                         >
                             {cat}
@@ -365,7 +392,7 @@ const NewsBoxHome = () => {
             {/* News Feed Section */}
             <div className="max-w-7xl mx-auto space-y-6">
                 <div className="flex items-center justify-between px-2">
-                    <h2 className="text-2xl font-black text-gray-900 flex items-center gap-3">
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-3">
                         <TrendingUp className="text-primary" />
                         Explore All Content
                     </h2>
@@ -381,7 +408,7 @@ const NewsBoxHome = () => {
                             <div
                                 key={post.id}
                                 onClick={() => setExpandedPost(post.id)}
-                                className="group relative bg-white/80 backdrop-blur-md border border-white/60 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 transition-all duration-500 cursor-pointer"
+                                className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-white/60 dark:border-gray-700 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 transition-all duration-500 cursor-pointer"
                             >
                                 {/* Image Section */}
                                 <div className="h-52 w-full relative overflow-hidden bg-gray-100">
@@ -401,7 +428,7 @@ const NewsBoxHome = () => {
 
                                     {/* Floating Badge */}
                                     <div className="absolute top-4 left-4">
-                                        <div className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-[10px] font-black text-primary shadow-sm border border-white/50 uppercase tracking-widest">
+                                        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-[10px] font-black text-primary shadow-sm border border-white/50 dark:border-gray-600 uppercase tracking-widest">
                                             {post.category}
                                         </div>
                                     </div>
@@ -423,27 +450,27 @@ const NewsBoxHome = () => {
                                             <Clock size={12} className="text-primary/50" />
                                             {post.time}
                                         </span>
-                                        <span className="ml-auto flex items-center gap-1.5 px-2 py-0.5 bg-gray-50 rounded-lg text-gray-500">
+                                        <span className="ml-auto flex items-center gap-1.5 px-2 py-0.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-gray-500 dark:text-gray-400">
                                             <ArrowBigUp size={12} />
                                             <span className="text-[10px] font-black">{post.upboard - post.downboard}</span>
                                         </span>
                                     </div>
 
-                                    <h3 className="font-black text-gray-900 text-lg mb-4 leading-tight group-hover:text-primary transition-colors line-clamp-2 min-h-[48px]">
+                                    <h3 className="font-black text-gray-900 dark:text-white text-lg mb-4 leading-tight group-hover:text-primary transition-colors line-clamp-2 min-h-[48px]">
                                         {post.title}
                                     </h3>
 
-                                    <div className="flex items-center gap-3 pt-4 border-t border-gray-100/50">
+                                    <div className="flex items-center gap-3 pt-4 border-t border-gray-100/50 dark:border-gray-700/50">
                                         <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-[10px] font-black shadow-lg shadow-primary/20">
                                             {post.author[0]}
                                         </div>
                                         <div className="flex flex-col min-w-0">
                                             <span className="text-[9px] text-gray-400 font-black uppercase tracking-widest">Verified Auth</span>
-                                            <span className="text-xs text-gray-700 font-bold truncate">{post.author}</span>
+                                            <span className="text-xs text-gray-700 dark:text-gray-300 font-bold truncate">{post.author}</span>
                                         </div>
-                                        <div className="ml-auto flex items-center gap-1.5 bg-gray-50/50 px-3 py-1.5 rounded-xl border border-gray-100">
+                                        <div className="ml-auto flex items-center gap-1.5 bg-gray-50/50 dark:bg-gray-700/50 px-3 py-1.5 rounded-xl border border-gray-100 dark:border-gray-700">
                                             <MessageSquare size={14} className="text-primary" />
-                                            <span className="text-[10px] font-black text-gray-900">{post.comments.length}</span>
+                                            <span className="text-[10px] font-black text-gray-900 dark:text-white">{post.comments.length}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -451,200 +478,219 @@ const NewsBoxHome = () => {
                         ))
                     ) : (
                         <div className="col-span-full py-12 text-center">
-                            <div className="inline-block p-4 rounded-2xl bg-gray-50 mb-3">
-                                <Search size={32} className="text-gray-300" />
+                            <div className="inline-block p-4 rounded-2xl bg-gray-50 dark:bg-gray-800 mb-3">
+                                <Search size={32} className="text-gray-300 dark:text-gray-600" />
                             </div>
-                            <h3 className="text-base font-bold text-gray-900">No news found</h3>
-                            <p className="text-xs text-gray-500 mt-1">Try adjusting your filters or search.</p>
+                            <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">No news found</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Try adjusting your filters or search.</p>
                         </div>
                     )}
                 </div>
+            </div>
 
-                {/* Post Detail Modal */}
-                {expandedPost && (
-                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-                        <Card className="w-full max-w-2xl rounded-[2.5rem] shadow-2xl border-none animate-in zoom-in-95 duration-300 overflow-hidden">
-                            <CardHeader className="flex flex-row items-center justify-between border-b border-gray-50 p-6 md:p-8">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-blue-50 rounded-xl">
-                                        <Newspaper className="h-6 w-6 text-blue-600" />
-                                    </div>
-                                    <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Full Broadcast</h2>
+            {/* Post Detail Modal */}
+            {expandedPost && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+                    <Card className="w-full max-w-2xl rounded-[2.5rem] shadow-2xl border-none animate-in zoom-in-95 duration-300 overflow-hidden bg-white dark:bg-gray-800">
+                        <CardHeader className="flex flex-row items-center justify-between border-b border-gray-50 dark:border-gray-700 p-6 md:p-8">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                                    <Newspaper className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                                 </div>
-                                <button
-                                    onClick={() => setExpandedPost(null)}
-                                    className="p-2 hover:bg-gray-100 rounded-xl transition-all"
-                                >
-                                    <X className="h-6 w-6 text-gray-400" />
-                                </button>
-                            </CardHeader>
-                            <CardContent className="p-6 md:p-8 space-y-6 overflow-y-auto max-h-[80vh] custom-scrollbar">
-                                {posts.find(p => p.id === expandedPost)?.image && (
-                                    <div className="rounded-2xl overflow-hidden shadow-sm">
-                                        <img
-                                            src={posts.find(p => p.id === expandedPost).image}
-                                            className="w-full h-auto object-cover"
-                                            alt="News"
-                                        />
-                                    </div>
-                                )}
-                                <div className="space-y-4">
-                                    <h3 className="text-2xl font-black text-gray-900 leading-tight">{posts.find(p => p.id === expandedPost).title}</h3>
-                                    <div className="text-gray-600 leading-relaxed text-lg ql-viewer" dangerouslySetInnerHTML={{ __html: posts.find(p => p.id === expandedPost).content }} />
-                                </div>
-
-                                <div className="pt-6 border-t border-gray-100 space-y-6">
-                                    <div className="flex items-center justify-between">
-                                        <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest">Community Reactions</h4>
-                                        <div className="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-100">
-                                            <button
-                                                onClick={() => handleVote(expandedPost, 'up')}
-                                                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-white rounded-lg transition-all"
-                                            >
-                                                <ArrowBigUp size={20} />
-                                            </button>
-                                            <span className="px-3 text-sm font-black italic">{posts.find(p => p.id === expandedPost).upboard - posts.find(p => p.id === expandedPost).downboard}</span>
-                                            <button
-                                                onClick={() => handleVote(expandedPost, 'down')}
-                                                className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-white rounded-lg transition-all"
-                                            >
-                                                <ArrowBigDown size={20} />
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        {posts.find(p => p.id === expandedPost).comments.map(comment => (
-                                            <div key={comment.id} className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <span className="font-bold text-sm text-gray-900">{comment.user}</span>
-                                                    <div className="flex items-center gap-2 bg-white px-2 py-1 rounded-lg border border-gray-100 shadow-sm">
-                                                        <span className="text-[10px] font-bold text-gray-600">{comment.upboard - comment.downboard}</span>
-                                                        <button
-                                                            onClick={() => handleVote(expandedPost, 'up', comment.id)}
-                                                            className="text-gray-400 hover:text-blue-600"
-                                                        >
-                                                            <ArrowBigUp size={14} />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                <p className="text-sm text-gray-600">{comment.content}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                )}
-
-                {/* Create Post Modal */}
-                {showCreateModal && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-                        <Card className="w-full max-w-lg rounded-[2.5rem] shadow-2xl border-none animate-in zoom-in-95 duration-300">
-                            <CardHeader className="flex flex-row items-center justify-between border-b border-gray-50 p-8">
-                                <div>
-                                    <CardTitle className="text-2xl font-black text-gray-900">Create News Post</CardTitle>
-                                    <p className="text-sm text-gray-500 mt-1">Share something with the campus</p>
-                                </div>
-                                <button
-                                    onClick={() => setShowCreateModal(false)}
-                                    className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-400"
-                                >
-                                    <X className="h-6 w-6" />
-                                </button>
-                            </CardHeader>
-                            <CardContent className="p-8 space-y-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">News Title</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter a catchy headline..."
-                                        className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                                        value={newPost.title}
-                                        onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                                <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Full Broadcast</h2>
+                            </div>
+                            <button
+                                onClick={() => setExpandedPost(null)}
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+                            >
+                                <X className="h-6 w-6 text-gray-400" />
+                            </button>
+                        </CardHeader>
+                        <CardContent className="p-6 md:p-8 space-y-6 overflow-y-auto max-h-[80vh] custom-scrollbar">
+                            {posts.find(p => p.id === expandedPost)?.image && (
+                                <div className="rounded-2xl overflow-hidden shadow-sm">
+                                    <img
+                                        src={posts.find(p => p.id === expandedPost).image}
+                                        className="w-full h-auto object-cover"
+                                        alt="News"
                                     />
                                 </div>
+                            )}
+                            <div className="space-y-4">
+                                <h3 className="text-2xl font-black text-gray-900 dark:text-white leading-tight">{posts.find(p => p.id === expandedPost).title}</h3>
+                                <div className="text-gray-600 dark:text-gray-300 leading-relaxed text-lg ql-viewer" dangerouslySetInnerHTML={{ __html: posts.find(p => p.id === expandedPost).content }} />
+                            </div>
 
-                                <div className="space-y-4">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Attachment (Optional)</label>
-                                    <div className="flex flex-col gap-4">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            id="post-image"
-                                            onChange={handleImageChange}
-                                        />
-                                        {!imagePreview ? (
-                                            <label
-                                                htmlFor="post-image"
-                                                className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-100 rounded-[2rem] bg-gray-50/50 cursor-pointer hover:bg-blue-50/50 hover:border-blue-200 transition-all group"
-                                            >
-                                                <div className="p-4 bg-white rounded-2xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                                                    <Camera className="h-6 w-6 text-gray-400 group-hover:text-blue-600" />
-                                                </div>
-                                                <span className="text-sm font-bold text-gray-500">Pick a catchy photo</span>
-                                                <span className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest font-black">JPG, PNG up to 5MB</span>
-                                            </label>
-                                        ) : (
-                                            <div className="relative group p-2 bg-gray-50 rounded-[2rem] border border-gray-100">
-                                                <img src={imagePreview} className="w-full h-48 object-cover rounded-[1.5rem]" alt="Preview" />
+                            <div className="pt-6 border-t border-gray-100 dark:border-gray-700 space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest">Community Reactions</h4>
+                                    <div className="flex items-center bg-gray-50 dark:bg-gray-700 rounded-xl p-1 border border-gray-100 dark:border-gray-600">
+                                        <button
+                                            onClick={() => handleVote(expandedPost, 'up')}
+                                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-white dark:hover:bg-gray-800 rounded-lg transition-all"
+                                        >
+                                            <ArrowBigUp size={20} />
+                                        </button>
+                                        <span className="px-3 text-sm font-black italic text-gray-700 dark:text-gray-200">{posts.find(p => p.id === expandedPost).upboard - posts.find(p => p.id === expandedPost).downboard}</span>
+                                        <button
+                                            onClick={() => handleVote(expandedPost, 'down')}
+                                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-white dark:hover:bg-gray-800 rounded-lg transition-all"
+                                        >
+                                            <ArrowBigDown size={20} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div className="flex gap-2 mt-4">
+                                <input
+                                    type="text"
+                                    placeholder="Write a comment..."
+                                    className="flex-1 bg-gray-50 dark:bg-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white"
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleAddComment(expandedPost)}
+                                />
+                                <Button
+                                    size="icon"
+                                    className="rounded-xl"
+                                    onClick={() => handleAddComment(expandedPost)}
+                                    disabled={!newComment.trim()}
+                                >
+                                    <Send size={18} />
+                                </Button>
+                            </div>
+                            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                {posts.find(p => p.id === expandedPost).comments.map(comment => (
+                                    <div key={comment.id} className="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-2xl border border-gray-100 dark:border-gray-700">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className="font-bold text-sm text-gray-900 dark:text-white">{comment.user}</span>
+                                            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-2 py-1 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
+                                                <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400">{comment.upboard - comment.downboard}</span>
                                                 <button
-                                                    onClick={() => { setImagePreview(null); setNewPost({ ...newPost, image: null }); }}
-                                                    className="absolute top-4 right-4 p-2 bg-black/60 text-white rounded-xl backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    onClick={() => handleVote(expandedPost, 'up', comment.id)}
+                                                    className="text-gray-400 hover:text-blue-600"
                                                 >
-                                                    <X className="h-4 w-4" />
+                                                    <ArrowBigUp size={14} />
                                                 </button>
                                             </div>
-                                        )}
+                                        </div>
+                                        <p className="text-sm text-gray-600 dark:text-gray-300 text-left">{comment.content}</p>
                                     </div>
-                                </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
 
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Category</label>
-                                    <select
-                                        className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                                        value={newPost.category}
-                                        onChange={(e) => setNewPost({ ...newPost, category: e.target.value })}
-                                    >
-                                        {categories.filter(c => c !== 'All').map(c => (
-                                            <option key={c} value={c}>{c}</option>
-                                        ))}
-                                    </select>
-                                </div>
+            {/* Create Post Modal */}
+            {showCreateModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+                    <Card className="w-full max-w-lg rounded-[2.5rem] shadow-2xl border-none animate-in zoom-in-95 duration-300 bg-white dark:bg-gray-800">
+                        <CardHeader className="flex flex-row items-center justify-between border-b border-gray-50 dark:border-gray-700 p-8">
+                            <div>
+                                <CardTitle className="text-2xl font-black text-gray-900 dark:text-white">Create News Post</CardTitle>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Share something with the campus</p>
+                            </div>
+                            <button
+                                onClick={() => setShowCreateModal(false)}
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors text-gray-400"
+                            >
+                                <X className="h-6 w-6" />
+                            </button>
+                        </CardHeader>
+                        <CardContent className="p-8 space-y-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
+                            <div className="space-y-2">
+                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">News Title</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter a catchy headline..."
+                                    className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-900 dark:text-white"
+                                    value={newPost.title}
+                                    onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                                />
+                            </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Content</label>
-                                    <RichTextEditor
-                                        value={newPost.content}
-                                        onChange={(val) => setNewPost({ ...newPost, content: val })}
-                                        placeholder="Tell the full story..."
-                                        className="min-h-[250px]"
+                            <div className="space-y-4">
+                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Attachment (Optional)</label>
+                                <div className="flex flex-col gap-4">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        id="post-image"
+                                        onChange={handleImageChange}
                                     />
+                                    {!imagePreview ? (
+                                        <label
+                                            htmlFor="post-image"
+                                            className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-100 dark:border-gray-600 rounded-[2rem] bg-gray-50/50 dark:bg-gray-700/30 cursor-pointer hover:bg-blue-50/50 dark:hover:bg-blue-900/10 hover:border-blue-200 dark:hover:border-blue-700 transition-all group"
+                                        >
+                                            <div className="p-4 bg-white rounded-2xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                                                <Camera className="h-6 w-6 text-gray-400 group-hover:text-blue-600" />
+                                            </div>
+                                            <span className="text-sm font-bold text-gray-500">Pick a catchy photo</span>
+                                            <span className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest font-black">JPG, PNG up to 5MB</span>
+                                        </label>
+                                    ) : (
+                                        <div className="relative group p-2 bg-gray-50 dark:bg-gray-700 rounded-[2rem] border border-gray-100 dark:border-gray-600">
+                                            <img src={imagePreview} className="w-full h-48 object-cover rounded-[1.5rem]" alt="Preview" />
+                                            <button
+                                                onClick={() => { setImagePreview(null); setNewPost({ ...newPost, image: null }); }}
+                                                className="absolute top-4 right-4 p-2 bg-black/60 text-white rounded-xl backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
+                            </div>
 
-                                <div className="flex gap-4 pt-4">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setShowCreateModal(false)}
-                                        className="flex-1 rounded-2xl py-4 font-bold border-gray-200"
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        onClick={handleSubmitPost}
-                                        className="flex-1 rounded-2xl py-4 font-bold shadow-lg shadow-blue-100"
-                                    >
-                                        Broadcast News
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                )}
-                {/* Quill Styles for Viewer */}
-                <style>{`
+                            <div className="space-y-2">
+                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Category</label>
+                                <select
+                                    className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-900 dark:text-white"
+                                    value={newPost.category}
+                                    onChange={(e) => setNewPost({ ...newPost, category: e.target.value })}
+                                >
+                                    {categories.filter(c => c !== 'All').map(c => (
+                                        <option key={c} value={c}>{c}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Content</label>
+                                <RichTextEditor
+                                    value={newPost.content}
+                                    onChange={(val) => setNewPost({ ...newPost, content: val })}
+                                    placeholder="Tell the full story..."
+                                    className="min-h-[250px] text-gray-900 dark:text-white"
+                                />
+                            </div>
+
+                            <div className="flex gap-4 pt-4">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setShowCreateModal(false)}
+                                    className="flex-1 rounded-2xl py-4 font-bold border-gray-200 dark:border-gray-600 dark:text-gray-300"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleSubmitPost}
+                                    className="flex-1 rounded-2xl py-4 font-bold shadow-lg shadow-blue-100"
+                                >
+                                    Broadcast News
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+            {/* Quill Styles for Viewer */}
+            <style>{`
                 .ql-viewer img { max-width: 100%; height: auto; border-radius: 1rem; margin: 1rem 0; }
                 .ql-viewer p { margin-bottom: 0.5rem; }
                 .ql-viewer h1 { font-size: 1.8rem; font-weight: 800; margin: 1rem 0; }
@@ -655,7 +701,6 @@ const NewsBoxHome = () => {
                 .ql-viewer .ql-align-right { text-align: right; }
                 .ql-viewer .ql-align-justify { text-align: justify; }
             `}</style>
-            </div>
         </div>
     );
 };

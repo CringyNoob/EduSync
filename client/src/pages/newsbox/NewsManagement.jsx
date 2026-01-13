@@ -200,27 +200,27 @@ const NewsManagement = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+            <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             </div>
         );
     }
 
     return (
-        <div className="p-8 max-w-7xl mx-auto min-h-screen bg-gray-50/50">
+        <div className="p-8 max-w-7xl mx-auto min-h-screen bg-gray-50/50 dark:bg-gray-900/50 transition-colors duration-300">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+                    <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
                         <Megaphone className="text-primary h-8 w-8" />
                         News Management
                     </h1>
-                    <p className="text-gray-500 font-medium mt-1">Control campus information flow and broadcast official news.</p>
+                    <p className="text-gray-500 dark:text-gray-400 font-medium mt-1">Control campus information flow and broadcast official news.</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Button
                         variant="outline"
-                        className="rounded-xl border-gray-200"
+                        className="rounded-xl border-gray-200 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                         onClick={() => window.location.href = '/newsbox'}
                     >
                         <Eye size={16} className="mr-2" />
@@ -244,21 +244,21 @@ const NewsManagement = () => {
                     { label: 'Approved Today', value: stats.todayApprovals, icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50' },
                     { label: 'Engagements', value: stats.totalInteractions, icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50' },
                 ].map((stat, i) => (
-                    <div key={i} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
-                        <div className={cn("p-3 rounded-2xl", stat.bg)}>
+                    <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-4 transition-colors">
+                        <div className={cn("p-3 rounded-2xl", stat.bg, "dark:bg-opacity-20")}>
                             <stat.icon className={cn("h-6 w-6", stat.color)} />
                         </div>
                         <div>
                             <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">{stat.label}</p>
-                            <p className="text-2xl font-black text-gray-900">{stat.value}</p>
+                            <p className="text-2xl font-black text-gray-900 dark:text-white">{stat.value}</p>
                         </div>
                     </div>
                 ))}
             </div>
 
             {/* Tabs & Content */}
-            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden">
-                <div className="border-b border-gray-100 px-8 flex overflow-x-auto no-scrollbar">
+            <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-xl overflow-hidden transition-colors">
+                <div className="border-b border-gray-100 dark:border-gray-700 px-8 flex overflow-x-auto no-scrollbar">
                     {[
                         { id: 'moderation', label: 'Moderation Queue', icon: AlertCircle },
                         { id: 'broadcast', label: 'Broadcast Center', icon: Send },
@@ -273,7 +273,7 @@ const NewsManagement = () => {
                                 "flex items-center gap-2 px-6 py-5 text-sm font-bold transition-all border-b-2 relative whitespace-nowrap",
                                 activeTab === tab.id
                                     ? "text-primary border-primary"
-                                    : "text-gray-400 border-transparent hover:text-gray-600"
+                                    : "text-gray-400 border-transparent hover:text-gray-600 dark:hover:text-gray-300"
                             )}
                         >
                             <tab.icon size={18} />
@@ -296,33 +296,33 @@ const NewsManagement = () => {
                     {activeTab === 'moderation' && (
                         <div className="space-y-6">
                             {pendingPosts.length === 0 ? (
-                                <div className="text-center py-20 bg-gray-50 rounded-[2rem]">
+                                <div className="text-center py-20 bg-gray-50 dark:bg-gray-700/30 rounded-[2rem]">
                                     <CheckCircle2 size={48} className="text-green-500 mx-auto mb-4 opacity-20" />
                                     <p className="text-gray-400 font-bold">All clear! No pending news posts.</p>
                                 </div>
                             ) : (
                                 pendingPosts.map(post => (
-                                    <div key={post.id} className="group bg-white rounded-3xl border border-gray-100 p-6 hover:shadow-lg hover:border-primary/20 transition-all duration-300 flex flex-col md:flex-row gap-6">
+                                    <div key={post.id} className="group bg-white dark:bg-gray-700/50 rounded-3xl border border-gray-100 dark:border-gray-700 p-6 hover:shadow-lg hover:border-primary/20 transition-all duration-300 flex flex-col md:flex-row gap-6">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-3 mb-4">
                                                 <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold">
                                                     {post.author_name[0]}
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-gray-900">{post.author_name}</p>
+                                                    <p className="text-sm font-bold text-gray-900 dark:text-white">{post.author_name}</p>
                                                     <p className="text-xs text-gray-400 font-medium">{new Date(post.created_at).toLocaleString()}</p>
                                                 </div>
-                                                <span className="ml-auto px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase rounded-full tracking-widest">
+                                                <span className="ml-auto px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-black uppercase rounded-full tracking-widest">
                                                     {post.category}
                                                 </span>
                                             </div>
-                                            <h3 className="text-xl font-bold text-gray-900 mb-2">{post.title}</h3>
-                                            <div className="text-gray-600 leading-relaxed mb-4 line-clamp-3 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
-                                            <Button variant="outline" size="sm" className="rounded-lg h-8 text-[10px] font-black uppercase border-gray-100">
+                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{post.title}</h3>
+                                            <div className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4 line-clamp-3 prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
+                                            <Button variant="outline" size="sm" className="rounded-lg h-8 text-[10px] font-black uppercase border-gray-100 dark:border-gray-600 dark:text-gray-400">
                                                 Full Review
                                             </Button>
                                         </div>
-                                        <div className="flex md:flex-col justify-end gap-2 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6">
+                                        <div className="flex md:flex-col justify-end gap-2 border-t md:border-t-0 md:border-l border-gray-100 dark:border-gray-700 pt-4 md:pt-0 md:pl-6">
                                             <Button
                                                 onClick={() => handleApprove(post.id)}
                                                 className="bg-green-500 hover:bg-green-600 text-white rounded-xl shadow-md shadow-green-200"
@@ -333,7 +333,7 @@ const NewsManagement = () => {
                                             <Button
                                                 onClick={() => handleReject(post.id)}
                                                 variant="outline"
-                                                className="border-red-100 text-red-500 hover:bg-red-50 rounded-xl"
+                                                className="border-red-100 dark:border-red-900/30 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl"
                                             >
                                                 <XCircle size={18} className="mr-2" />
                                                 Reject
@@ -347,7 +347,7 @@ const NewsManagement = () => {
 
                     {activeTab === 'broadcast' && (
                         <div className="max-w-4xl mx-auto">
-                            <div className="bg-primary/5 p-6 rounded-[2rem] border border-primary/10 mb-8 flex items-start gap-4">
+                            <div className="bg-primary/5 dark:bg-primary/10 p-6 rounded-[2rem] border border-primary/10 mb-8 flex items-start gap-4">
                                 <AlertCircle className="text-primary mt-1 shrink-0" />
                                 <div>
                                     <p className="text-sm font-bold text-primary italic">Broadcasting as Verified</p>
@@ -363,7 +363,7 @@ const NewsManagement = () => {
                                     <input
                                         type="text"
                                         placeholder="Headline for your official announcement..."
-                                        className="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold text-gray-900"
+                                        className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-gray-700/50 border border-transparent focus:bg-white dark:focus:bg-gray-700 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold text-gray-900 dark:text-white"
                                         value={broadcastPost.title}
                                         onChange={(e) => setBroadcastPost({ ...broadcastPost, title: e.target.value })}
                                         required
@@ -374,7 +374,7 @@ const NewsManagement = () => {
                                     <div className="space-y-2">
                                         <label className="text-xs font-black text-gray-400 uppercase ml-1">Category</label>
                                         <select
-                                            className="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold text-gray-900 appearance-none"
+                                            className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-gray-700/50 border border-transparent focus:bg-white dark:focus:bg-gray-700 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold text-gray-900 dark:text-white appearance-none"
                                             value={broadcastPost.category}
                                             onChange={(e) => setBroadcastPost({ ...broadcastPost, category: e.target.value })}
                                         >
@@ -390,7 +390,7 @@ const NewsManagement = () => {
                                         <input
                                             type="text"
                                             placeholder="https://..."
-                                            className="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold text-gray-900"
+                                            className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-gray-700/50 border border-transparent focus:bg-white dark:focus:bg-gray-700 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold text-gray-900 dark:text-white"
                                             value={broadcastPost.imageUrl}
                                             onChange={(e) => setBroadcastPost({ ...broadcastPost, imageUrl: e.target.value })}
                                         />
@@ -403,6 +403,7 @@ const NewsManagement = () => {
                                         value={broadcastPost.content}
                                         onChange={(val) => setBroadcastPost({ ...broadcastPost, content: val })}
                                         placeholder="Detailed announcement content with formatting..."
+                                        className="text-gray-900 dark:text-white"
                                     />
                                 </div>
 
@@ -411,7 +412,7 @@ const NewsManagement = () => {
                                         type="button"
                                         onClick={handleSaveDraft}
                                         variant="outline"
-                                        className="flex-1 h-[60px] rounded-2xl border-gray-200 text-gray-500 font-black flex items-center justify-center gap-3"
+                                        className="flex-1 h-[60px] rounded-2xl border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 font-black flex items-center justify-center gap-3"
                                     >
                                         <Save size={20} />
                                         Save as Draft
@@ -431,14 +432,14 @@ const NewsManagement = () => {
                     {activeTab === 'drafts' && (
                         <div className="space-y-6">
                             {drafts.length === 0 ? (
-                                <div className="text-center py-20 bg-gray-50 rounded-[2rem]">
+                                <div className="text-center py-20 bg-gray-50 dark:bg-gray-700/30 rounded-[2rem]">
                                     <FileText size={48} className="text-gray-300 mx-auto mb-4 opacity-20" />
                                     <p className="text-gray-400 font-bold">No saved drafts.</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {drafts.map(draft => (
-                                        <div key={draft.id} className="bg-white rounded-3xl border border-gray-100 p-6 hover:shadow-lg transition-all flex flex-col justify-between">
+                                        <div key={draft.id} className="bg-white dark:bg-gray-700/50 rounded-3xl border border-gray-100 dark:border-gray-700 p-6 hover:shadow-lg transition-all flex flex-col justify-between">
                                             <div>
                                                 <div className="flex items-center justify-between mb-4">
                                                     <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase rounded-full tracking-widest">
@@ -446,10 +447,10 @@ const NewsManagement = () => {
                                                     </span>
                                                     <p className="text-[10px] text-gray-400 font-bold">Updated {new Date(draft.created_at).toLocaleDateString()}</p>
                                                 </div>
-                                                <h3 className="text-xl font-bold text-gray-900 mb-2 truncate">{draft.title}</h3>
-                                                <div className="text-gray-500 text-sm line-clamp-2 prose prose-sm" dangerouslySetInnerHTML={{ __html: draft.content }} />
+                                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 truncate">{draft.title}</h3>
+                                                <div className="text-gray-500 dark:text-gray-300 text-sm line-clamp-2 prose prose-sm dark:prose-invert" dangerouslySetInnerHTML={{ __html: draft.content }} />
                                             </div>
-                                            <div className="flex gap-2 mt-6 pt-6 border-t border-gray-50">
+                                            <div className="flex gap-2 mt-6 pt-6 border-t border-gray-50 dark:border-gray-600">
                                                 <Button
                                                     onClick={() => handleEditDraft(draft)}
                                                     className="flex-1 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl"
@@ -460,7 +461,7 @@ const NewsManagement = () => {
                                                 <Button
                                                     onClick={() => handleDeleteDraft(draft.id)}
                                                     variant="outline"
-                                                    className="border-red-50 text-red-500 hover:bg-red-50 rounded-xl w-12 p-0"
+                                                    className="border-red-50 dark:border-red-900/30 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl w-12 p-0"
                                                 >
                                                     <Trash2 size={16} />
                                                 </Button>
@@ -475,23 +476,23 @@ const NewsManagement = () => {
                     {activeTab === 'content' && (
                         <div className="space-y-6">
                             {publishedPosts.length === 0 ? (
-                                <div className="text-center py-20 bg-gray-50 rounded-[2rem]">
+                                <div className="text-center py-20 bg-gray-50 dark:bg-gray-700/30 rounded-[2rem]">
                                     <Clock size={48} className="text-gray-300 mx-auto mb-4 opacity-20" />
                                     <p className="text-gray-400 font-bold">No published news yet.</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 gap-4">
                                     {publishedPosts.map(post => (
-                                        <div key={post.id} className="bg-white rounded-2xl border border-gray-100 p-5 flex items-center justify-between hover:shadow-md transition-all">
+                                        <div key={post.id} className="bg-white dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 flex items-center justify-between hover:shadow-md transition-all">
                                             <div className="flex items-center gap-4">
                                                 <div className={cn(
                                                     "h-12 w-12 rounded-xl flex items-center justify-center text-white",
-                                                    post.is_official ? "bg-primary shadow-lg shadow-primary/20" : "bg-gray-200"
+                                                    post.is_official ? "bg-primary shadow-lg shadow-primary/20" : "bg-gray-200 dark:bg-gray-600"
                                                 )}>
                                                     {post.is_official ? <Megaphone size={20} /> : <Newspaper size={20} />}
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-bold text-gray-900 flex items-center gap-2">
+                                                    <h4 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                                         {post.title}
                                                         {post.is_pinned && <Pin size={12} className="text-primary fill-primary" />}
                                                     </h4>
@@ -501,10 +502,10 @@ const NewsManagement = () => {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <Button variant="outline" size="sm" className="rounded-lg h-9 w-9 p-0 border-gray-100 text-gray-400 hover:text-primary">
+                                                <Button variant="outline" size="sm" className="rounded-lg h-9 w-9 p-0 border-gray-100 dark:border-gray-600 text-gray-400 hover:text-primary">
                                                     <Eye size={16} />
                                                 </Button>
-                                                <Button variant="outline" size="sm" className="rounded-lg h-9 w-9 p-0 border-gray-100 text-gray-400 hover:text-red-500">
+                                                <Button variant="outline" size="sm" className="rounded-lg h-9 w-9 p-0 border-gray-100 dark:border-gray-600 text-gray-400 hover:text-red-500">
                                                     <XCircle size={16} />
                                                 </Button>
                                             </div>
@@ -518,15 +519,15 @@ const NewsManagement = () => {
                     {activeTab === 'categories' && (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {['Campus', 'Emergency', 'Academics', 'Event', 'Tech', 'Lifestyle'].map(cat => (
-                                <div key={cat} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:border-primary/30 transition-all group">
+                                <div key={cat} className="bg-white dark:bg-gray-700/50 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-primary/30 transition-all group">
                                     <div className="flex items-center justify-between mb-4">
-                                        <div className="h-12 w-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-primary/5 group-hover:text-primary transition-all">
+                                        <div className="h-12 w-12 rounded-2xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-400 group-hover:bg-primary/5 group-hover:text-primary transition-all">
                                             <Filter size={24} />
                                         </div>
-                                        <span className="text-[10px] font-black text-gray-300 uppercase">Manage</span>
+                                        <span className="text-[10px] font-black text-gray-300 dark:text-gray-500 uppercase">Manage</span>
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-1">{cat}</h3>
-                                    <p className="text-xs text-gray-500 font-medium">
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{cat}</h3>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                                         {publishedPosts.filter(p => p.category === cat).length} Published Posts
                                     </p>
                                     <div className="mt-6 flex gap-2">
@@ -539,8 +540,8 @@ const NewsManagement = () => {
                                     </div>
                                 </div>
                             ))}
-                            <button className="border-2 border-dashed border-gray-200 p-6 rounded-3xl flex flex-col items-center justify-center gap-3 hover:bg-gray-50 hover:border-primary/30 transition-all text-gray-400 hover:text-primary group">
-                                <div className="h-12 w-12 rounded-2xl bg-gray-50 flex items-center justify-center group-hover:bg-primary/5 transition-all">
+                            <button className="border-2 border-dashed border-gray-200 dark:border-gray-700 p-6 rounded-3xl flex flex-col items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-primary/30 transition-all text-gray-400 hover:text-primary group">
+                                <div className="h-12 w-12 rounded-2xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center group-hover:bg-primary/5 transition-all">
                                     <Plus size={24} />
                                 </div>
                                 <span className="font-bold text-sm">Add New Category</span>

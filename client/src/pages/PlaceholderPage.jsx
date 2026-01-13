@@ -25,14 +25,7 @@ const PlaceholderPage = ({ title }) => {
                     This feature is currently under development. <br />
                     Stay tuned for updates!
                 </p>
-                {Object.keys(params).length > 0 && (
-                    <div className="bg-gray-50 p-4 rounded-xl text-left w-full max-w-md">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Route Parameters</p>
-                        <pre className="text-sm font-mono text-gray-700 overflow-x-auto">
-                            {JSON.stringify(params, null, 2)}
-                        </pre>
-                    </div>
-                )}
+                {/* Debug info removed */}
             </div>
         </div>
     );

@@ -55,9 +55,9 @@ const PersonalStatCard = ({ title, value, icon: Icon, colorClass, onClick }) => 
 // Priority Notification Component
 const PriorityNotification = ({ notification, onClick }) => {
     const priorityStyles = {
-        urgent: 'bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/30 text-red-900 dark:text-red-100',
-        high: 'bg-orange-50 dark:bg-orange-900/20 border-orange-100 dark:border-orange-900/30 text-orange-900 dark:text-orange-100',
-        normal: 'bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-900/30 text-blue-900 dark:text-blue-100',
+        urgent: 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900/40 text-red-900 dark:text-red-300',
+        high: 'bg-orange-50 dark:bg-orange-900/10 border-orange-100 dark:border-orange-900/40 text-orange-900 dark:text-orange-300',
+        normal: 'bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/40 text-blue-900 dark:text-blue-300',
     };
 
     const iconColors = {
@@ -292,8 +292,8 @@ const Home = () => {
                                 </div>
                             )}
                         </div>
-                        <Button size="icon" variant="outline" className="rounded-2xl h-14 w-14 border-gray-200 hover:border-primary hover:bg-white hover:shadow-md bg-white" onClick={() => navigate('/settings')}>
-                            <Settings className="h-6 w-6" />
+                        <Button size="icon" variant="outline" className="rounded-2xl h-14 w-14 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary hover:bg-white dark:hover:bg-gray-700 hover:shadow-md bg-white dark:bg-gray-800 overflow-visible" onClick={() => navigate('/settings')}>
+                            <Settings className="h-6 w-6 text-gray-500 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-primary" />
                         </Button>
 
                         {/* New Listing Dropdown */}
@@ -360,11 +360,11 @@ const Home = () => {
                 </div>
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     {personalStats.map((stat, i) => (
-                        <div key={i} className="bg-white rounded-[2rem] p-5 border border-white/50 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 cursor-pointer group hover:-translate-y-1">
+                        <div key={i} className="bg-white dark:bg-gray-800 rounded-[2rem] p-5 border border-white/50 dark:border-gray-700/50 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 cursor-pointer group hover:-translate-y-1">
                             <div className="flex items-center justify-between">
                                 <div className="flex-1">
-                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{stat.title}</p>
-                                    <h3 className="text-3xl font-extrabold text-gray-900 group-hover:text-primary transition-colors">{stat.value}</h3>
+                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{stat.title}</p>
+                                    <h3 className="text-3xl font-extrabold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{stat.value}</h3>
                                 </div>
                                 <div className={`h-12 w-12 rounded-2xl flex items-center justify-center ${stat.colorClass} shadow-sm group-hover:scale-110 transition-transform`}>
                                     <stat.icon className="h-6 w-6" />

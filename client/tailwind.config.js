@@ -43,6 +43,11 @@ export default {
                     'soft-apricot': '#fcddbc',
                     'cotton-candy': '#ef959d',
                     'taupe-grey': '#69585f',
+                },
+                dark: {
+                    surface: '#1F2937', // gray-800
+                    bg: '#111827',      // gray-900
+                    border: '#374151',  // gray-700
                 }
             }
         },

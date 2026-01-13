@@ -100,32 +100,32 @@ const RentHubDashboard = () => {
     };
 
     return (
-        <div className="relative min-h-screen p-4 md:p-6 space-y-8 font-sans text-gray-900">
+        <div className="relative min-h-screen p-4 md:p-6 space-y-8 font-sans text-gray-900 dark:text-white">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => navigate('/renthub')}
-                        className="p-2.5 rounded-2xl bg-white border border-gray-100 shadow-sm hover:border-emerald-500 hover:text-emerald-600 transition-all group"
+                        className="p-2.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm hover:border-emerald-500 hover:text-emerald-600 dark:text-gray-200 dark:hover:text-emerald-400 transition-all group"
                     >
                         <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                     </button>
                     <div>
-                        <h1 className="text-3xl font-black">My Rental Dashboard</h1>
-                        <p className="text-gray-500 font-bold uppercase tracking-wider text-xs mt-1">Manage your gear and bookings</p>
+                        <h1 className="text-3xl font-black text-gray-900 dark:text-white">My Rental Dashboard</h1>
+                        <p className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider text-xs mt-1">Manage your gear and bookings</p>
                     </div>
                 </div>
-                <div className="flex bg-white/60 backdrop-blur-md p-1.5 rounded-2xl border border-white shadow-sm">
+                <div className="flex bg-white/60 dark:bg-gray-800/60 backdrop-blur-md p-1.5 rounded-2xl border border-white dark:border-gray-700 shadow-sm">
                     <button
                         onClick={() => setActiveTab('renting')}
-                        className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all ${activeTab === 'renting' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'text-gray-500 hover:text-gray-900'
+                        className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all ${activeTab === 'renting' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200 dark:shadow-emerald-900/30' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                             }`}
                     >
                         Renting
                     </button>
                     <button
                         onClick={() => setActiveTab('listings')}
-                        className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all ${activeTab === 'listings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-500 hover:text-gray-900'
+                        className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all ${activeTab === 'listings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/30' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                             }`}
                     >
                         My Listings
@@ -135,32 +135,32 @@ const RentHubDashboard = () => {
 
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white shadow-sm">
+                <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white dark:border-gray-700 shadow-sm">
                     <div className="flex items-center gap-4 mb-2">
-                        <div className="p-2 bg-blue-100 text-blue-600 rounded-xl">
+                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl">
                             <Clock className="h-5 w-5" />
                         </div>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Rentals</p>
                     </div>
-                    <h3 className="text-3xl font-black text-gray-900">{activeRentals.filter(r => r.status === 'active').length}</h3>
+                    <h3 className="text-3xl font-black text-gray-900 dark:text-white">{activeRentals.filter(r => r.status === 'active').length}</h3>
                 </div>
-                <div className="bg-white/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white shadow-sm">
+                <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white dark:border-gray-700 shadow-sm">
                     <div className="flex items-center gap-4 mb-2">
-                        <div className="p-2 bg-emerald-100 text-emerald-600 rounded-xl">
+                        <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl">
                             <Package className="h-5 w-5" />
                         </div>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">My Listings</p>
                     </div>
-                    <h3 className="text-3xl font-black text-gray-900">{myListings.length}</h3>
+                    <h3 className="text-3xl font-black text-gray-900 dark:text-white">{myListings.length}</h3>
                 </div>
-                <div className="bg-white/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white shadow-sm">
+                <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white dark:border-gray-700 shadow-sm">
                     <div className="flex items-center gap-4 mb-2">
-                        <div className="p-2 bg-orange-100 text-orange-600 rounded-xl">
+                        <div className="p-2 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-xl">
                             <DollarSign className="h-5 w-5" />
                         </div>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Spent</p>
                     </div>
-                    <h3 className="text-3xl font-black text-gray-900">৳{activeRentals.reduce((sum, r) => sum + r.totalPrice, 0).toFixed(2)}</h3>
+                    <h3 className="text-3xl font-black text-gray-900 dark:text-white">৳{activeRentals.reduce((sum, r) => sum + r.totalPrice, 0).toFixed(2)}</h3>
                 </div>
                 <div className="bg-gray-900 p-6 rounded-[2rem] text-white shadow-xl shadow-gray-200 relative overflow-hidden group">
                     <div className="relative z-10">
@@ -174,8 +174,8 @@ const RentHubDashboard = () => {
             </div>
 
             {error && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-center">
-                    <p className="text-red-600 font-semibold">{error}</p>
+                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-center">
+                    <p className="text-red-600 dark:text-red-400 font-semibold">{error}</p>
                     <Button onClick={() => navigate('/login')} className="mt-4">Go to Login</Button>
                 </div>
             )}
@@ -186,8 +186,8 @@ const RentHubDashboard = () => {
                     {activeTab === 'renting' ? (
                         <>
                             <div className="flex items-center justify-between px-2">
-                                <h2 className="text-xl font-black">Active Rentals</h2>
-                                <Button variant="ghost" size="sm" className="font-bold text-emerald-600">History <ChevronRight className="ml-1 h-4 w-4" /></Button>
+                                <h2 className="text-xl font-black text-gray-900 dark:text-white">Active Rentals</h2>
+                                <Button variant="ghost" size="sm" className="font-bold text-emerald-600 dark:text-emerald-400">History <ChevronRight className="ml-1 h-4 w-4" /></Button>
                             </div>
                             <div className="space-y-4">
                                 {loading ? (
@@ -197,13 +197,13 @@ const RentHubDashboard = () => {
                                     </div>
                                 ) : activeRentals.length === 0 ? (
                                     <div className="text-center py-12">
-                                        <Package size={48} className="text-gray-300 mx-auto mb-4" />
-                                        <p className="text-gray-500">No active rentals</p>
+                                        <Package size={48} className="text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                                        <p className="text-gray-500 dark:text-gray-400">No active rentals</p>
                                         <Button onClick={() => navigate('/renthub')} className="mt-4">Browse Items</Button>
                                     </div>
                                 ) : (
                                     activeRentals.map((rental) => (
-                                        <div key={rental.id} className="bg-white rounded-[2.5rem] border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow">
+                                        <div key={rental.id} className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow">
                                             <div className="flex flex-col md:flex-row md:items-center gap-6">
                                                 <div className="h-24 w-24 rounded-3xl overflow-hidden shrink-0">
                                                     <img src={rental.image} alt={rental.title} className="w-full h-full object-cover" />
@@ -211,11 +211,11 @@ const RentHubDashboard = () => {
                                                 <div className="flex-1 space-y-3">
                                                     <div className="flex justify-between items-start">
                                                         <div>
-                                                            <h3 className="text-xl font-bold">{rental.title}</h3>
-                                                            <p className="text-sm text-gray-500 font-medium">Lent by <span className="font-bold text-gray-900">{rental.owner}</span></p>
+                                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{rental.title}</h3>
+                                                            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Lent by <span className="font-bold text-gray-900 dark:text-gray-200">{rental.owner}</span></p>
                                                             <p className="text-xs text-gray-400 mt-1">{rental.startDate} - {rental.endDate} ({rental.durationDays} days)</p>
                                                         </div>
-                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${rental.status === 'completed' ? 'bg-gray-100 text-gray-600 border border-gray-200' : 'bg-emerald-100 text-emerald-600 border border-emerald-200'}`}>
+                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${rental.status === 'completed' ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'}`}>
                                                             {rental.status}
                                                         </span>
                                                     </div>
@@ -224,7 +224,7 @@ const RentHubDashboard = () => {
                                                             <span>Progress</span>
                                                             <span>Due: {rental.dueDate}</span>
                                                         </div>
-                                                        <div className="h-2 bg-gray-50 rounded-full overflow-hidden">
+                                                        <div className="h-2 bg-gray-50 dark:bg-gray-700 rounded-full overflow-hidden">
                                                             <div
                                                                 className="h-full rounded-full bg-emerald-500"
                                                                 style={{ width: `${rental.progress}%` }}
@@ -233,7 +233,7 @@ const RentHubDashboard = () => {
                                                     </div>
                                                 </div>
                                                 <div className="flex md:flex-col gap-2">
-                                                    <p className="text-xl font-black text-gray-900">৳{rental.totalPrice.toFixed(2)}</p>
+                                                    <p className="text-xl font-black text-gray-900 dark:text-white">৳{rental.totalPrice.toFixed(2)}</p>
                                                     {rental.status === 'ACTIVE' && (
                                                         <Button
                                                             size="sm"
@@ -266,13 +266,13 @@ const RentHubDashboard = () => {
                                     </div>
                                 ) : myListings.length === 0 ? (
                                     <div className="text-center py-12">
-                                        <Package size={48} className="text-gray-300 mx-auto mb-4" />
-                                        <p className="text-gray-500">No active listings</p>
+                                        <Package size={48} className="text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                                        <p className="text-gray-500 dark:text-gray-400">No active listings</p>
                                         <Button onClick={() => navigate('/renthub/new')} className="mt-4">Create Listing</Button>
                                     </div>
                                 ) : (
                                     myListings.map((listing) => (
-                                        <div key={listing.id} className="bg-white rounded-[2.5rem] border border-gray-100 p-6 shadow-sm">
+                                        <div key={listing.id} className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
                                             <div className="flex flex-col md:flex-row md:items-center gap-6">
                                                 <div className="h-24 w-24 rounded-3xl overflow-hidden shrink-0">
                                                     <img src={listing.image} alt={listing.title} className="w-full h-full object-cover" />
@@ -280,13 +280,13 @@ const RentHubDashboard = () => {
                                                 <div className="flex-1 space-y-3">
                                                     <div className="flex justify-between items-start">
                                                         <div>
-                                                            <h3 className="text-xl font-bold">{listing.title}</h3>
-                                                            <p className="text-sm text-gray-500 font-medium">{listing.category}</p>
+                                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{listing.title}</h3>
+                                                            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{listing.category}</p>
                                                             <p className="text-xs text-gray-400 mt-1">Available: {listing.availabilityStart} - {listing.availabilityEnd}</p>
                                                         </div>
-                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${listing.status === 'AVAILABLE' ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' :
-                                                                listing.status === 'RENTED' ? 'bg-blue-100 text-blue-600 border border-blue-200' :
-                                                                    'bg-gray-100 text-gray-600 border border-gray-200'
+                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${listing.status === 'AVAILABLE' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' :
+                                                            listing.status === 'RENTED' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800' :
+                                                                'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600'
                                                             }`}>
                                                             {listing.status}
                                                         </span>
@@ -294,12 +294,12 @@ const RentHubDashboard = () => {
                                                     <div className="flex gap-6">
                                                         <div>
                                                             <p className="text-[10px] font-black text-gray-400 uppercase">Daily Price</p>
-                                                            <p className="text-lg font-black text-blue-600">৳{listing.dailyPrice}</p>
+                                                            <p className="text-lg font-black text-blue-600 dark:text-blue-400">৳{listing.dailyPrice}</p>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div className="flex md:flex-col gap-2">
-                                                    <Button size="sm" className="rounded-xl font-bold bg-gray-50 text-gray-900" onClick={() => navigate(`/renthub/${listing.id}`)}>View Details</Button>
+                                                    <Button size="sm" className="rounded-xl font-bold bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white" onClick={() => navigate(`/renthub/${listing.id}`)}>View Details</Button>
                                                 </div>
                                             </div>
                                         </div>
@@ -311,31 +311,31 @@ const RentHubDashboard = () => {
 
                 {/* Sidebar Alerts */}
                 <div className="space-y-6">
-                    <div className="bg-white rounded-[2.5rem] border border-gray-100 p-8 shadow-sm space-y-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 p-8 shadow-sm space-y-6">
                         <h3 className="text-lg font-black flex items-center gap-2">
                             <RefreshCcw className="h-5 w-5 text-emerald-600" /> Notifications
                         </h3>
                         <div className="space-y-6">
                             <div className="flex gap-4 group cursor-pointer">
-                                <div className="h-10 w-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+                                <div className="h-10 w-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0">
                                     <AlertCircle className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">Return date approaching!</p>
-                                    <p className="text-xs text-gray-500 font-medium mt-1">Canon EOS R6 is due in 24 hours. Plan your return accordingly.</p>
+                                    <p className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Return date approaching!</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">Canon EOS R6 is due in 24 hours. Plan your return accordingly.</p>
                                 </div>
                             </div>
                             <div className="flex gap-4 group cursor-pointer">
-                                <div className="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                <div className="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
                                     <FileText className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">New Rental Agreement</p>
-                                    <p className="text-xs text-gray-500 font-medium mt-1">Digital contract for Black Tuxedo has been signed by both parties.</p>
+                                    <p className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">New Rental Agreement</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">Digital contract for Black Tuxedo has been signed by both parties.</p>
                                 </div>
                             </div>
                         </div>
-                        <Button variant="ghost" className="w-full rounded-xl font-bold bg-gray-50 text-gray-600 h-12">View All Alerts</Button>
+                        <Button variant="ghost" className="w-full rounded-xl font-bold bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 h-12">View All Alerts</Button>
                     </div>
 
                     <div className="rounded-[2.5rem] bg-gradient-to-br from-emerald-600 to-emerald-800 p-8 text-white relative overflow-hidden group">

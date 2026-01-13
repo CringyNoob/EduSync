@@ -148,7 +148,7 @@ const RentHubItemDetails = () => {
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-gray-500">Loading item details...</p>
+                    <p className="text-gray-500 dark:text-gray-400">Loading item details...</p>
                 </div>
             </div>
         );
@@ -159,8 +159,8 @@ const RentHubItemDetails = () => {
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center">
                     <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
-                    <h2 className="text-xl font-bold mb-2">Failed to load item</h2>
-                    <p className="text-gray-500 mb-4">{error || 'Item not found'}</p>
+                    <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">Failed to load item</h2>
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">{error || 'Item not found'}</p>
                     <Button onClick={() => navigate('/renthub')}>Back to RentHub</Button>
                 </div>
             </div>
@@ -168,23 +168,23 @@ const RentHubItemDetails = () => {
     }
 
     return (
-        <div className="relative min-h-screen p-4 md:p-6 space-y-8 font-sans text-gray-900">
+        <div className="relative min-h-screen p-4 md:p-6 space-y-8 font-sans text-gray-900 dark:text-white transition-colors duration-300">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <Button
                     variant="ghost"
-                    className="group flex items-center gap-2 hover:bg-white/50 rounded-xl"
+                    className="group flex items-center gap-2 hover:bg-white/50 dark:hover:bg-gray-800 rounded-xl text-gray-600 dark:text-gray-300"
                     onClick={() => navigate('/renthub')}
                 >
                     <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
                     Back to RentHub
                 </Button>
                 <div className="flex gap-2">
-                    <Button variant="outline" size="icon" className="rounded-xl border-gray-200 bg-white">
-                        <Share2 className="h-5 w-5" />
+                    <Button variant="outline" size="icon" className="rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <Share2 className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                     </Button>
-                    <Button variant="outline" size="icon" className="rounded-xl border-gray-200 bg-white">
-                        <Heart className="h-5 w-5" />
+                    <Button variant="outline" size="icon" className="rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <Heart className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                     </Button>
                 </div>
             </div>
@@ -193,7 +193,7 @@ const RentHubItemDetails = () => {
                 {/* Left: Images & Info */}
                 <div className="lg:col-span-2 space-y-8">
                     {/* Image Gallery */}
-                    <div className="relative h-[400px] md:h-[500px] rounded-[3rem] overflow-hidden group shadow-xl bg-gray-100">
+                    <div className="relative h-[400px] md:h-[500px] rounded-[3rem] overflow-hidden group shadow-xl bg-gray-100 dark:bg-gray-700">
                         <img
                             src={item.images[0]}
                             alt={item.title}
@@ -207,7 +207,7 @@ const RentHubItemDetails = () => {
                     </div>
 
                     {/* Description Section */}
-                    <div className="bg-white/60 backdrop-blur-xl rounded-[2.5rem] border border-white p-8 md:p-10 space-y-6">
+                    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-[2.5rem] border border-white dark:border-gray-700/50 p-8 md:p-10 space-y-6 transition-colors duration-300">
                         <div className="flex justify-between items-start">
                             <div>
                                 <h1 className="text-3xl md:text-4xl font-black mb-2">{item.title}</h1>
@@ -223,9 +223,9 @@ const RentHubItemDetails = () => {
                             </div>
                         </div>
 
-                        <div className="pt-6 border-t border-gray-100">
-                            <h3 className="text-lg font-black mb-4">About this rental</h3>
-                            <p className="text-gray-600 font-medium leading-relaxed">
+                        <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
+                            <h3 className="text-lg font-black mb-4 text-gray-900 dark:text-white">About this rental</h3>
+                            <p className="text-gray-600 dark:text-gray-300 font-medium leading-relaxed">
                                 {item.description}
                             </p>
                         </div>
@@ -246,7 +246,7 @@ const RentHubItemDetails = () => {
                                 <h3 className="text-lg font-black mb-4">Quick Specs</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {['Official Kit', 'Certified', 'EduSync Insured'].map((tag) => (
-                                        <span key={tag} className="px-3 py-1.5 rounded-xl bg-gray-100 text-gray-600 text-xs font-bold">
+                                        <span key={tag} className="px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold">
                                             {tag}
                                         </span>
                                     ))}
@@ -256,22 +256,22 @@ const RentHubItemDetails = () => {
                     </div>
 
                     {/* Owner Info */}
-                    <div className="bg-white/60 backdrop-blur-xl rounded-[2.5rem] border border-white p-8 flex items-center justify-between">
+                    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-[2.5rem] border border-white dark:border-gray-700/50 p-8 flex items-center justify-between transition-colors duration-300">
                         <div className="flex items-center gap-4">
-                            <div className="h-16 w-16 rounded-2xl overflow-hidden shadow-lg">
+                            <div className="h-16 w-16 rounded-2xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700">
                                 <img src={item.owner.avatar} alt={item.owner.name} className="w-full h-full object-cover" />
                             </div>
                             <div>
-                                <h4 className="text-xl font-black text-gray-900">{item.owner.name}</h4>
-                                <p className="text-sm text-gray-500 font-bold uppercase tracking-wide">Owner since {item.owner.joined}</p>
+                                <h4 className="text-xl font-black text-gray-900 dark:text-white">{item.owner.name}</h4>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wide">Owner since {item.owner.joined}</p>
                             </div>
                         </div>
                         <div className="flex gap-3">
                             <div className="text-right hidden sm:block mr-4">
-                                <p className="text-xs font-bold text-gray-400">SUCCESSFUL RENTALS</p>
+                                <p className="text-xs font-bold text-gray-400 dark:text-gray-500">SUCCESSFUL RENTALS</p>
                                 <p className="text-xl font-black text-emerald-600">{item.owner.totalRentals}+</p>
                             </div>
-                            <Button variant="outline" className="rounded-xl border-gray-200">
+                            <Button variant="outline" className="rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
                                 <MessageCircle className="mr-2 h-4 w-4" /> Message
                             </Button>
                         </div>
@@ -280,12 +280,12 @@ const RentHubItemDetails = () => {
 
                 {/* Right: Booking Card */}
                 <div className="space-y-6">
-                    <div className="sticky top-6 bg-white rounded-[3rem] border border-gray-100 shadow-2xl overflow-hidden">
+                    <div className="sticky top-6 bg-white dark:bg-gray-800 rounded-[3rem] border border-gray-100 dark:border-gray-700 shadow-2xl overflow-hidden transition-colors duration-300">
                         <div className="p-8 space-y-6">
                             <div className="flex justify-between items-end">
                                 <div>
                                     <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Rental Rate</p>
-                                    <h3 className="text-4xl font-black">৳{item.price}<span className="text-lg font-normal text-gray-500"> /day</span></h3>
+                                    <h3 className="text-4xl font-black text-gray-900 dark:text-white">৳{item.price}<span className="text-lg font-normal text-gray-500 dark:text-gray-400"> /day</span></h3>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-xs font-black text-emerald-600 uppercase tracking-widest mb-1">Security Deposit</p>
@@ -295,46 +295,46 @@ const RentHubItemDetails = () => {
 
                             <div className="space-y-4 pt-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-500 ml-1">START DATE</label>
+                                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 ml-1">START DATE</label>
                                     <div className="relative">
                                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                                         <input
                                             type="date"
                                             value={startDate}
                                             onChange={(e) => setStartDate(e.target.value)}
-                                            className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-emerald-500 focus:outline-none font-bold"
+                                            className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-700 border-2 border-transparent focus:border-emerald-500 focus:outline-none font-bold text-gray-900 dark:text-white"
                                         />
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-500 ml-1">END DATE</label>
+                                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 ml-1">END DATE</label>
                                     <div className="relative">
                                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                                         <input
                                             type="date"
                                             value={endDate}
                                             onChange={(e) => setEndDate(e.target.value)}
-                                            className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-emerald-500 focus:outline-none font-bold"
+                                            className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-700 border-2 border-transparent focus:border-emerald-500 focus:outline-none font-bold text-gray-900 dark:text-white"
                                         />
                                     </div>
                                 </div>
                             </div>
 
                             {bookingError && (
-                                <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
-                                    <p className="text-sm text-red-600 font-semibold">{bookingError}</p>
+                                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-xl">
+                                    <p className="text-sm text-red-600 dark:text-red-400 font-semibold">{bookingError}</p>
                                 </div>
                             )}
 
                             {getDurationDays() > 0 && (
                                 <div className="pt-4 space-y-3">
-                                    <div className="flex justify-between text-sm font-bold text-gray-500">
+                                    <div className="flex justify-between text-sm font-bold text-gray-500 dark:text-gray-400">
                                         <span>৳{item.price} x {getDurationDays()} days</span>
                                         <span>৳{calculateTotal()}</span>
                                     </div>
-                                    <div className="pt-4 border-t border-gray-100 flex justify-between">
-                                        <span className="text-lg font-black" >Total to pay</span>
-                                        <span className="text-2xl font-black">৳{calculateTotal()}</span>
+                                    <div className="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between">
+                                        <span className="text-lg font-black text-gray-900 dark:text-white" >Total to pay</span>
+                                        <span className="text-2xl font-black text-gray-900 dark:text-white">৳{calculateTotal()}</span>
                                     </div>
                                 </div>
                             )}

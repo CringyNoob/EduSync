@@ -57,46 +57,46 @@ const ReportIssue = () => {
         <div className="min-h-screen p-4 md:p-8 font-sans max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
             <div>
-                <Button variant="ghost" className="mb-4 pl-0 hover:bg-transparent hover:text-primary" onClick={() => navigate(-1)}>
+                <Button variant="ghost" className="mb-4 pl-0 hover:bg-transparent hover:text-primary dark:text-gray-400 dark:hover:text-primary" onClick={() => navigate(-1)}>
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back to Issues
                 </Button>
-                <h1 className="text-4xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-                    <div className="p-3 bg-red-100 text-red-600 rounded-2xl">
+                <h1 className="text-3xl font-black flex items-center gap-3">
+                    <div className="p-3 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-2xl">
                         <AlertTriangle size={32} />
                     </div>
-                    Report an Issue
+                    <span className="text-gray-900 dark:text-white">Report an Issue</span>
                 </h1>
-                <p className="text-gray-500 font-medium mt-2 text-lg ml-1">
+                <p className="text-gray-500 dark:text-gray-400 font-medium mt-2 text-lg ml-1">
                     Spot something wrong? Let us know so we can fix it.
                 </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="bg-white rounded-[2.5rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col gap-8">
+            <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 dark:border-gray-700 flex flex-col gap-8 transition-colors duration-300">
 
                 {/* Title & Location Section */}
                 <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-700 ml-1">Issue Title</label>
+                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">Issue Title</label>
                         <div className="relative">
                             <input
                                 type="text"
                                 required
                                 placeholder="e.g. Broken Projector"
-                                className="w-full pl-4 pr-4 py-3.5 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-primary focus:outline-none transition-all font-medium"
+                                className="w-full pl-4 pr-4 py-3.5 rounded-xl bg-gray-50 dark:bg-gray-700 border-2 border-transparent focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:outline-none transition-all font-medium text-gray-900 dark:text-white"
                                 value={formData.title}
                                 onChange={e => setFormData({ ...formData, title: e.target.value })}
                             />
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-700 ml-1">Location</label>
+                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">Location</label>
                         <div className="relative">
                             <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
                             <input
                                 type="text"
                                 required
                                 placeholder="e.g. Room 304, Science Building"
-                                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-primary focus:outline-none transition-all font-medium"
+                                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-gray-50 dark:bg-gray-700 border-2 border-transparent focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:outline-none transition-all font-medium text-gray-900 dark:text-white"
                                 value={formData.location}
                                 onChange={e => setFormData({ ...formData, location: e.target.value })}
                             />
@@ -107,7 +107,7 @@ const ReportIssue = () => {
                 {/* Category & Priority Section */}
                 <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-700 ml-1">Category</label>
+                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">Category</label>
                         <div className="flex flex-wrap gap-2">
                             {categories.map(cat => (
                                 <button
@@ -115,8 +115,8 @@ const ReportIssue = () => {
                                     key={cat}
                                     onClick={() => setFormData({ ...formData, category: cat })}
                                     className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${formData.category === cat
-                                            ? 'bg-gray-900 text-white shadow-lg shadow-gray-200 scale-105'
-                                            : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                                        ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg shadow-gray-200 dark:shadow-none scale-105'
+                                        : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600'
                                         }`}
                                 >
                                     {cat}
@@ -125,16 +125,16 @@ const ReportIssue = () => {
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-700 ml-1">Priority</label>
-                        <div className="flex gap-2 p-1.5 bg-gray-50 rounded-xl w-fit">
+                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">Priority</label>
+                        <div className="flex gap-2 p-1.5 bg-gray-50 dark:bg-gray-700 rounded-xl w-fit">
                             {priorities.map(prio => (
                                 <button
                                     type="button"
                                     key={prio}
                                     onClick={() => setFormData({ ...formData, priority: prio })}
                                     className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${formData.priority === prio
-                                            ? 'bg-white text-gray-900 shadow-md transform scale-105'
-                                            : 'text-gray-400 hover:text-gray-600'
+                                        ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-md transform scale-105'
+                                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                                         }`}
                                 >
                                     {prio}
@@ -146,12 +146,12 @@ const ReportIssue = () => {
 
                 {/* Description Section */}
                 <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700 ml-1">Description</label>
+                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">Description</label>
                     <textarea
                         required
                         rows="4"
                         placeholder="Please describe the issue in detail..."
-                        className="w-full p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-primary focus:outline-none transition-all font-medium resize-none"
+                        className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-700 border-2 border-transparent focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:outline-none transition-all font-medium resize-none text-gray-900 dark:text-white"
                         value={formData.description}
                         onChange={e => setFormData({ ...formData, description: e.target.value })}
                     ></textarea>
@@ -159,7 +159,7 @@ const ReportIssue = () => {
 
                 {/* Image Upload Section */}
                 <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700 ml-1 flex items-center justify-between">
+                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300 ml-1 flex items-center justify-between">
                         <span>Attach Photos</span>
                         <span className="text-xs font-normal text-gray-400">Optional</span>
                     </label>
@@ -176,8 +176,8 @@ const ReportIssue = () => {
                                 </button>
                             </div>
                         ))}
-                        <label className="aspect-square rounded-2xl border-2 border-dashed border-gray-200 hover:border-primary hover:bg-primary/5 cursor-pointer flex flex-col items-center justify-center gap-2 transition-all group">
-                            <div className="p-3 bg-gray-50 rounded-full group-hover:scale-110 transition-transform text-gray-400 group-hover:text-primary">
+                        <label className="aspect-square rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-600 hover:border-primary dark:hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/10 cursor-pointer flex flex-col items-center justify-center gap-2 transition-all group">
+                            <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-full group-hover:scale-110 transition-transform text-gray-400 group-hover:text-primary">
                                 <Camera size={24} />
                             </div>
                             <span className="text-xs font-bold text-gray-400 group-hover:text-primary">Add Photo</span>
@@ -187,15 +187,15 @@ const ReportIssue = () => {
                 </div>
 
                 {/* Submit Section */}
-                <div className="pt-4 border-t border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between">
-                    <div className="flex items-start gap-3 bg-blue-50 p-4 rounded-xl text-blue-700 text-sm max-w-lg">
+                <div className="pt-4 border-t border-gray-100 dark:border-gray-700 flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div className="flex items-start gap-3 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl text-blue-700 dark:text-blue-400 text-sm max-w-lg">
                         <Info className="shrink-0 h-5 w-5" />
                         <p>Your report will be reviewed by the campus administration. You'll receive updates on its status.</p>
                     </div>
                     <Button
                         type="submit"
                         disabled={submitting}
-                        className={`w-full md:w-auto px-8 py-4 rounded-xl bg-gray-900 text-white font-bold text-lg hover:bg-black hover:shadow-xl transition-all flex items-center justify-center gap-2 ${submitting ? 'opacity-80' : ''}`}
+                        className={`w-full md:w-auto px-8 py-4 rounded-xl bg-gray-900 dark:bg-primary text-white font-bold text-lg hover:bg-black dark:hover:bg-primary-dark hover:shadow-xl transition-all flex items-center justify-center gap-2 ${submitting ? 'opacity-80' : ''}`}
                     >
                         {submitting ? (
                             <>
@@ -210,7 +210,7 @@ const ReportIssue = () => {
                     </Button>
                 </div>
             </form>
-        </div>
+        </div >
     );
 };
 
