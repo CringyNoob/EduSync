@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import {
     Search, Filter, ShoppingBag, Plus, Tag, DollarSign, MessageCircle, Heart,
     Image as ImageIcon, X, Trash2, UploadCloud, BookOpen, Monitor, Armchair,
@@ -169,7 +169,7 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
 
     const handleSubmit = async () => {
         setError('');
-        
+
         // Check if user is logged in with valid UUID
         if (!user?.id || user.id.length < 36 || user.id.startsWith('temp-')) {
             setError('Please login to create a listing');
@@ -225,7 +225,7 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
 
             const response = await marketplaceService.createPreownedListing(listingData);
             console.log('Response received:', response);
-            
+
             if (response.success) {
                 alert('Listing created successfully!');
                 onClose();
@@ -276,24 +276,24 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5 text-left">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Title *</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     name="title"
                                     value={formData.title}
                                     onChange={handleInputChange}
-                                    placeholder="e.g. Calculus Textbook" 
+                                    placeholder="e.g. Calculus Textbook"
                                     className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium"
                                     disabled={loading}
                                 />
                             </div>
                             <div className="space-y-1.5 text-left">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Price ($) *</label>
-                                <input 
-                                    type="number" 
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Price (৳) *</label>
+                                <input
+                                    type="number"
                                     name="price"
                                     value={formData.price}
                                     onChange={handleInputChange}
-                                    placeholder="25.00" 
+                                    placeholder="2500"
                                     step="0.01"
                                     min="0"
                                     className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium"
@@ -304,7 +304,7 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
 
                         <div className="space-y-1.5 text-left">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Category *</label>
-                            <select 
+                            <select
                                 name="category"
                                 value={formData.category}
                                 onChange={handleInputChange}
@@ -320,12 +320,12 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
 
                         <div className="space-y-1.5 text-left">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description *</label>
-                            <textarea 
+                            <textarea
                                 name="description"
                                 value={formData.description}
                                 onChange={handleInputChange}
-                                placeholder="Describe your item in detail..." 
-                                rows="3" 
+                                placeholder="Describe your item in detail..."
+                                rows="3"
                                 className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium resize-none"
                                 disabled={loading}
                             ></textarea>
@@ -333,11 +333,11 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
 
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Images * (Max 5)</label>
-                            
+
                             {/* Image Upload Area */}
                             <label className="border-2 border-dashed border-gray-100 rounded-3xl p-8 text-center space-y-2 hover:border-primary/30 transition-colors cursor-pointer group block">
-                                <input 
-                                    type="file" 
+                                <input
+                                    type="file"
                                     accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
                                     multiple
                                     onChange={handleImageSelect}
@@ -358,8 +358,8 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
                                 <div className="grid grid-cols-3 gap-3 mt-4">
                                     {imagePreviews.map((preview, index) => (
                                         <div key={index} className="relative group">
-                                            <img 
-                                                src={preview} 
+                                            <img
+                                                src={preview}
                                                 alt={`Preview ${index + 1}`}
                                                 className="w-full h-24 object-cover rounded-xl border border-gray-200"
                                             />
@@ -379,16 +379,16 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
                     </div>
 
                     <div className="flex gap-3 pt-2">
-                        <Button 
-                            variant="outline" 
-                            className="flex-1 py-4 rounded-2xl" 
+                        <Button
+                            variant="outline"
+                            className="flex-1 py-4 rounded-2xl"
                             onClick={onClose}
                             disabled={loading}
                         >
                             Cancel
                         </Button>
-                        <Button 
-                            className="flex-[2] py-4 rounded-2xl shadow-xl shadow-primary/20" 
+                        <Button
+                            className="flex-[2] py-4 rounded-2xl shadow-xl shadow-primary/20"
                             onClick={handleSubmit}
                             disabled={loading}
                         >
@@ -436,7 +436,7 @@ const VoucherCard = ({ title, code, discount }) => (
             </div>
         </div>
         <div className="text-right">
-            <div className="text-lg font-black text-primary leading-none">{discount}</div>
+            <div className="text-lg font-black text-primary leading-none">৳{discount}</div>
             <div className="text-[8px] text-gray-400 font-black uppercase">Voucher</div>
         </div>
     </div>
@@ -494,7 +494,7 @@ const MarketplaceCard = ({ product, onClick }) => (
         {/* Floating Price Tag */}
         <div className="absolute top-2 left-2">
             <div className="bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-xs font-bold text-gray-900 shadow-sm border border-white/50">
-                ${product.price}
+                ৳{product.price}
             </div>
         </div>
 
@@ -604,6 +604,7 @@ const CategorySelectionCard = ({ title, description, icon: Icon, colorClass, gra
 const MarketplaceHome = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { section } = useParams();
     const { cartCount, orders, updateOrderStatus } = useCart();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedSection, setSelectedSection] = useState(null); // 'Foods', 'Pre-Owned', 'Shops'
@@ -620,17 +621,33 @@ const MarketplaceHome = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Handle incoming navigation state (e.g. from CartPage)
+    // Handle incoming section from URL path
+    useEffect(() => {
+        const pathParts = location.pathname.split('/');
+        const lastPart = pathParts[pathParts.length - 1].toLowerCase();
+
+        const sectionMap = {
+            'foods': 'Foods',
+            'pre-owned': 'Pre-Owned',
+            'shops': 'Shops'
+        };
+
+        if (sectionMap[lastPart]) {
+            setSelectedSection(sectionMap[lastPart]);
+            setSelectedShop(null);
+            setViewOrders(false);
+        } else if (location.pathname === '/marketplace') {
+            setSelectedSection(null);
+            setViewOrders(false);
+        }
+    }, [location.pathname]);
+
+    // Handle incoming navigation state (e.g. from CartPage if state is used)
     useEffect(() => {
         if (location.state) {
             if (location.state.viewOrders) {
                 setViewOrders(true);
             }
-            if (location.state.section) {
-                setSelectedSection(location.state.section);
-            }
-            // Clear state to prevent getting stuck in this view on refresh/navigation if desired, 
-            // though react-router handles state per history entry usually.
         }
     }, [location.state]);
 
@@ -704,12 +721,12 @@ const MarketplaceHome = () => {
 
     const sectionVouchers = {
         'Foods': [
-            { title: "Canteen Cash", code: "CANTEEN5", discount: "-$5.00" },
+            { title: "Canteen Cash", code: "CANTEEN5", discount: "500" },
             { title: "Snack Saver", code: "SNACK20", discount: "-20%" }
         ],
         'Shops': [
             { title: "Tech Credit", code: "TECH10", discount: "-10%" },
-            { title: "Store Bonus", code: "SYNC25", discount: "+$2.50" }
+            { title: "Store Bonus", code: "SYNC25", discount: "280" }
         ]
     };
 
@@ -831,35 +848,23 @@ const MarketplaceHome = () => {
                             icon={Utensils}
                             colorClass="text-orange-500"
                             gradient="from-orange-400 to-red-500"
-                            onClick={() => {
-                                setSelectedSection('Foods');
-                                setSelectedShop(null);
-                                setActiveFilter('All');
-                            }}
+                            onClick={() => navigate('/marketplace/foods')}
                         />
                         <CategorySelectionCard
                             title="Pre-Owned"
                             description="Student-to-student pre-loved items."
-                            icon={Box}
+                            icon={PackageCheck}
                             colorClass="text-indigo-500"
                             gradient="from-indigo-400 to-purple-600"
-                            onClick={() => {
-                                setSelectedSection('Pre-Owned');
-                                setSelectedShop(null);
-                                setActiveFilter('All');
-                            }}
+                            onClick={() => navigate('/marketplace/pre-owned')}
                         />
                         <CategorySelectionCard
                             title="Shops"
                             description="Retail stores and stationery items."
-                            icon={PackageCheck}
-                            colorClass="text-emerald-500"
-                            gradient="from-emerald-400 to-teal-600"
-                            onClick={() => {
-                                setSelectedSection('Shops');
-                                setSelectedShop(null);
-                                setActiveFilter('All');
-                            }}
+                            icon={ShoppingBag}
+                            colorClass="text-pink-500"
+                            gradient="from-pink-400 to-rose-600"
+                            onClick={() => navigate('/marketplace/shops')}
                         />
                     </div>
                 </div>

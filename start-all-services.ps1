@@ -1,7 +1,10 @@
 # Start All EduSync Services
 # This script starts all microservices in separate terminal windows
 
-Write-Host "🚀 Starting All EduSync Services..." -ForegroundColor Cyan
+Write-Host "Starting All EduSync Services..." -ForegroundColor Cyan
+
+# Get the directory where this script is located
+$BaseDir = $PSScriptRoot
 
 # Kill any existing processes on these ports
 Write-Host "Cleaning up existing processes..." -ForegroundColor Yellow
@@ -9,12 +12,30 @@ try {
     npx kill-port 3001 3002 3003 3004 8000 5173 2>$null
     Start-Sleep -Seconds 2
 } catch {
-    Write-Host "No existing processes to kill" -ForegroundColor Gray
+    Write-Host "Cleanup skipped" -ForegroundColor Gray
 }
 
-# Start Auth Service (Port 3001)
-Write-Host "Starting Auth Service (Port 3001)..." -ForegroundColor Green
-Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\auth-service; Write-Host '🔐 AUTH SERVICE' -ForegroundColor Cyan; node server.js"
+# Helper function to start a service
+function Start-EduService {
+    param(
+        [string]$Name,
+        [string]$Dir,
+        [string]$Command,
+        [string]$Color
+    )
+    Write-Host "Starting $Name..." -ForegroundColor Green
+    $FullDir = Join-Path $BaseDir $Dir
+    
+    if (Test-Path $FullDir) {
+        # Detect if we should use 'pwsh' or 'powershell'
+        $Shell = if (Get-Command pwsh -ErrorAction SilentlyContinue) { "pwsh" } else { "powershell" }
+        
+        # Using a more robust way to pass arguments to Start-Process
+        Start-Process $Shell -WorkingDirectory $FullDir -ArgumentList "-NoExit", "-Command", "Write-Host '$Name' -ForegroundColor $Color; $Command"
+    } else {
+        Write-Warning "Directory not found: $FullDir"
+    }
+}
 
 # Start Marketplace Service (Port 3002)
 Write-Host "Starting Marketplace Service (Port 3002)..." -ForegroundColor Green
@@ -35,12 +56,11 @@ Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\g
 # Wait a bit for backend services to start
 Start-Sleep -Seconds 3
 
-# Start Client (Port 5173)
-Write-Host "Starting React Client (Port 5173)..." -ForegroundColor Green
-Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\client; Write-Host '⚛️  REACT CLIENT' -ForegroundColor Cyan; npm run dev"
+# Start Client
+Start-EduService -Name "REACT CLIENT" -Dir "client" -Command "npm run dev" -Color "Cyan"
 
 Write-Host ""
-Write-Host "✅ All services are starting!" -ForegroundColor Green
+Write-Host "All services are starting!" -ForegroundColor Green
 Write-Host ""
 Write-Host "Services will open in separate terminal windows:" -ForegroundColor White
 Write-Host "  🔐 Auth Service:        http://localhost:3001" -ForegroundColor Cyan
@@ -50,5 +70,5 @@ Write-Host "  📰 NewsBox Service:     http://localhost:3004" -ForegroundColor 
 Write-Host "  🌐 API Gateway:         http://localhost:8000" -ForegroundColor Blue
 Write-Host "  ⚛️  React Client:        http://localhost:5173" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Press any key to exit this window..." -ForegroundColor Gray
+Write-Host "Press any key to exit this window..."
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

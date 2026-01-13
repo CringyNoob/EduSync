@@ -60,14 +60,14 @@ const PreownedCartPage = () => {
                     <div className="flex flex-col gap-3">
                         <Button
                             className="w-full py-4 rounded-2xl shadow-lg bg-indigo-600 hover:bg-indigo-700 text-white"
-                            onClick={() => navigate('/marketplace')}
+                            onClick={() => navigate('/marketplace/pre-owned')}
                         >
-                            Return to Marketplace
+                            Return to Pre-Owned
                         </Button>
                         <Button
                             variant="outline"
                             className="w-full py-4 rounded-2xl"
-                            onClick={() => navigate('/marketplace', { state: { viewOrders: true, section: 'Pre-Owned' } })}
+                            onClick={() => navigate('/marketplace/pre-owned', { state: { viewOrders: true, section: 'Pre-Owned' } })}
                         >
                             View My Orders
                         </Button>
@@ -87,7 +87,7 @@ const PreownedCartPage = () => {
                     <h2 className="text-2xl font-black text-gray-900">Your Pre-owned cart is empty</h2>
                     <p className="text-gray-500 font-medium max-w-xs mx-auto">Find great deals from other students in the marketplace.</p>
                 </div>
-                <Button onClick={() => navigate('/marketplace')} className="px-8 rounded-2xl py-4 font-black uppercase text-xs tracking-widest shadow-xl shadow-indigo-200 bg-indigo-600 text-white hover:bg-indigo-700">
+                <Button onClick={() => navigate('/marketplace/pre-owned')} className="px-8 rounded-2xl py-4 font-black uppercase text-xs tracking-widest shadow-xl shadow-indigo-200 bg-indigo-600 text-white hover:bg-indigo-700">
                     Browse Pre-owned
                 </Button>
             </div>
@@ -146,7 +146,7 @@ const PreownedCartPage = () => {
                                 </div>
 
                                 <div className="flex items-center justify-between sm:justify-start gap-6 border-t border-gray-100 pt-4 sm:border-0 sm:pt-0">
-                                    <div className="text-2xl font-black text-gray-900">${item.price}</div>
+                                    <div className="text-2xl font-black text-gray-900">৳{item.price}</div>
                                     <div className="flex items-center gap-3">
                                         <button
                                             onClick={() => removeFromPreownedCart(item.id)}
@@ -165,7 +165,7 @@ const PreownedCartPage = () => {
                     <div className="bg-gray-900 text-white p-6 rounded-[2rem] shadow-2xl flex items-center justify-between gap-4">
                         <div>
                             <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Estimated</div>
-                            <div className="text-2xl font-black">${totalAmount.toFixed(2)}</div>
+                            <div className="text-2xl font-black">৳{totalAmount.toFixed(2)}</div>
                         </div>
                         <Button
                             onClick={() => setIsCheckingOut(true)}
@@ -258,7 +258,7 @@ const PreownedCartPage = () => {
                             <div className="py-4 border-t border-gray-100 flex items-center justify-between">
                                 <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total to Pay</div>
                                 <div className="text-2xl font-black text-indigo-600">
-                                    ${totalAmount.toFixed(2)}
+                                    ৳{totalAmount.toFixed(2)}
                                 </div>
                             </div>
                         </div>

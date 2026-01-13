@@ -4,17 +4,19 @@ const cors = require('cors');
 const db = require('./src/config/db'); // Import the db connection
 const authRoutes = require('./src/routes/authRoutes'); // Import auth routes
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 app.use(express.json({ limit: '10mb' })); // Allow JSON data up to 10MB (for base64 images)
 app.use(express.urlencoded({ limit: '10mb', extended: true })); // Also increase URL-encoded limit
 app.use(cors());         // Allow Frontend to talk to us
 
-// --- THE SPY LOGGER ---
-app.use((req, res, next) => {
-    console.log(`[Auth Service] Received Request: ${req.method} ${req.url}`);
-    next();
-});
+// // --- THE SPY LOGGER ---
+// app.use((req, res, next) => {
+//     log(`Received Request: ${req.method} ${req.url}`);
+//     next();
+// });
 
 // --- AUTH ROUTES ---
 app.use('/', authRoutes);

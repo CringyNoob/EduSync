@@ -32,7 +32,7 @@ const RentHubDashboard = () => {
                 // Fetch user's rentals (as renter)
                 const rentalsRes = await renthubService.getUserRentals(user.id);
                 const rentals = rentalsRes.data || [];
-                
+
                 // Map to component format
                 const mappedRentals = rentals.map(rental => ({
                     id: rental.id,
@@ -49,11 +49,11 @@ const RentHubDashboard = () => {
                     progress: calculateProgress(rental.start_date, rental.end_date)
                 }));
                 setActiveRentals(mappedRentals);
-                
+
                 // Fetch user's listings (as owner)
                 const listingsRes = await renthubService.getUserListings(user.id);
                 const listings = listingsRes.data || [];
-                
+
                 // Map to component format  
                 const mappedListings = listings.map(listing => ({
                     id: listing.id,
@@ -160,7 +160,7 @@ const RentHubDashboard = () => {
                         </div>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Spent</p>
                     </div>
-                    <h3 className="text-3xl font-black text-gray-900">${activeRentals.reduce((sum, r) => sum + r.totalPrice, 0).toFixed(2)}</h3>
+                    <h3 className="text-3xl font-black text-gray-900">৳{activeRentals.reduce((sum, r) => sum + r.totalPrice, 0).toFixed(2)}</h3>
                 </div>
                 <div className="bg-gray-900 p-6 rounded-[2rem] text-white shadow-xl shadow-gray-200 relative overflow-hidden group">
                     <div className="relative z-10">
@@ -235,9 +235,9 @@ const RentHubDashboard = () => {
                                                 <div className="flex md:flex-col gap-2">
                                                     <p className="text-xl font-black text-gray-900">৳{rental.totalPrice.toFixed(2)}</p>
                                                     {rental.status === 'ACTIVE' && (
-                                                        <Button 
-                                                            size="sm" 
-                                                            variant="primary" 
+                                                        <Button
+                                                            size="sm"
+                                                            variant="primary"
                                                             className="rounded-xl font-bold bg-emerald-600 shadow-sm shadow-emerald-100"
                                                             onClick={() => handleCompleteRental(rental.id)}
                                                         >
@@ -284,11 +284,10 @@ const RentHubDashboard = () => {
                                                             <p className="text-sm text-gray-500 font-medium">{listing.category}</p>
                                                             <p className="text-xs text-gray-400 mt-1">Available: {listing.availabilityStart} - {listing.availabilityEnd}</p>
                                                         </div>
-                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                                                            listing.status === 'AVAILABLE' ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : 
-                                                            listing.status === 'RENTED' ? 'bg-blue-100 text-blue-600 border border-blue-200' :
-                                                            'bg-gray-100 text-gray-600 border border-gray-200'
-                                                        }`}>
+                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${listing.status === 'AVAILABLE' ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' :
+                                                                listing.status === 'RENTED' ? 'bg-blue-100 text-blue-600 border border-blue-200' :
+                                                                    'bg-gray-100 text-gray-600 border border-gray-200'
+                                                            }`}>
                                                             {listing.status}
                                                         </span>
                                                     </div>

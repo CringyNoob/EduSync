@@ -30,7 +30,7 @@ const RentalCard = ({ item, onClick }) => (
             {/* Floating Price Tag */}
             <div className="absolute top-2 left-2">
                 <div className="bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-xs font-bold text-gray-900 shadow-sm border border-white/50">
-                    ${item.price}/day
+                    ৳{item.price}/day
                 </div>
             </div>
         </div>

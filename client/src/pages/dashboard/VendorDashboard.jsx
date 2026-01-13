@@ -22,13 +22,13 @@ const VendorDashboard = () => {
         rating: 4.8,
         status: "Open Now",
         totalOrders: 1543,
-        todayRevenue: 450.50
+        todayRevenue: 52000
     };
 
     const activeOrders = [
-        { id: "ORD-9921", items: ["Chicken Teriyaki Bowl (x2)", "Cola"], total: 24.50, status: "Pending", time: "2m ago", customer: "Alex J." },
-        { id: "ORD-9920", items: ["Veggie Burger", "Fries"], total: 12.00, status: "Preparing", time: "15m ago", customer: "Sarah M." },
-        { id: "ORD-9918", items: ["Coffee (x4)"], total: 16.00, status: "Ready", time: "25m ago", customer: "Lab Group 4" },
+        { id: "ORD-9921", items: ["Chicken Teriyaki Bowl (x2)", "Cola"], total: 2800, status: "Pending", time: "2m ago", customer: "Alex J." },
+        { id: "ORD-9920", items: ["Veggie Burger", "Fries"], total: 1400, status: "Preparing", time: "15m ago", customer: "Sarah M." },
+        { id: "ORD-9918", items: ["Coffee (x4)"], total: 1840, status: "Ready", time: "25m ago", customer: "Lab Group 4" },
     ];
 
     const [onboardingStep, setOnboardingStep] = React.useState(0);
@@ -295,7 +295,7 @@ const VendorDashboard = () => {
                         <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm">
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Today's Revenue</p>
                             <h3 className="text-2xl font-black text-gray-900 flex items-center gap-2">
-                                $<span className="tabular-nums">{shopInfo.todayRevenue}</span>
+                                ৳<span className="tabular-nums">{shopInfo.todayRevenue}</span>
                             </h3>
                         </div>
                         <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm">
@@ -343,7 +343,7 @@ const VendorDashboard = () => {
                                             <p className="text-sm font-medium text-gray-500">Customer: {order.customer}</p>
                                         </div>
                                         <div className="text-right">
-                                            <div className="text-xl font-black text-gray-900">${order.total.toFixed(2)}</div>
+                                            <div className="text-xl font-black text-gray-900">৳{order.total.toFixed(2)}</div>
                                             <button className="mt-2 text-xs font-bold text-primary hover:underline flex items-center gap-1 justify-end">
                                                 Manage Order <ChevronRight size={12} />
                                             </button>

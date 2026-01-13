@@ -166,14 +166,14 @@ const MarketplaceItemDetails = () => {
                 <div className="space-y-4">
                     <div className="aspect-square w-full rounded-[3rem] shadow-2xl overflow-hidden border border-white/60 relative group bg-gray-50 flex items-center justify-center">
                         {product.images && product.images.length > 0 ? (
-                            <img 
-                                src={product.images[0]} 
+                            <img
+                                src={product.images[0]}
                                 alt={product.title}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                             />
                         ) : product.image ? (
-                            <img 
-                                src={product.image} 
+                            <img
+                                src={product.image}
                                 alt={product.title}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                             />
@@ -194,7 +194,7 @@ const MarketplaceItemDetails = () => {
                                 {product.title}
                             </h1>
                             <div className="text-right ml-4">
-                                <div className="text-4xl font-black text-gray-900 tracking-tight">${product.price}</div>
+                                <div className="text-4xl font-black text-gray-900 tracking-tight">৳{product.price}</div>
                                 <div className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Total Amount</div>
                             </div>
                         </div>
