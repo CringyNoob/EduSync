@@ -127,7 +127,92 @@ async function getVendorById(req, res) {
     }
 }
 
+/**
+ * Register a new vendor (Shop registration)
+ * POST /vendors/register
+ * 
+ * Business Logic:
+ * - One shop per user rule: Check if user already owns a vendor
+ * - New vendors start with status = 'PENDING_PAYMENT'
+ * - New vendors start with is_active = false
+ * - Returns vendorId on successful registration
+ * 
+ * Required: req.user.id (from auth middleware)
+ * Body: { name, description, type }
+ */
+async function registerVendor(req, res) {
+    try {
+        const { name, description, type } = req.body;
+        const ownerId = req.user?.id;
+
+        // Validate required fields
+        if (!ownerId) {
+            return res.status(401).json({
+                success: false,
+                error: 'Authentication required. User ID not found.'
+            });
+        }
+
+        if (!name || !type) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required fields: name and type are required.'
+            });
+        }
+
+        // Validate vendor type
+        if (!['STARTUP', 'FOOD_VENDOR'].includes(type)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid vendor type. Must be STARTUP or FOOD_VENDOR.'
+            });
+        }
+
+        // Check if user already owns a vendor (One shop per user rule)
+        const existingVendorQuery = `
+            SELECT id FROM vendors WHERE owner_id = $1 LIMIT 1
+        `;
+        const existingVendor = await db.query(existingVendorQuery, [ownerId]);
+
+        if (existingVendor.rows.length > 0) {
+            return res.status(409).json({
+                success: false,
+                error: 'You already own a shop. Only one shop per user is allowed.'
+            });
+        }
+
+        // Insert new vendor with PENDING_PAYMENT status and is_active = false
+        const insertQuery = `
+            INSERT INTO vendors (owner_id, name, type, description, status, is_active)
+            VALUES ($1, $2, $3, $4, 'PENDING_PAYMENT', false)
+            RETURNING id
+        `;
+        const insertResult = await db.query(insertQuery, [
+            ownerId,
+            name,
+            type,
+            description || null
+        ]);
+
+        const newVendorId = insertResult.rows[0].id;
+
+        return res.status(201).json({
+            success: true,
+            vendorId: newVendorId,
+            message: 'Vendor registered successfully. Payment pending.'
+        });
+
+    } catch (error) {
+        console.error('Error in registerVendor:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to register vendor'
+        });
+    }
+}
+
 module.exports = {
     getVendors,
-    getVendorById
+    getVendorById,
+    registerVendor
 };

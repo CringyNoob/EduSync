@@ -8,6 +8,9 @@ const vendorController = require('../controllers/vendorController');
 const productController = require('../controllers/productController');
 const preownedController = require('../controllers/preownedController');
 
+// Import middleware
+const authMiddleware = require('../middleware/authMiddleware');
+
 // ========================================
 // VENDOR ROUTES (Shop-First Architecture)
 // For Startups & Food Vendors
@@ -25,6 +28,13 @@ router.get('/vendors', vendorController.getVendors);
  * Get vendor details with all their products
  */
 router.get('/vendors/:id', vendorController.getVendorById);
+
+/**
+ * POST /vendors/register
+ * Register a new vendor (requires authentication)
+ * Body: { name, description, type }
+ */
+router.post('/vendors/register', authMiddleware, vendorController.registerVendor);
 
 // ========================================
 // PRODUCT ROUTES (Individual Item Lookup)

@@ -10,6 +10,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- 1. VENDORS TABLE (Startups & Food Vendors)
 -- =============================================
 CREATE TYPE vendor_type AS ENUM ('STARTUP', 'FOOD_VENDOR');
+CREATE TYPE vendor_status AS ENUM ('PENDING_PAYMENT', 'ACTIVE', 'SUSPENDED', 'REJECTED');
 
 CREATE TABLE IF NOT EXISTS vendors (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -18,7 +19,8 @@ CREATE TABLE IF NOT EXISTS vendors (
     type vendor_type NOT NULL,
     description TEXT,
     logo_url VARCHAR(500),
-    is_active BOOLEAN DEFAULT true,
+    status vendor_status DEFAULT 'PENDING_PAYMENT',
+    is_active BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

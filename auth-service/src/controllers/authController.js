@@ -167,9 +167,9 @@ async function register(req, res) {
 
             // Insert into users table (authentication data)
             const userResult = await client.query(
-                `INSERT INTO users (email, password_hash, role, is_verified) 
-                 VALUES ($1, $2, 'student', true) 
-                 RETURNING id, email, role, created_at`,
+                `INSERT INTO users (email, password_hash, role, roles, active_role, is_verified) 
+                 VALUES ($1, $2, 'student', ARRAY['STUDENT'], 'STUDENT', true) 
+                 RETURNING id, email, role, roles, active_role, created_at`,
                 [email, hashedPassword]
             );
 
@@ -194,7 +194,9 @@ async function register(req, res) {
                     name: newProfile.full_name,
                     email: newUser.email,
                     department: newProfile.department,
-                    batch: newProfile.batch
+                    batch: newProfile.batch,
+                    roles: newUser.roles,
+                    activeRole: newUser.active_role
                 }, 
                 process.env.JWT_SECRET, 
                 { expiresIn: '1d' }
@@ -209,7 +211,9 @@ async function register(req, res) {
                     id: newUser.id,
                     name: newProfile.full_name,
                     email: newUser.email,
-                    role: newUser.role,
+                    role: newUser.role, // Deprecated
+                    roles: newUser.roles,
+                    activeRole: newUser.active_role,
                     studentId: newProfile.student_id,
                     department: newProfile.department,
                     batch: newProfile.batch,
@@ -258,6 +262,8 @@ async function login(req, res) {
                 u.email, 
                 u.password_hash, 
                 u.role,
+                u.roles,
+                u.active_role,
                 p.full_name as name,
                 p.student_id,
                 p.department,
@@ -296,7 +302,9 @@ async function login(req, res) {
                 name: user.name,
                 email: user.email,
                 department: user.department,
-                batch: user.batch
+                batch: user.batch,
+                roles: user.roles || ['STUDENT'],
+                activeRole: user.active_role || 'STUDENT'
             },
             process.env.JWT_SECRET,
             { expiresIn: '1d' }
@@ -318,7 +326,9 @@ async function login(req, res) {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: user.role,
+                role: user.role, // Deprecated
+                roles: user.roles || ['STUDENT'],
+                activeRole: user.active_role || 'STUDENT',
                 department: user.department,
                 batch: user.batch,
                 student_id: user.student_id
@@ -402,6 +412,8 @@ async function getProfile(req, res) {
                 u.id, 
                 u.email, 
                 u.role,
+                u.roles,
+                u.active_role,
                 u.created_at,
                 p.full_name,
                 p.student_id,
@@ -431,7 +443,9 @@ async function getProfile(req, res) {
             profile: {
                 id: user.id,
                 email: user.email,
-                role: user.role,
+                role: user.role, // Deprecated
+                roles: user.roles || ['STUDENT'],
+                activeRole: user.active_role || 'STUDENT',
                 fullName: user.full_name,
                 studentId: user.student_id,
                 department: user.department,
@@ -614,7 +628,7 @@ async function getUserById(req, res) {
 
         // Query user with profile information (JOIN users and profiles tables)
         const result = await db.query(
-            `SELECT u.id, u.email, u.created_at,
+            `SELECT u.id, u.email, u.created_at, u.roles, u.active_role,
                     p.full_name, p.avatar_url, p.bio, p.department, p.batch
              FROM users u
              LEFT JOIN profiles p ON u.id = p.user_id
@@ -641,6 +655,8 @@ async function getUserById(req, res) {
                 bio: user.bio,
                 department: user.department,
                 batch: user.batch,
+                roles: user.roles || ['STUDENT'],
+                activeRole: user.active_role || 'STUDENT',
                 createdAt: user.created_at
             }
         });

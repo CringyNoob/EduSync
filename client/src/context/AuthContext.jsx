@@ -99,7 +99,8 @@ export const AuthProvider = ({ children }) => {
 
         const updatedUser = {
             ...user,
-            role: newRole
+            role: newRole,
+            activeRole: newRole
         };
         setUser(updatedUser);
     };
