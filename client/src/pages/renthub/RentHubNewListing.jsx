@@ -9,7 +9,7 @@ import renthubService from '../../services/renthubService';
 const RentHubNewListing = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
-    
+
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -18,7 +18,7 @@ const RentHubNewListing = () => {
         availability_start: '',
         availability_end: ''
     });
-    
+
     const [images, setImages] = useState([]);
     const [imagePreviews, setImagePreviews] = useState([]);
     const [uploading, setUploading] = useState(false);
@@ -46,7 +46,7 @@ const RentHubNewListing = () => {
 
     const handleImageSelect = async (e) => {
         const files = Array.from(e.target.files);
-        
+
         if (images.length + files.length > 5) {
             setError('Maximum 5 images allowed');
             return;
@@ -138,7 +138,7 @@ const RentHubNewListing = () => {
 
             console.log('Creating rental listing...');
             const response = await renthubService.createListing(listingData);
-            
+
             if (response.success) {
                 alert('Rental listing created successfully!');
                 navigate('/renthub');
@@ -153,34 +153,32 @@ const RentHubNewListing = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8 transition-colors duration-300">
             <div className="max-w-3xl mx-auto">
                 {/* Header */}
-                <div className="mb-6 flex items-center gap-4">
-                    <button
-                        onClick={() => navigate('/renthub')}
-                        className="p-2 hover:bg-white rounded-xl transition-colors"
-                    >
-                        <ArrowLeft size={24} />
-                    </button>
-                    <div>
-                        <h1 className="text-3xl font-black text-gray-900">List Your Item for Rent</h1>
-                        <p className="text-sm text-gray-500 mt-1">Fill in the details to create your rental listing</p>
-                    </div>
+                <button
+                    onClick={() => navigate('/renthub')}
+                    className="p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-colors text-gray-900 dark:text-white"
+                >
+                    <ArrowLeft size={24} />
+                </button>
+                <div>
+                    <h1 className="text-3xl font-black text-gray-900 dark:text-white">List Your Item for Rent</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Fill in the details to create your rental listing</p>
                 </div>
 
                 {/* Form Card */}
-                <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8 transition-colors duration-300">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {error && (
-                            <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
-                                <p className="text-sm text-red-600">{error}</p>
+                            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-xl">
+                                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                             </div>
                         )}
 
                         {/* Title */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
+                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                                 <Package className="inline mr-2 h-4 w-4" />
                                 Item Title *
                             </label>
@@ -190,7 +188,7 @@ const RentHubNewListing = () => {
                                 value={formData.title}
                                 onChange={handleInputChange}
                                 placeholder="e.g., MacBook Pro M2, Calculus Textbook"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500"
                                 required
                             />
                         </div>
@@ -198,14 +196,14 @@ const RentHubNewListing = () => {
                         {/* Category & Price */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                                     Category *
                                 </label>
                                 <select
                                     name="category"
                                     value={formData.category}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                     required
                                 >
                                     <option value="">Select category</option>
@@ -216,7 +214,7 @@ const RentHubNewListing = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                                     <DollarSign className="inline mr-2 h-4 w-4" />
                                     Daily Price ($) *
                                 </label>
@@ -228,7 +226,7 @@ const RentHubNewListing = () => {
                                     placeholder="10"
                                     min="0"
                                     step="0.01"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500"
                                     required
                                 />
                             </div>
@@ -237,7 +235,7 @@ const RentHubNewListing = () => {
                         {/* Availability Dates */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                                     <Calendar className="inline mr-2 h-4 w-4" />
                                     Available From *
                                 </label>
@@ -247,13 +245,13 @@ const RentHubNewListing = () => {
                                     value={formData.availability_start}
                                     onChange={handleInputChange}
                                     min={new Date().toISOString().split('T')[0]}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                                     <Calendar className="inline mr-2 h-4 w-4" />
                                     Available Until *
                                 </label>
@@ -263,7 +261,7 @@ const RentHubNewListing = () => {
                                     value={formData.availability_end}
                                     onChange={handleInputChange}
                                     min={formData.availability_start || new Date().toISOString().split('T')[0]}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                     required
                                 />
                             </div>
@@ -271,7 +269,7 @@ const RentHubNewListing = () => {
 
                         {/* Description */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
+                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                                 <FileText className="inline mr-2 h-4 w-4" />
                                 Description
                             </label>
@@ -281,18 +279,18 @@ const RentHubNewListing = () => {
                                 onChange={handleInputChange}
                                 placeholder="Describe your item, its condition, any included accessories, usage rules, etc."
                                 rows="4"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none placeholder-gray-400 dark:placeholder-gray-500"
                             />
                         </div>
 
                         {/* Images */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
+                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                                 <ImageIcon className="inline mr-2 h-4 w-4" />
                                 Images * (Max 5)
                             </label>
-                            
-                            <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-primary transition-colors">
+
+                            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-primary dark:hover:border-primary transition-colors bg-gray-50 dark:bg-gray-700/50">
                                 <input
                                     type="file"
                                     accept="image/*"
@@ -307,7 +305,7 @@ const RentHubNewListing = () => {
                                     className={`cursor-pointer ${images.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     <Upload className="mx-auto h-12 w-12 text-gray-400 mb-2" />
-                                    <p className="text-sm font-bold text-gray-700">
+                                    <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
                                         {images.length >= 5 ? 'Maximum images reached' : 'Click to upload images'}
                                     </p>
                                     <p className="text-xs text-gray-500 mt-1">
@@ -324,7 +322,7 @@ const RentHubNewListing = () => {
                                             <img
                                                 src={preview}
                                                 alt={`Preview ${index + 1}`}
-                                                className="w-full h-24 object-cover rounded-lg border-2 border-gray-200"
+                                                className="w-full h-24 object-cover rounded-lg border-2 border-gray-200 dark:border-gray-700"
                                             />
                                             <button
                                                 type="button"

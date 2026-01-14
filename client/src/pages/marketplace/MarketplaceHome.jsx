@@ -30,21 +30,21 @@ const TrackingModal = ({ isOpen, onClose, order }) => {
     return (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose}></div>
-            <div className="relative bg-white w-full max-w-sm rounded-[3.5rem] shadow-2xl overflow-hidden animate-in zoom-in duration-500">
+            <div className="relative bg-white dark:bg-gray-800 w-full max-w-sm rounded-[3.5rem] shadow-2xl overflow-hidden animate-in zoom-in duration-500">
                 <div className="p-8 space-y-8">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="text-2xl font-black text-gray-900 leading-none">Track Order</h3>
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white leading-none">Track Order</h3>
                             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">{order.id} • {order.item}</p>
                         </div>
-                        <button onClick={onClose} className="p-2.5 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-all">
-                            <X size={20} />
+                        <button onClick={onClose} className="p-2.5 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-2xl transition-all">
+                            <X size={20} className="text-gray-900 dark:text-white" />
                         </button>
                     </div>
 
                     <div className="space-y-0 relative">
                         {/* Progress Line */}
-                        <div className="absolute left-[27px] top-6 bottom-6 w-0.5 bg-gray-100"></div>
+                        <div className="absolute left-[27px] top-6 bottom-6 w-0.5 bg-gray-100 dark:bg-gray-700"></div>
                         <div
                             className="absolute left-[27px] top-6 w-0.5 bg-primary transition-all duration-1000 ease-out"
                             style={{ height: `${(activeIdx / (steps.length - 1)) * 100}%`, maxHeight: 'calc(100% - 48px)' }}
@@ -57,7 +57,7 @@ const TrackingModal = ({ isOpen, onClose, order }) => {
                                 const isCurrent = idx === activeIdx;
                                 return (
                                     <div key={idx} className="flex items-center gap-6 group">
-                                        <div className={`relative z-10 h-14 w-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${isCompleted ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-110' : 'bg-white border-2 border-gray-100 text-gray-300'
+                                        <div className={`relative z-10 h-14 w-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${isCompleted ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-110' : 'bg-white dark:bg-gray-700 border-2 border-gray-100 dark:border-gray-600 text-gray-300 dark:text-gray-500'
                                             }`}>
                                             <step.icon size={24} className={isCurrent ? 'animate-pulse' : ''} />
                                             {isCompleted && !isCurrent && (
@@ -67,7 +67,7 @@ const TrackingModal = ({ isOpen, onClose, order }) => {
                                             )}
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className={`text-sm font-black transition-colors ${isCompleted ? 'text-gray-900' : 'text-gray-300'}`}>
+                                            <h4 className={`text-sm font-black transition-colors ${isCompleted ? 'text-gray-900 dark:text-white' : 'text-gray-300 dark:text-gray-500'}`}>
                                                 {step.label}
                                             </h4>
                                             <p className={`text-[10px] font-bold uppercase tracking-tight ${isCurrent ? 'text-primary' : 'text-gray-400'}`}>
@@ -80,10 +80,10 @@ const TrackingModal = ({ isOpen, onClose, order }) => {
                         </div>
                     </div>
 
-                    <div className="bg-gray-50 rounded-[2rem] p-6 space-y-3">
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-[2rem] p-6 space-y-3">
                         <div className="flex justify-between items-center text-xs">
                             <span className="font-bold text-gray-400">Merchant</span>
-                            <span className="font-black text-gray-900">{order.shop || order.type}</span>
+                            <span className="font-black text-gray-900 dark:text-white">{order.shop || order.type}</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
                             <span className="font-bold text-gray-400">Estimated Delivery</span>
@@ -254,15 +254,15 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
             <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={onClose}></div>
-            <div className="relative bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
+            <div className="relative bg-white dark:bg-gray-800 w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
                 <div className="p-8 space-y-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="text-2xl font-black text-gray-900">List New {section === 'Foods' ? 'Item' : section === 'Shops' ? 'Product' : 'Pre-Owned Item'}</h3>
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white">List New {section === 'Foods' ? 'Item' : section === 'Shops' ? 'Product' : 'Pre-Owned Item'}</h3>
                             <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Fill in the details for your listing</p>
                         </div>
-                        <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-xl transition-colors" disabled={loading}>
-                            <X size={24} />
+                        <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" disabled={loading}>
+                            <X size={24} className="text-gray-500 dark:text-gray-300" />
                         </button>
                     </div>
 
@@ -282,7 +282,7 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
                                     value={formData.title}
                                     onChange={handleInputChange}
                                     placeholder="e.g. Calculus Textbook"
-                                    className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium"
+                                    className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 focus:border-primary/30 focus:outline-none font-medium text-gray-900 dark:text-white"
                                     disabled={loading}
                                 />
                             </div>
@@ -296,7 +296,7 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
                                     placeholder="2500"
                                     step="0.01"
                                     min="0"
-                                    className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium"
+                                    className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 focus:border-primary/30 focus:outline-none font-medium text-gray-900 dark:text-white"
                                     disabled={loading}
                                 />
                             </div>
@@ -308,7 +308,7 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
                                 name="category"
                                 value={formData.category}
                                 onChange={handleInputChange}
-                                className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium appearance-none"
+                                className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 focus:border-primary/30 focus:outline-none font-medium appearance-none text-gray-900 dark:text-white"
                                 disabled={loading}
                             >
                                 <option value="">Select a category</option>
@@ -326,7 +326,7 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
                                 onChange={handleInputChange}
                                 placeholder="Describe your item in detail..."
                                 rows="3"
-                                className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:border-primary/30 focus:outline-none font-medium resize-none"
+                                className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 focus:border-primary/30 focus:outline-none font-medium resize-none text-gray-900 dark:text-white"
                                 disabled={loading}
                             ></textarea>
                         </div>
@@ -335,7 +335,7 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Images * (Max 5)</label>
 
                             {/* Image Upload Area */}
-                            <label className="border-2 border-dashed border-gray-100 rounded-3xl p-8 text-center space-y-2 hover:border-primary/30 transition-colors cursor-pointer group block">
+                            <label className="border-2 border-dashed border-gray-100 dark:border-gray-600 rounded-3xl p-8 text-center space-y-2 hover:border-primary/30 transition-colors cursor-pointer group block">
                                 <input
                                     type="file"
                                     accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
@@ -348,7 +348,7 @@ const ListingModal = ({ isOpen, onClose, section, onSuccess }) => {
                                     <UploadCloud size={24} />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-gray-900">Upload Images</p>
+                                    <p className="text-sm font-bold text-gray-900 dark:text-white">Upload Images</p>
                                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">PNG, JPG up to 10MB</p>
                                 </div>
                             </label>
@@ -425,13 +425,13 @@ const OfferBanner = ({ title, desc, gradient, icon: Icon }) => (
 );
 
 const VoucherCard = ({ title, code, discount }) => (
-    <div className="bg-white/80 backdrop-blur-md border border-dashed border-primary/30 p-4 rounded-2xl flex items-center justify-between group hover:border-primary transition-all shadow-sm text-left">
+    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-dashed border-primary/30 p-4 rounded-2xl flex items-center justify-between group hover:border-primary transition-all shadow-sm text-left">
         <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center">
                 <Ticket size={24} />
             </div>
             <div>
-                <h5 className="font-black text-sm text-gray-900">{title}</h5>
+                <h5 className="font-black text-sm text-gray-900 dark:text-white">{title}</h5>
                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Code: <span className="text-primary">{code}</span></p>
             </div>
         </div>
@@ -448,8 +448,8 @@ const Button = ({ children, variant = 'primary', size = 'md', className = '', ..
     const variants = {
         primary: "bg-primary text-white hover:bg-primary-hover hover:shadow-lg hover:shadow-primary/30 focus:ring-primary border border-transparent",
         secondary: "bg-secondary text-white hover:bg-secondary-light hover:shadow-lg hover:shadow-secondary/30 focus:ring-secondary border border-transparent",
-        outline: "bg-white/50 backdrop-blur-sm text-text-main border-2 border-gray-200 hover:border-primary hover:text-primary hover:bg-white focus:ring-gray-200",
-        ghost: "bg-transparent text-gray-500 hover:bg-primary/10 hover:text-primary",
+        outline: "bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm text-text-main dark:text-gray-200 border-2 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary hover:bg-white dark:hover:bg-gray-800 focus:ring-gray-200",
+        ghost: "bg-transparent text-gray-500 dark:text-gray-400 hover:bg-primary/10 hover:text-primary",
         danger: "bg-red-50 text-red-600 hover:bg-red-100 border border-transparent"
     };
 
@@ -471,10 +471,10 @@ const Button = ({ children, variant = 'primary', size = 'md', className = '', ..
 const MarketplaceCard = ({ product, onClick }) => (
     <div
         onClick={onClick}
-        className="group relative bg-white backdrop-blur-xl border border-white/60 rounded-2xl overflow-hidden shadow-[0_2px_10px_rgb(0,0,0,0.02)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer text-left"
+        className="group relative bg-white dark:bg-gray-800 backdrop-blur-xl border border-white/60 dark:border-gray-700/60 rounded-2xl overflow-hidden shadow-[0_2px_10px_rgb(0,0,0,0.02)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer text-left"
     >
         {/* Image Section - Compacted */}
-        <div className={`h-40 w-full ${product.bg || 'bg-gray-50'} p-4 flex items-center justify-center relative overflow-hidden`}>
+        <div className={`h-40 w-full ${product.bg || 'bg-gray-50 dark:bg-gray-700'} p-4 flex items-center justify-center relative overflow-hidden`}>
             {/* Product Image Placeholder */}
             {product.image ? (
                 <img
@@ -493,7 +493,7 @@ const MarketplaceCard = ({ product, onClick }) => (
 
         {/* Floating Price Tag */}
         <div className="absolute top-2 left-2">
-            <div className="bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-xs font-bold text-gray-900 shadow-sm border border-white/50">
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-xs font-bold text-gray-900 dark:text-white shadow-sm border border-white/50 dark:border-gray-700/50">
                 ৳{product.price}
             </div>
         </div>
@@ -504,7 +504,7 @@ const MarketplaceCard = ({ product, onClick }) => (
                 <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">{product.category}</span>
                 <span className="text-[10px] font-bold text-gray-400">{product.timeAgo}</span>
             </div>
-            <h3 className="font-bold text-gray-900 text-sm line-clamp-1 group-hover:text-primary transition-colors">
+            <h3 className="font-bold text-gray-900 dark:text-white text-sm line-clamp-1 group-hover:text-primary transition-colors">
                 {product.title}
             </h3>
             <div className="flex items-center gap-1.5 pt-1 border-t border-gray-50">
@@ -520,7 +520,7 @@ const MarketplaceCard = ({ product, onClick }) => (
 const ShopCard = ({ shop, onClick }) => (
     <div
         onClick={onClick}
-        className="group relative bg-white backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-6 text-center space-y-4 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden"
+        className="group relative bg-white dark:bg-gray-800 backdrop-blur-xl border border-white/60 dark:border-gray-700/60 rounded-[2.5rem] p-6 text-center space-y-4 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden"
     >
         {shop.isNew && (
             <div className="absolute top-4 right-4 z-20">
@@ -548,7 +548,7 @@ const ShopCard = ({ shop, onClick }) => (
             </div>
 
             <div className="space-y-1">
-                <h3 className="text-xl font-black text-gray-900 leading-tight group-hover:text-primary transition-colors">
+                <h3 className="text-xl font-black text-gray-900 dark:text-white leading-tight group-hover:text-primary transition-colors">
                     {shop.name}
                 </h3>
                 <div className="flex items-center justify-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
@@ -576,7 +576,7 @@ const ShopCard = ({ shop, onClick }) => (
 const CategorySelectionCard = ({ title, description, icon: Icon, colorClass, gradient, onClick }) => (
     <div
         onClick={onClick}
-        className={`relative overflow-hidden group cursor-pointer rounded-3xl p-6 h-[250px] transition-all duration-500 hover:-translate-y-1 hover:shadow-xl border border-white/40 bg-white`}
+        className={`relative overflow-hidden group cursor-pointer rounded-3xl p-6 h-[250px] transition-all duration-500 hover:-translate-y-1 hover:shadow-xl border border-white/40 dark:border-gray-700/40 bg-white dark:bg-gray-800`}
     >
         {/* Background Gradient */}
         <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-5 group-hover:opacity-10 transition-opacity duration-500`}></div>
@@ -585,16 +585,16 @@ const CategorySelectionCard = ({ title, description, icon: Icon, colorClass, gra
         <div className="absolute -right-8 -top-8 w-32 h-32 bg-gray-100 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
 
         <div className="relative z-10 flex flex-col h-full items-center text-center justify-center gap-4">
-            <div className={`p-4 rounded-xl bg-white shadow-lg shadow-gray-200/20 group-hover:scale-110 transition-transform duration-500 ${colorClass}`}>
+            <div className={`p-4 rounded-xl bg-white dark:bg-gray-700 shadow-lg shadow-gray-200/20 dark:shadow-gray-900/20 group-hover:scale-110 transition-transform duration-500 ${colorClass}`}>
                 <Icon size={32} />
             </div>
 
             <div className="space-y-1">
-                <h3 className="text-xl font-bold text-gray-900">{title}</h3>
-                <p className="text-xs text-gray-500 font-medium leading-relaxed px-4">{description}</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed px-4">{description}</p>
             </div>
 
-            <div className={`mt-auto px-4 py-1.5 rounded-full text-xs font-bold bg-white shadow-sm opacity-100 transform translate-y-0 transition-all duration-300 border border-gray-100 ${colorClass}`}>
+            <div className={`mt-auto px-4 py-1.5 rounded-full text-xs font-bold bg-white dark:bg-gray-700 shadow-sm opacity-100 transform translate-y-0 transition-all duration-300 border border-gray-100 dark:border-gray-600 ${colorClass}`}>
                 Browse Catalog →
             </div>
         </div>
@@ -670,7 +670,9 @@ const MarketplaceHome = () => {
                 // If a shop is selected, fetch its products
                 if (selectedShop && selectedShop.id) {
                     const vendorRes = await marketplaceService.getVendorById(selectedShop.id);
-                    setProducts(vendorRes.vendor?.products || []);
+                    // Robust check for products in vendor response
+                    const productsList = vendorRes.products || vendorRes.vendor?.products || vendorRes.data?.products || [];
+                    setProducts(productsList);
                 }
             } else if (selectedSection === 'Shops') {
                 // Fetch startup vendors
@@ -775,7 +777,7 @@ const MarketplaceHome = () => {
                 icon: selectedSection === 'Foods' ? Utensils : PackageCheck,
                 seller: selectedShop?.name || 'Shop',
                 timeAgo: 'Available',
-                image: product.image_url,
+                image: product.image_url || product.image || (product.images && product.images[0]),
                 is_available: product.is_available
             }));
         }
@@ -816,15 +818,15 @@ const MarketplaceHome = () => {
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => navigate('/dashboard')}
-                                className="p-2.5 rounded-2xl bg-white border border-gray-100 shadow-sm hover:border-primary hover:text-primary transition-all group"
+                                className="p-2.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm hover:border-primary hover:text-primary dark:text-gray-200 transition-all group"
                             >
                                 <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                             </button>
                             <div className="text-center md:text-left space-y-1">
-                                <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-tight">
+                                <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
                                     Campus Marketplace
                                 </h1>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">
                                     Choose your experience
                                 </p>
                             </div>
@@ -882,23 +884,30 @@ const MarketplaceHome = () => {
                                     else if (selectedShop) setSelectedShop(null);
                                     else setSelectedSection(null);
                                 }}
-                                className="p-2.5 rounded-2xl bg-white border border-gray-100 shadow-sm hover:border-primary hover:text-primary transition-all group"
+                                className="p-2.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm hover:border-primary hover:text-primary dark:text-gray-200 transition-all group"
                             >
                                 <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                             </button>
                             <div className="text-left">
                                 <div className="flex items-center gap-2">
-                                    <h2 className="text-2xl font-black text-gray-900 leading-none">
+                                    <h2
+                                        className={`text-2xl font-black leading-none transition-colors ${selectedShop && !viewOrders ? 'text-gray-400 hover:text-primary cursor-pointer' : 'text-gray-900 dark:text-white'}`}
+                                        onClick={() => {
+                                            if (selectedShop && !viewOrders) {
+                                                setSelectedShop(null);
+                                            }
+                                        }}
+                                    >
                                         {viewOrders ? `${selectedSection} Orders` : selectedSection}
                                     </h2>
                                     {(selectedShop && !viewOrders) && (
                                         <>
-                                            <ChevronRight size={20} className="text-gray-300" />
+                                            <ChevronRight className="text-gray-300 dark:text-gray-600" size={20} />
                                             <h2 className="text-2xl font-black text-primary leading-none">{selectedShop.name}</h2>
                                         </>
                                     )}
                                 </div>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1.5 font-mono text-left">
+                                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest mt-1.5 font-mono text-left">
                                     {viewOrders ? "Track your purchases" :
                                         showShops ? "Available Shops" : "Item Selection"}
                                 </p>
@@ -918,7 +927,7 @@ const MarketplaceHome = () => {
                     </div>
 
                     {/* Search & Actions Bar */}
-                    <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] p-4 border border-white shadow-sm flex flex-col md:flex-row gap-4">
+                    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-[2rem] p-4 border border-white dark:border-gray-700 shadow-sm flex flex-col md:flex-row gap-4">
                         <div className="relative flex-1 group">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-all" />
                             <input
@@ -927,7 +936,7 @@ const MarketplaceHome = () => {
                                     showShops ? "Search shops..." : `Search items in ${selectedShop?.name || selectedSection}...`}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50/50 border-2 border-transparent focus:border-primary/20 focus:bg-white focus:outline-none transition-all font-medium"
+                                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50/50 dark:bg-gray-900/50 border-2 border-transparent focus:border-primary/20 focus:bg-white dark:focus:bg-gray-800 focus:outline-none transition-all font-medium text-gray-900 dark:text-white dark:placeholder-gray-500"
                             />
                         </div>
                         <div className="flex gap-2">
@@ -987,11 +996,11 @@ const MarketplaceHome = () => {
                                                     </span>
                                                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{order.id}</span>
                                                 </div>
-                                                <h4 className="font-bold text-gray-900 truncate">{order.item}</h4>
-                                                <p className="text-xs text-gray-500">{order.shop || order.section} • {order.date}</p>
+                                                <h4 className="font-bold text-gray-900 dark:text-white truncate">{order.item}</h4>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">{order.shop || order.section} • {order.date}</p>
                                             </div>
                                             <div className="text-right">
-                                                <div className="font-black text-gray-900 tracking-tight">${order.price}</div>
+                                                <div className="font-black text-gray-900 dark:text-white tracking-tight">${order.price}</div>
                                                 <button
                                                     onClick={() => setTrackingOrder(order)}
                                                     className="text-[10px] font-bold text-primary hover:underline uppercase tracking-widest"
@@ -1015,22 +1024,24 @@ const MarketplaceHome = () => {
 
                             {/* Filter Pills */}
                             {!showShops && (
-                                <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
-                                    <button
-                                        onClick={() => setActiveFilter('All')}
-                                        className={`px-6 py-2 rounded-xl text-xs font-black transition-all border-2 whitespace-nowrap ${activeFilter === 'All' ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-white text-gray-400 border-gray-100 hover:border-primary/30'}`}
-                                    >
-                                        All
-                                    </button>
-                                    {filters[selectedSection]?.map(filter => (
+                                <div className="p-3 bg-white/40 dark:bg-gray-800/40 backdrop-blur-md rounded-[2rem] border border-white dark:border-gray-700">
+                                    <div className="flex flex-wrap gap-2 p-1 justify-start">
                                         <button
-                                            key={filter}
-                                            onClick={() => setActiveFilter(filter)}
-                                            className={`px-6 py-2 rounded-xl text-xs font-black transition-all border-2 whitespace-nowrap ${activeFilter === filter ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-white text-gray-400 border-gray-100 hover:border-primary/30'}`}
+                                            onClick={() => setActiveFilter('All')}
+                                            className={`px-5 py-2.5 rounded-2xl text-[10px] font-black transition-all border-2 whitespace-nowrap ${activeFilter === 'All' ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-100 dark:border-gray-700 hover:border-primary/30 dark:hover:border-primary/30'}`}
                                         >
-                                            {filter}
+                                            ALL
                                         </button>
-                                    ))}
+                                        {filters[selectedSection]?.map(filter => (
+                                            <button
+                                                key={filter}
+                                                onClick={() => setActiveFilter(filter)}
+                                                className={`px-5 py-2.5 rounded-2xl text-[10px] font-black transition-all border-2 whitespace-nowrap ${activeFilter === filter ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-100 dark:border-gray-700 hover:border-primary/30 dark:hover:border-primary/30'}`}
+                                            >
+                                                {filter.toUpperCase()}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
 
@@ -1044,8 +1055,8 @@ const MarketplaceHome = () => {
                                                 <Percent size={24} />
                                             </div>
                                             <div className="text-left">
-                                                <h3 className="text-xl font-black text-gray-900">Limited Time Offers</h3>
-                                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest text-left">Flash deals & discounts</p>
+                                                <h3 className="text-xl font-black text-gray-900 dark:text-white">Limited Time Offers</h3>
+                                                <p className="text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest text-left">Flash deals & discounts</p>
                                             </div>
                                         </div>
                                         <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
@@ -1081,8 +1092,8 @@ const MarketplaceHome = () => {
                                                     <Flame size={24} />
                                                 </div>
                                                 <div className="text-left">
-                                                    <h3 className="text-xl font-black text-gray-900">New Arrivals</h3>
-                                                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest text-left">Freshly opened on campus</p>
+                                                    <h3 className="text-xl font-black text-gray-900 dark:text-white">New Arrivals</h3>
+                                                    <p className="text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest text-left">Freshly opened on campus</p>
                                                 </div>
                                             </div>
                                             <button className="text-sm font-bold text-primary hover:underline">See All</button>
@@ -1103,8 +1114,8 @@ const MarketplaceHome = () => {
                                                 <Store size={24} />
                                             </div>
                                             <div className="text-left">
-                                                <h3 className="text-xl font-black text-gray-900">Explore All {selectedSection}</h3>
-                                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest text-left">{filteredShops.length} stores available</p>
+                                                <h3 className="text-xl font-black text-gray-900 dark:text-white">Explore All {selectedSection}</h3>
+                                                <p className="text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest text-left">{filteredShops.length} stores available</p>
                                             </div>
                                         </div>
                                         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-2">
@@ -1129,12 +1140,12 @@ const MarketplaceHome = () => {
                                             />
                                         ))
                                     ) : (
-                                        <div className="col-span-full py-20 text-center bg-white/40 backdrop-blur-md rounded-[3rem] border-2 border-dashed border-gray-200">
-                                            <div className="inline-block p-6 rounded-3xl bg-white shadow-sm mb-4">
-                                                <ShoppingBag size={48} className="text-gray-200" />
+                                        <div className="col-span-full py-20 text-center bg-white/40 dark:bg-gray-800/40 backdrop-blur-md rounded-[3rem] border-2 border-dashed border-gray-200 dark:border-gray-700">
+                                            <div className="inline-block p-6 rounded-3xl bg-white dark:bg-gray-800 shadow-sm mb-4">
+                                                <ShoppingBag size={48} className="text-gray-200 dark:text-gray-700" />
                                             </div>
-                                            <h3 className="text-xl font-black text-gray-900">No items found</h3>
-                                            <p className="text-sm text-gray-500 mt-2">Try adjusting your search or filters.</p>
+                                            <h3 className="text-xl font-black text-gray-900 dark:text-white">No items found</h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Try adjusting your search or filters.</p>
                                         </div>
                                     )}
                                 </div>

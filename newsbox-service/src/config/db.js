@@ -1,16 +1,20 @@
 const { Pool } = require('pg');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
-// Create PostgreSQL connection pool with SSL for Aiven
+// Determine SSL configuration
+const sslConfig = process.env.NODE_ENV === 'production' || process.env.DB_HOST?.includes('aiven')
+    ? { rejectUnauthorized: false }
+    : false;
+
+// Create PostgreSQL connection pool
 const pool = new Pool({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 5432,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME || 'newsbox_db',
-    ssl: {
-        rejectUnauthorized: false, // Required for Aiven's SSL certificates
-    },
+    ssl: sslConfig,
     // Pool configuration
     max: 20,                    // Maximum number of clients in the pool
     idleTimeoutMillis: 30000,   // Close idle clients after 30 seconds

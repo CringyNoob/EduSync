@@ -37,6 +37,10 @@ function Start-EduService {
     }
 }
 
+# Start Auth Service (Port 3001)
+Write-Host "Starting Auth Service (Port 3001)..." -ForegroundColor Green
+Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\auth-service; Write-Host '🔐 AUTH SERVICE' -ForegroundColor Cyan; npm start"
+
 # Start Marketplace Service (Port 3002)
 Write-Host "Starting Marketplace Service (Port 3002)..." -ForegroundColor Green
 Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\marketplace-service; Write-Host '🛒 MARKETPLACE SERVICE' -ForegroundColor Magenta; npm start"

@@ -134,6 +134,16 @@ const authService = {
     const response = await api.get('/auth/verify-token');
     return response.data;
   },
+
+  /**
+   * Get public user profile by ID
+   * @param {string} userId - User ID
+   * @returns {Promise} Response with user profile data
+   */
+  getUserById: async (userId) => {
+    const response = await api.get(`/auth/user/${userId}`);
+    return response.data;
+  },
 };
 
 export default authService;

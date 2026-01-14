@@ -12,10 +12,10 @@ import renthubService from '../../services/renthubService';
 const RentalCard = ({ item, onClick }) => (
     <div
         onClick={onClick}
-        className="group relative bg-white backdrop-blur-xl border border-white/60 rounded-2xl overflow-hidden shadow-[0_2px_10px_rgb(0,0,0,0.02)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+        className="group relative bg-white dark:bg-gray-800 backdrop-blur-xl border border-white/60 dark:border-gray-700/60 rounded-2xl overflow-hidden shadow-[0_2px_10px_rgb(0,0,0,0.02)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
     >
         {/* Image Section */}
-        <div className="h-40 w-full relative overflow-hidden bg-gray-100">
+        <div className="h-40 w-full relative overflow-hidden bg-gray-100 dark:bg-gray-700">
             <img
                 src={item.image}
                 alt={item.title}
@@ -23,13 +23,13 @@ const RentalCard = ({ item, onClick }) => (
             />
             {/* Overlay Actions */}
             <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                <button className="p-2 bg-white/90 backdrop-blur-md rounded-full text-pink-500 shadow-sm hover:scale-110 transition-transform">
+                <button className="p-2 bg-white/90 dark:bg-black/60 backdrop-blur-md rounded-full text-pink-500 shadow-sm hover:scale-110 transition-transform">
                     <Heart size={16} className="opacity-70 hover:opacity-100" />
                 </button>
             </div>
             {/* Floating Price Tag */}
             <div className="absolute top-2 left-2">
-                <div className="bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-xs font-bold text-gray-900 shadow-sm border border-white/50">
+                <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-xs font-bold text-gray-900 dark:text-white shadow-sm border border-white/50 dark:border-white/10">
                     ৳{item.price}/day
                 </div>
             </div>
@@ -38,7 +38,7 @@ const RentalCard = ({ item, onClick }) => (
         {/* Content Section */}
         <div className="p-3">
             <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-0.5 rounded-md bg-indigo-50 text-[10px] font-bold text-indigo-600 uppercase tracking-wide">
+                <span className="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">
                     {item.category}
                 </span>
                 <span className="text-[10px] text-gray-400 font-medium ml-auto flex items-center gap-1">
@@ -47,17 +47,17 @@ const RentalCard = ({ item, onClick }) => (
                 </span>
             </div>
 
-            <h3 className="font-bold text-gray-900 text-sm mb-2 leading-snug group-hover:text-primary transition-colors line-clamp-2">
+            <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2 leading-snug group-hover:text-primary transition-colors line-clamp-2">
                 {item.title}
             </h3>
 
-            <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+            <div className="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-[10px] font-bold shadow-md">
                     {item.owner.charAt(0)}
                 </div>
                 <div className="flex flex-col">
                     <span className="text-[10px] text-gray-400 font-medium">Owner</span>
-                    <span className="text-xs text-gray-700 font-bold leading-none truncate">{item.owner}</span>
+                    <span className="text-xs text-gray-700 dark:text-gray-300 font-bold leading-none truncate">{item.owner}</span>
                 </div>
                 <div className="ml-auto flex items-center gap-1">
                     <Star size={10} className="text-yellow-500 fill-yellow-500" />
@@ -132,18 +132,27 @@ const RentHubHome = () => {
 
     return (
         <div className="relative min-h-screen p-3 md:p-5 space-y-6 font-sans">
+            {/* Loading Overlay */}
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+                        <p className="font-bold text-primary animate-pulse">Loading Rentals...</p>
+                    </div>
+                </div>
+            )}
             {/* Background Details */}
             <div className="fixed inset-0 -z-50 pointer-events-none">
-                <div className="absolute top-0 left-[-100px] w-[600px] h-[800px] bg-gradient-to-br from-primary/10 via-secondary/10 to-transparent rounded-full mix-blend-multiply blur-[80px]"></div>
-                <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-gradient-to-bl from-accent/20 to-primary/10 rounded-full mix-blend-multiply blur-[80px] animate-blob"></div>
-                <div className="absolute bottom-[-10%] left-[20%] w-[500px] h-[500px] bg-gradient-to-tr from-secondary/10 to-accent/20 rounded-full mix-blend-multiply blur-[80px] animate-blob animation-delay-2000"></div>
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] opacity-20"></div>
+                <div className="absolute top-0 left-[-100px] w-[600px] h-[800px] bg-gradient-to-br from-primary/10 via-secondary/10 to-transparent rounded-full mix-blend-multiply blur-[80px] dark:from-primary/5 dark:via-secondary/5"></div>
+                <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-gradient-to-bl from-accent/20 to-primary/10 rounded-full mix-blend-multiply blur-[80px] animate-blob dark:from-accent/10 dark:to-primary/5"></div>
+                <div className="absolute bottom-[-10%] left-[20%] w-[500px] h-[500px] bg-gradient-to-tr from-secondary/10 to-accent/20 rounded-full mix-blend-multiply blur-[80px] animate-blob animation-delay-2000 dark:from-secondary/5 dark:to-accent/10"></div>
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] opacity-20 dark:opacity-10"></div>
             </div>
 
             {/* Hero Section - New Statement */}
             <div className="max-w-7xl mx-auto pt-8 pb-4">
                 <div className="flex flex-col gap-1">
-                    <h2 className="text-4xl md:text-6xl font-black text-gray-900 leading-tight">
+                    <h2 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white leading-tight">
                         Rent What You Need,
                     </h2>
                     <h2 className="text-4xl md:text-6xl font-black text-primary leading-tight">
@@ -157,13 +166,13 @@ const RentHubHome = () => {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="p-1.5 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 hover:border-primary/50 transition-all group"
+                        className="p-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-primary/50 transition-all group"
                     >
-                        <ArrowLeft size={18} className="text-gray-500 group-hover:text-primary" />
+                        <ArrowLeft size={18} className="text-gray-500 dark:text-gray-400 group-hover:text-primary" />
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 leading-none">RentHub</h1>
-                        <p className="text-xs text-gray-500 mt-1">Specialized rental ecosystem for academic success</p>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-none">RentHub</h1>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Specialized rental ecosystem for academic success</p>
                     </div>
                 </div>
 
@@ -181,7 +190,7 @@ const RentHubHome = () => {
             </div>
 
             {/* Filter Bar - Exactly matching MarketplaceHome.jsx logic and styles */}
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/60 shadow-sm max-w-7xl mx-auto">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-4 border border-white/60 dark:border-gray-700/60 shadow-sm max-w-7xl mx-auto transition-colors duration-300">
                 <div className="flex flex-col md:flex-row gap-4">
                     {/* Search Bar */}
                     <div className="relative flex-1 group">
@@ -191,7 +200,7 @@ const RentHubHome = () => {
                             placeholder="Search in academic rentals..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100 focus:bg-white focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all text-sm font-medium"
+                            className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-600 focus:bg-white dark:focus:bg-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                         />
                     </div>
 
@@ -202,7 +211,7 @@ const RentHubHome = () => {
                             <select
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
-                                className="appearance-none pl-9 pr-8 py-2.5 rounded-xl bg-gray-50 border border-gray-100 text-sm font-bold text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 cursor-pointer transition-all"
+                                className="appearance-none pl-9 pr-8 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-600 text-sm font-bold text-gray-700 dark:text-gray-200 focus:bg-white dark:focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/10 cursor-pointer transition-all"
                             >
                                 <option value="newest">Newest</option>
                                 <option value="price-low">Price: Low</option>
@@ -225,7 +234,7 @@ const RentHubHome = () => {
                         <button
                             key={filter}
                             onClick={() => setActiveFilter(filter)}
-                            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeFilter === filter ? 'bg-primary text-white shadow-md' : 'bg-gray-100/50 text-gray-600 hover:bg-white hover:shadow-sm'}`}
+                            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeFilter === filter ? 'bg-primary text-white shadow-md' : 'bg-gray-100/50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 hover:shadow-sm'}`}
                         >
                             {filter}
                         </button>
@@ -245,11 +254,11 @@ const RentHubHome = () => {
                     ))
                 ) : (
                     <div className="col-span-full py-12 text-center">
-                        <div className="inline-block p-4 rounded-2xl bg-gray-50 mb-3">
-                            <Search size={32} className="text-gray-300" />
+                        <div className="inline-block p-4 rounded-2xl bg-gray-50 dark:bg-gray-800 mb-3">
+                            <Search size={32} className="text-gray-300 dark:text-gray-600" />
                         </div>
-                        <h3 className="text-base font-bold text-gray-900">No rentals found</h3>
-                        <p className="text-xs text-gray-500 mt-1">Try adjusting your filters or search.</p>
+                        <h3 className="text-base font-bold text-gray-900 dark:text-white">No rentals found</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Try adjusting your filters or search.</p>
                     </div>
                 )}
             </div>

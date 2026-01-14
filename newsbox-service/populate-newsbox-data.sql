@@ -1,10 +1,11 @@
 -- =====================================================
 -- NEWSBOX SERVICE - SAMPLE DATA POPULATION
 -- Run this AFTER creating the schema
+-- Updated for dynamic categories (using category_id FK)
 -- =====================================================
 
 -- Clear existing data (optional, be careful in production!)
--- TRUNCATE comment_votes, post_votes, comments, posts RESTART IDENTITY CASCADE;
+-- TRUNCATE comment_votes, post_votes, comments, posts, categories RESTART IDENTITY CASCADE;
 
 -- =====================================================
 -- SAMPLE USERS (UUIDs for reference)
@@ -16,11 +17,27 @@
 -- User 4: 44444444-4444-4444-4444-444444444444 (Diana)
 
 -- =====================================================
+-- CATEGORIES
+-- =====================================================
+INSERT INTO categories (id, name) VALUES 
+    ('cat00001-0000-0000-0000-000000000001', 'Accommodation'),
+    ('cat00001-0000-0000-0000-000000000002', 'Job Posting'),
+    ('cat00001-0000-0000-0000-000000000003', 'Lost and Found'),
+    ('cat00001-0000-0000-0000-000000000004', 'Query'),
+    ('cat00001-0000-0000-0000-000000000005', 'General'),
+    ('cat00001-0000-0000-0000-000000000006', 'Emergency'),
+    ('cat00001-0000-0000-0000-000000000007', 'Campus'),
+    ('cat00001-0000-0000-0000-000000000008', 'Tech'),
+    ('cat00001-0000-0000-0000-000000000009', 'Academics'),
+    ('cat00001-0000-0000-0000-000000000010', 'Events')
+ON CONFLICT (id) DO NOTHING;
+
+-- =====================================================
 -- SAMPLE POSTS
 -- =====================================================
 
 -- Post 1: ACCOMMODATION
-INSERT INTO posts (id, author_id, author_name, title, description, images, tag, created_at)
+INSERT INTO posts (id, author_id, author_name, title, description, images, category_id, status, is_official, is_pinned, created_at)
 VALUES (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     '11111111-1111-1111-1111-111111111111',
@@ -28,12 +45,15 @@ VALUES (
     'Looking for a Roommate - Spring 2025',
     'Hi everyone! I am looking for a roommate for the upcoming spring semester. I have a 2-bedroom apartment near campus (5 min walk). Rent is $600/month including utilities. I prefer someone who is quiet, tidy, and respectful of study hours. Feel free to reach out if interested!',
     ARRAY['https://example.com/apartment1.jpg', 'https://example.com/apartment2.jpg'],
-    'ACCOMMODATION',
+    'cat00001-0000-0000-0000-000000000001',
+    'APPROVED',
+    false,
+    false,
     NOW() - INTERVAL '2 days'
 );
 
 -- Post 2: JOB_POSTING
-INSERT INTO posts (id, author_id, author_name, title, description, images, tag, created_at)
+INSERT INTO posts (id, author_id, author_name, title, description, images, category_id, status, is_official, is_pinned, created_at)
 VALUES (
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     '22222222-2222-2222-2222-222222222222',
@@ -41,12 +61,15 @@ VALUES (
     'Part-time Tutor Needed for CS101',
     'Looking for a tutor to help with CS101 (Intro to Programming). Sessions would be 2 hours/week, preferably on weekends. Paying $25/hour. Must have at least a B+ in the course. DM me if interested!',
     ARRAY[]::TEXT[],
-    'JOB_POSTING',
+    'cat00001-0000-0000-0000-000000000002',
+    'APPROVED',
+    false,
+    false,
     NOW() - INTERVAL '1 day'
 );
 
 -- Post 3: LOST_AND_FOUND
-INSERT INTO posts (id, author_id, author_name, title, description, images, tag, created_at)
+INSERT INTO posts (id, author_id, author_name, title, description, images, category_id, status, is_official, is_pinned, created_at)
 VALUES (
     'cccccccc-cccc-cccc-cccc-cccccccccccc',
     '33333333-3333-3333-3333-333333333333',
@@ -54,12 +77,15 @@ VALUES (
     'FOUND: AirPods Pro Case near Library',
     'Found an AirPods Pro case near the main library entrance yesterday around 3 PM. It has a blue silicone cover. If this is yours, please describe the case and any identifying marks. I will be at the library tomorrow from 2-4 PM.',
     ARRAY['https://example.com/airpods.jpg'],
-    'LOST_AND_FOUND',
+    'cat00001-0000-0000-0000-000000000003',
+    'APPROVED',
+    false,
+    false,
     NOW() - INTERVAL '12 hours'
 );
 
 -- Post 4: QUERY
-INSERT INTO posts (id, author_id, author_name, title, description, images, tag, created_at)
+INSERT INTO posts (id, author_id, author_name, title, description, images, category_id, status, is_official, is_pinned, created_at)
 VALUES (
     'dddddddd-dddd-dddd-dddd-dddddddddddd',
     '44444444-4444-4444-4444-444444444444',
@@ -67,12 +93,15 @@ VALUES (
     'Best cafes to study near campus?',
     'Hey everyone! I am new here and looking for some good cafes near campus where I can study. Ideally looking for places with good wifi, not too noisy, and decent coffee. Any recommendations? Thanks in advance!',
     ARRAY[]::TEXT[],
-    'QUERY',
+    'cat00001-0000-0000-0000-000000000004',
+    'APPROVED',
+    false,
+    false,
     NOW() - INTERVAL '6 hours'
 );
 
--- Post 5: GENERAL
-INSERT INTO posts (id, author_id, author_name, title, description, images, tag, created_at)
+-- Post 5: GENERAL (Official & Pinned)
+INSERT INTO posts (id, author_id, author_name, title, description, images, category_id, status, is_official, is_pinned, created_at)
 VALUES (
     'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
     '11111111-1111-1111-1111-111111111111',
@@ -80,8 +109,27 @@ VALUES (
     'Basketball Club Recruitment!',
     'The university basketball club is now accepting new members! No experience required - we welcome beginners and experienced players alike. Practice sessions are every Tuesday and Thursday from 6-8 PM at the main gym. Join us for some fun and fitness! 🏀',
     ARRAY['https://example.com/basketball.jpg'],
-    'GENERAL',
+    'cat00001-0000-0000-0000-000000000005',
+    'APPROVED',
+    true,
+    true,
     NOW() - INTERVAL '3 hours'
+);
+
+-- Post 6: PENDING post for moderation queue
+INSERT INTO posts (id, author_id, author_name, title, description, images, category_id, status, is_official, is_pinned, created_at)
+VALUES (
+    'ffffffff-ffff-ffff-ffff-ffffffffffff',
+    '33333333-3333-3333-3333-333333333333',
+    'Charlie Brown',
+    'Free Study Materials for MATH201',
+    'Sharing my notes and practice problems from last semester. DM me if you want a copy!',
+    ARRAY[]::TEXT[],
+    'cat00001-0000-0000-0000-000000000009',
+    'PENDING',
+    false,
+    false,
+    NOW() - INTERVAL '1 hour'
 );
 
 -- =====================================================
@@ -200,9 +248,16 @@ INSERT INTO comment_votes (id, user_id, comment_id, vote_type) VALUES
 /*
 SELECT 
     p.title,
-    p.tag,
+    c.name as category_name,
+    p.status,
+    p.is_official,
+    p.is_pinned,
     (SELECT COUNT(*) FROM comments WHERE post_id = p.id) as comment_count,
     COALESCE((SELECT SUM(CASE WHEN vote_type = 'UP' THEN 1 ELSE -1 END) FROM post_votes WHERE post_id = p.id), 0) as vote_count
 FROM posts p
+LEFT JOIN categories c ON p.category_id = c.id
 ORDER BY p.created_at DESC;
+
+-- View all categories:
+SELECT * FROM categories ORDER BY name;
 */

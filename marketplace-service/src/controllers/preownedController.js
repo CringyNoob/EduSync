@@ -227,9 +227,47 @@ async function markAsSold(req, res) {
     }
 }
 
+/**
+ * Get all pre-owned listings for a specific user
+ * GET /preowned/user/:userId
+ */
+async function getListingsByUser(req, res) {
+    try {
+        const { userId } = req.params;
+
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                error: 'User ID is required'
+            });
+        }
+
+        const query = `
+            SELECT id, seller_id, seller_name, title, description, price, category, images, status, created_at
+            FROM preowned_listings
+            WHERE seller_id = $1
+            ORDER BY created_at DESC
+        `;
+        const result = await db.query(query, [userId]);
+
+        return res.status(200).json({
+            success: true,
+            data: result.rows
+        });
+
+    } catch (error) {
+        console.error('Error in getListingsByUser:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch user listings'
+        });
+    }
+}
+
 module.exports = {
     getAllListings,
     getListingById,
     createListing,
-    markAsSold
+    markAsSold,
+    getListingsByUser
 };

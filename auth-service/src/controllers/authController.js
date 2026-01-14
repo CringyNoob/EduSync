@@ -597,6 +597,63 @@ async function resetPassword(req, res) {
     }
 }
 
+/**
+ * Get user by ID (public profile info only)
+ * GET /api/auth/user/:id
+ */
+async function getUserById(req, res) {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                error: 'User ID is required'
+            });
+        }
+
+        // Query user with profile information (JOIN users and profiles tables)
+        const result = await db.query(
+            `SELECT u.id, u.email, u.created_at,
+                    p.full_name, p.avatar_url, p.bio, p.department, p.batch
+             FROM users u
+             LEFT JOIN profiles p ON u.id = p.user_id
+             WHERE u.id = $1`,
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        const user = result.rows[0];
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                id: user.id,
+                name: user.full_name || 'Unknown User',
+                email: user.email,
+                avatarUrl: user.avatar_url,
+                bio: user.bio,
+                department: user.department,
+                batch: user.batch,
+                createdAt: user.created_at
+            }
+        });
+
+    } catch (error) {
+        console.error('Error in getUserById:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch user. Please try again.'
+        });
+    }
+}
+
 module.exports = {
     sendOtp,
     register,
@@ -604,5 +661,6 @@ module.exports = {
     forgotPassword,
     resetPassword,
     getProfile,
-    updateProfile
+    updateProfile,
+    getUserById
 };

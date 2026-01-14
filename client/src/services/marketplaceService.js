@@ -80,6 +80,16 @@ const marketplaceService = {
   markAsSold: async (id) => {
     const response = await api.put(`/market/preowned/${id}/sold`);
     return response.data;
+  },
+
+  /**
+   * Get all pre-owned listings by a specific user
+   * @param {string} userId - User ID
+   * @returns {Promise} Response with listings array
+   */
+  getPreownedByUser: async (userId) => {
+    const response = await api.get(`/market/preowned/user/${userId}`);
+    return response.data;
   }
 };
 

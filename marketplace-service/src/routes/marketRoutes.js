@@ -63,6 +63,12 @@ router.post('/preowned', preownedController.createListing);
 router.get('/preowned/:id', preownedController.getListingById);
 
 /**
+ * GET /preowned/user/:userId
+ * Get all pre-owned listings by a specific user
+ */
+router.get('/preowned/user/:userId', preownedController.getListingsByUser);
+
+/**
  * PUT /preowned/:id/sold
  * Mark listing as sold
  */

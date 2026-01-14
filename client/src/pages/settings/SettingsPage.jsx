@@ -6,11 +6,13 @@ import {
 } from 'lucide-react';
 import Button from '../../components/Button';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import authService from '../../services/authService';
 
 
 const SettingsPage = () => {
     const { user, updateUser } = useAuth();
+    const { theme, setTheme, reducedMotion, toggleReducedMotion } = useTheme();
     const [activeTab, setActiveTab] = useState('profile');
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(true);
@@ -155,6 +157,7 @@ const SettingsPage = () => {
     const tabs = [
         { id: 'profile', label: 'Profile Settings', icon: User, desc: 'Manage your personal info' },
         { id: 'notifications', label: 'Notifications', icon: Bell, desc: 'Customize your alerts' },
+        { id: 'appearance', label: 'Appearance', icon: Moon, desc: 'Dark mode & accessibility' },
         { id: 'security', label: 'Security & Login', icon: Shield, desc: 'Password and 2FA' },
     ];
 
@@ -263,8 +266,8 @@ const SettingsPage = () => {
                                         <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Full Name</label>
                                         <input
                                             type="text"
-                                            value={profileData.name}
-                                            onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                                            value={profileData.fullName}
+                                            onChange={(e) => setProfileData({ ...profileData, fullName: e.target.value })}
                                             className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border-2 border-transparent dark:border-gray-700 focus:bg-white dark:focus:bg-gray-800 focus:border-indigo-500 dark:focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900 dark:text-white"
                                         />
                                     </div>
@@ -413,6 +416,62 @@ const SettingsPage = () => {
 
 
                         {/* Appearance Tab */}
+                        {activeTab === 'appearance' && (
+                            <div className="space-y-8 animate-in slide-in-from-right duration-300">
+                                <h2 className="text-2xl font-black text-gray-900 dark:text-white">Appearance</h2>
+                                <p className="text-gray-500 dark:text-gray-400">Customize how EduSync looks on your device.</p>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {[
+                                        { id: 'light', label: 'Light Mode', icon: '☀️' },
+                                        { id: 'dark', label: 'Dark Mode', icon: '🌙' },
+                                        { id: 'system', label: 'System Default', icon: '💻' },
+                                    ].map((mode) => (
+                                        <button
+                                            key={mode.id}
+                                            onClick={() => setTheme(mode.id)}
+                                            className={`
+                                                relative p-4 rounded-2xl border-2 text-left transition-all duration-300 group
+                                                ${theme === mode.id
+                                                    ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20'
+                                                    : 'border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-700 bg-white dark:bg-gray-800'
+                                                }
+                                            `}
+                                        >
+                                            <div className="flex items-center justify-between mb-3">
+                                                <span className="text-2xl">{mode.icon}</span>
+                                                {theme === mode.id && (
+                                                    <div className="h-6 w-6 bg-indigo-600 rounded-full flex items-center justify-center">
+                                                        <CheckCircle size={14} className="text-white" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <h3 className={`font-bold ${theme === mode.id ? 'text-indigo-900 dark:text-indigo-300' : 'text-gray-900 dark:text-white'}`}>
+                                                {mode.label}
+                                            </h3>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-700/30 border border-gray-100 dark:border-gray-700">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <h3 className="font-bold text-gray-900 dark:text-white">Reduced Motion</h3>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Reduce animations for a simpler experience.</p>
+                                        </div>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                className="sr-only peer"
+                                                checked={reducedMotion}
+                                                onChange={toggleReducedMotion}
+                                            />
+                                            <div className="w-11 h-6 bg-gray-200 dark:bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
 
                         {/* Footer Action */}

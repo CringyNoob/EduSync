@@ -2,12 +2,29 @@ const express = require('express');
 const router = express.Router();
 
 // Import middleware
-const { authMiddleware, optionalAuthMiddleware } = require('../middleware/authMiddleware');
+const { authMiddleware, optionalAuthMiddleware, adminMiddleware } = require('../middleware/authMiddleware');
 
 // Import controllers
-const { createPost, getAllPosts, getPostById, VALID_TAGS } = require('../controllers/postController');
+const { 
+    createPost, 
+    getAllPosts, 
+    getPostById, 
+    updatePost,
+    deletePost,
+    getPendingPosts,
+    updatePostStatus,
+    togglePinPost,
+    getPostsByUser
+} = require('../controllers/postController');
 const { votePost, voteComment, getPostVoteStatus } = require('../controllers/voteController');
 const { addComment, getCommentsByPost, deleteComment } = require('../controllers/commentController');
+const { 
+    getAllCategories, 
+    getCategoryById, 
+    createCategory, 
+    updateCategory, 
+    deleteCategory 
+} = require('../controllers/categoryController');
 
 // ==================== HEALTH CHECK ====================
 router.get('/health', (req, res) => {
@@ -24,15 +41,25 @@ router.get('/info', (req, res) => {
     res.status(200).json({
         success: true,
         service: 'NewsBox Service',
-        version: '1.0.0',
-        description: 'Community Feed with Posts, Comments, and Voting',
-        validTags: VALID_TAGS,
+        version: '2.0.0',
+        description: 'Community Feed with Posts, Comments, Voting, and Dynamic Categories',
         endpoints: {
+            categories: {
+                'GET /categories': 'Get all categories',
+                'GET /categories/:id': 'Get category by ID',
+                'POST /categories': 'Create a category (Admin only)',
+                'PUT /categories/:id': 'Update a category (Admin only)',
+                'DELETE /categories/:id': 'Delete a category (Admin only)'
+            },
             posts: {
                 'POST /posts': 'Create a new post',
-                'GET /posts': 'Get all posts (query: tag, sort)',
+                'GET /posts': 'Get all posts (query: category_id, sort, status)',
                 'GET /posts/:id': 'Get post by ID with comments',
-                'DELETE /posts/:id': 'Delete a post (author only)'
+                'PUT /posts/:id': 'Update a post (author/admin only)',
+                'DELETE /posts/:id': 'Delete a post (author/admin only)',
+                'GET /posts/admin/pending': 'Get pending posts (Admin only)',
+                'PATCH /posts/:id/status': 'Update post status (Admin only)',
+                'PATCH /posts/:id/pin': 'Toggle pin status (Admin only)'
             },
             voting: {
                 'POST /posts/:id/vote': 'Vote on a post (UP/DOWN, toggle logic)',
@@ -48,94 +75,78 @@ router.get('/info', (req, res) => {
     });
 });
 
+// ==================== CATEGORY ROUTES ====================
+
+// Get all categories (PUBLIC)
+// GET /categories
+router.get('/categories', getAllCategories);
+
+// Get a single category by ID (PUBLIC)
+// GET /categories/:id
+router.get('/categories/:id', getCategoryById);
+
+// Create a new category (ADMIN ONLY)
+// POST /categories
+// Headers: Authorization: Bearer <token>
+// Body: { name }
+router.post('/categories', authMiddleware, adminMiddleware, createCategory);
+
+// Update a category (ADMIN ONLY)
+// PUT /categories/:id
+// Headers: Authorization: Bearer <token>
+// Body: { name }
+router.put('/categories/:id', authMiddleware, adminMiddleware, updateCategory);
+
+// Delete a category (ADMIN ONLY)
+// DELETE /categories/:id
+// Headers: Authorization: Bearer <token>
+router.delete('/categories/:id', authMiddleware, adminMiddleware, deleteCategory);
+
 // ==================== POST ROUTES ====================
 
 // Create a new post (PROTECTED - requires authentication)
 // POST /posts
 // Headers: Authorization: Bearer <token>
-// Body: { title, description, images[], tag }
+// Body: { title, description, images[], category_id, is_official? }
 router.post('/posts', authMiddleware, createPost);
 
 // Get all posts with optional filtering and sorting (PUBLIC)
-// GET /posts?tag=QUERY&sort=popular
+// GET /posts?category_id=xxx&sort=popular&status=APPROVED
 router.get('/posts', getAllPosts);
+
+// Get all posts by a specific user (PUBLIC)
+// GET /posts/user/:userId
+router.get('/posts/user/:userId', getPostsByUser);
+
+// Get pending posts for moderation (ADMIN ONLY)
+// GET /posts/admin/pending
+router.get('/posts/admin/pending', authMiddleware, adminMiddleware, getPendingPosts);
 
 // Get a single post by ID (includes comments) (PUBLIC)
 // GET /posts/:id
 router.get('/posts/:id', getPostById);
 
-// Delete a post (PROTECTED - author only)
+// Update a post (PROTECTED - author or admin only)
+// PUT /posts/:id
+// Headers: Authorization: Bearer <token>
+// Body: { title?, description?, images?, category_id?, is_pinned?, status? }
+router.put('/posts/:id', authMiddleware, updatePost);
+
+// Delete a post (PROTECTED - author or admin only)
 // DELETE /posts/:id
 // Headers: Authorization: Bearer <token>
-router.delete('/posts/:id', authMiddleware, async (req, res) => {
-    const { pool } = require('../config/db');
-    const client = await pool.connect();
-    
-    try {
-        const { id: post_id } = req.params;
-        
-        // Get user ID from authenticated user
-        const user_id = req.user.userId;
+router.delete('/posts/:id', authMiddleware, deletePost);
 
-        // Start transaction
-        await client.query('BEGIN');
+// Update post status (ADMIN ONLY)
+// PATCH /posts/:id/status
+// Headers: Authorization: Bearer <token>
+// Body: { status: 'PENDING' | 'APPROVED' | 'REJECTED' }
+router.patch('/posts/:id/status', authMiddleware, adminMiddleware, updatePostStatus);
 
-        // Check if post exists and user is author
-        const postCheck = await client.query(
-            'SELECT id, author_id FROM posts WHERE id = $1',
-            [post_id]
-        );
-
-        if (postCheck.rows.length === 0) {
-            await client.query('ROLLBACK');
-            return res.status(404).json({
-                success: false,
-                message: 'Post not found'
-            });
-        }
-
-        if (postCheck.rows[0].author_id !== user_id) {
-            await client.query('ROLLBACK');
-            return res.status(403).json({
-                success: false,
-                message: 'You can only delete your own posts'
-            });
-        }
-
-        // Delete associated comment votes
-        await client.query(`
-            DELETE FROM comment_votes 
-            WHERE comment_id IN (SELECT id FROM comments WHERE post_id = $1)
-        `, [post_id]);
-
-        // Delete associated comments
-        await client.query('DELETE FROM comments WHERE post_id = $1', [post_id]);
-
-        // Delete associated post votes
-        await client.query('DELETE FROM post_votes WHERE post_id = $1', [post_id]);
-
-        // Delete post
-        await client.query('DELETE FROM posts WHERE id = $1', [post_id]);
-
-        await client.query('COMMIT');
-
-        res.status(200).json({
-            success: true,
-            message: 'Post deleted successfully'
-        });
-
-    } catch (error) {
-        await client.query('ROLLBACK');
-        console.error('Error deleting post:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to delete post',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
-    } finally {
-        client.release();
-    }
-});
+// Toggle pin status (ADMIN ONLY)
+// PATCH /posts/:id/pin
+// Headers: Authorization: Bearer <token>
+router.patch('/posts/:id/pin', authMiddleware, adminMiddleware, togglePinPost);
 
 // ==================== VOTING ROUTES ====================
 

@@ -105,7 +105,32 @@ function optionalAuthMiddleware(req, res, next) {
     }
 }
 
+/**
+ * Admin Only Middleware
+ * Requires user to be authenticated and have Admin role
+ */
+function adminMiddleware(req, res, next) {
+    // First ensure user is authenticated
+    if (!req.user) {
+        return res.status(401).json({
+            success: false,
+            message: 'Authentication required'
+        });
+    }
+
+    // Check for Admin role
+    if (req.user.role !== 'Admin') {
+        return res.status(403).json({
+            success: false,
+            message: 'Admin access required'
+        });
+    }
+
+    next();
+}
+
 module.exports = {
     authMiddleware,
-    optionalAuthMiddleware
+    optionalAuthMiddleware,
+    adminMiddleware
 };

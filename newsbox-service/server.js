@@ -85,8 +85,7 @@ const startServer = async () => {
             console.log(`   🌐 Server:      http://localhost:${PORT}`);
             console.log(`   📋 API Info:    http://localhost:${PORT}/info`);
             console.log(`   💚 Health:      http://localhost:${PORT}/health`);
-            console.log(`   🏷️  Valid Tags:  QUERY, ACCOMMODATION, JOB_POSTING,`);
-            console.log(`                   LOST_AND_FOUND, GENERAL`);
+            console.log(`   📁 Categories:  Dynamic (managed via API)`);
             console.log('═══════════════════════════════════════════════════');
         });
     } catch (error) {

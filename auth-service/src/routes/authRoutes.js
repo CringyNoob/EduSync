@@ -52,4 +52,10 @@ router.get('/profile', authMiddleware, authController.getProfile);
  */
 router.put('/profile', authMiddleware, authController.updateProfile);
 
+/**
+ * GET /api/auth/user/:id
+ * Get public user profile by ID (no authentication required)
+ */
+router.get('/user/:id', authController.getUserById);
+
 module.exports = router;

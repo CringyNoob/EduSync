@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-bkg text-text-main antialiased;
+    @apply bg-bkg text-text-main antialiased dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300;
   }
 }
 

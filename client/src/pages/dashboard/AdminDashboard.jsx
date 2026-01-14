@@ -38,14 +38,14 @@ const AdminDashboard = () => {
 
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-6 animate-in zoom-in-95 duration-500">
-                <div className="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 relative overflow-hidden">
+            <div className="min-h-screen flex items-center justify-center p-6 animate-in zoom-in-95 duration-500 bg-gray-50 dark:bg-gray-900 transition-colors">
+                <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-[2.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden">
                     <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-red-500 to-orange-600"></div>
                     <div className="text-center mb-10">
-                        <div className="h-20 w-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-lg">
+                        <div className="h-20 w-20 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white dark:border-gray-700 shadow-lg">
                             <Shield size={32} className="text-red-500" />
                         </div>
-                        <h1 className="text-2xl font-black text-gray-900">Admin Access</h1>
+                        <h1 className="text-2xl font-black text-gray-900 dark:text-white">Admin Access</h1>
                         <p className="text-gray-400 font-bold text-sm uppercase tracking-widest mt-1">Authorized Personnel Only</p>
                     </div>
 
@@ -54,7 +54,7 @@ const AdminDashboard = () => {
                             <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Admin ID</label>
                             <input
                                 type="text"
-                                className="w-full p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-red-500 focus:outline-none transition-all font-bold text-gray-900"
+                                className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-700 border-2 border-transparent focus:bg-white dark:focus:bg-gray-600 focus:border-red-500 focus:outline-none transition-all font-bold text-gray-900 dark:text-white"
                                 placeholder="Enter Admin ID"
                                 value={credentials.id}
                                 onChange={e => setCredentials({ ...credentials, id: e.target.value })}
@@ -64,7 +64,7 @@ const AdminDashboard = () => {
                             <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Security Key</label>
                             <input
                                 type="password"
-                                className="w-full p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-red-500 focus:outline-none transition-all font-bold text-gray-900"
+                                className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-700 border-2 border-transparent focus:bg-white dark:focus:bg-gray-600 focus:border-red-500 focus:outline-none transition-all font-bold text-gray-900 dark:text-white"
                                 placeholder="Enter Security Key"
                                 value={credentials.key}
                                 onChange={e => setCredentials({ ...credentials, key: e.target.value })}
@@ -72,7 +72,7 @@ const AdminDashboard = () => {
                         </div>
 
                         {error && (
-                            <div className="p-3 rounded-xl bg-red-50 text-red-600 text-sm font-bold flex items-center gap-2 animate-pulse">
+                            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-bold flex items-center gap-2 animate-pulse">
                                 <AlertTriangle size={16} /> {error}
                             </div>
                         )}
@@ -85,14 +85,14 @@ const AdminDashboard = () => {
                         </button>
                     </form>
 
-                    <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none"></div>
+                    <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-white via-white/80 to-transparent dark:from-gray-800 dark:via-gray-800/80 pointer-events-none"></div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen p-6 space-y-8 font-sans animate-in fade-in duration-500">
+        <div className="min-h-screen p-6 space-y-8 font-sans animate-in fade-in duration-500 text-gray-900 dark:text-white">
             {/* Background elements */}
             <div className="fixed inset-0 -z-30 pointer-events-none">
                 <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-red-500/5 rounded-full blur-[100px]"></div>
@@ -102,16 +102,16 @@ const AdminDashboard = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Admin Dashboard</h1>
-                    <p className="text-sm font-medium text-gray-500">System Overview & Moderation</p>
+                    <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Admin Dashboard</h1>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">System Overview & Moderation</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors relative">
-                        <Bell size={20} className="text-gray-600" />
-                        <span className="absolute top-2 right-2.5 h-2 w-2 bg-red-500 rounded-full border border-white"></span>
+                    <button className="p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors relative">
+                        <Bell size={20} className="text-gray-600 dark:text-gray-300" />
+                        <span className="absolute top-2 right-2.5 h-2 w-2 bg-red-500 rounded-full border border-white dark:border-gray-800"></span>
                     </button>
-                    <button className="p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors">
-                        <Settings size={20} className="text-gray-600" />
+                    <button className="p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <Settings size={20} className="text-gray-600 dark:text-gray-300" />
                     </button>
                 </div>
             </div>
@@ -119,16 +119,16 @@ const AdminDashboard = () => {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {stats.map((stat, idx) => (
-                    <div key={idx} className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 hover:shadow-md transition-shadow group">
+                    <div key={idx} className="bg-white dark:bg-gray-800 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow group">
                         <div className="flex justify-between items-start mb-4">
                             <div className={`p-3 rounded-2xl ${stat.color} bg-opacity-10 text-white`}>
                                 <stat.icon size={24} className={`text-${stat.color.split('-')[1]}-600`} />
                             </div>
-                            <span className={`text-xs font-bold px-2 py-1 rounded-lg ${stat.change.startsWith('+') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                            <span className={`text-xs font-bold px-2 py-1 rounded-lg ${stat.change.startsWith('+') ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'}`}>
                                 {stat.change}
                             </span>
                         </div>
-                        <h3 className="text-3xl font-black text-gray-900">{stat.value}</h3>
+                        <h3 className="text-3xl font-black text-gray-900 dark:text-white">{stat.value}</h3>
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">{stat.title}</p>
                     </div>
                 ))}
@@ -138,9 +138,9 @@ const AdminDashboard = () => {
             <div className="grid lg:grid-cols-3 gap-8">
 
                 {/* Recent Reports */}
-                <div className="lg:col-span-2 bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-8">
+                <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-700 p-8">
                     <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
+                        <h2 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
                             <Shield size={20} className="text-red-500" />
                             Security & Moderation
                         </h2>
@@ -149,16 +149,16 @@ const AdminDashboard = () => {
 
                     <div className="space-y-4">
                         {recentReports.map(report => (
-                            <div key={report.id} className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50/50 hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
-                                <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${report.status === 'Pending' ? 'bg-orange-100 text-orange-600' :
-                                    report.status === 'Investigating' ? 'bg-blue-100 text-blue-600' :
-                                        'bg-green-100 text-green-600'
+                            <div key={report.id} className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50/50 dark:bg-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-600">
+                                <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${report.status === 'Pending' ? 'bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400' :
+                                    report.status === 'Investigating' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' :
+                                        'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
                                     }`}>
                                     <AlertTriangle size={20} />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="font-bold text-gray-900 truncate">{report.subject}</h4>
-                                    <p className="text-xs text-gray-500 font-medium">
+                                    <h4 className="font-bold text-gray-900 dark:text-white truncate">{report.subject}</h4>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                                         Type: {report.type} • Reported by: {report.reportedBy}
                                     </p>
                                 </div>
@@ -170,8 +170,8 @@ const AdminDashboard = () => {
                                     <span className="text-[10px] text-gray-400 font-bold">{report.time}</span>
                                 </div>
                                 <div className="flex gap-2 ml-2">
-                                    <button className="p-2 hover:bg-white rounded-lg transition-colors text-green-600"><CheckCircle size={18} /></button>
-                                    <button className="p-2 hover:bg-white rounded-lg transition-colors text-red-600"><XCircle size={18} /></button>
+                                    <button className="p-2 hover:bg-white dark:hover:bg-gray-600 rounded-lg transition-colors text-green-600 dark:text-green-400"><CheckCircle size={18} /></button>
+                                    <button className="p-2 hover:bg-white dark:hover:bg-gray-600 rounded-lg transition-colors text-red-600 dark:text-red-400"><XCircle size={18} /></button>
                                 </div>
                             </div>
                         ))}

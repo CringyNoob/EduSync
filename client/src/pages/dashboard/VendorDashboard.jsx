@@ -66,17 +66,17 @@ const VendorDashboard = () => {
         if (vendorStatus === 'applied') {
             return (
                 <div className="min-h-screen p-6 flex items-center justify-center animate-in fade-in duration-500 relative">
-                    <div className="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-2xl border border-gray-100 text-center relative overflow-hidden">
+                    <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-[2.5rem] p-10 shadow-2xl border border-gray-100 dark:border-gray-700 text-center relative overflow-hidden">
                         <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-blue-400 to-indigo-500 animate-pulse"></div>
                         <div className="h-24 w-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Clock size={40} className="text-blue-500 animate-pulse" />
                         </div>
-                        <h2 className="text-3xl font-black text-gray-900 mb-2">Application Sent</h2>
-                        <p className="text-gray-500 font-medium mb-6 leading-relaxed">
-                            Your application for <strong>{shopDetails.name}</strong> has been sent to the Admin.
+                        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-2">Application Sent</h2>
+                        <p className="text-gray-500 dark:text-gray-400 font-medium mb-6 leading-relaxed">
+                            Your application for <strong className="text-gray-900 dark:text-white">{shopDetails.name}</strong> has been sent to the Admin.
                         </p>
 
-                        <div className="bg-gray-50 rounded-2xl p-6 mb-6">
+                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl p-6 mb-6">
                             <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Next Steps</p>
                             <ul className="text-sm text-gray-600 font-medium space-y-2 text-left">
                                 <li className="flex gap-2"><CheckCircle size={16} className="text-green-500" /> Admin reviews your application</li>
@@ -88,16 +88,16 @@ const VendorDashboard = () => {
                         <div className="space-y-3">
                             <div className="relative">
                                 <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-gray-200"></div>
+                                    <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
                                 </div>
                                 <div className="relative flex justify-center text-xs uppercase">
-                                    <span className="bg-white px-2 text-gray-500 font-bold">Already have an ID?</span>
+                                    <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400 font-bold">Already have an ID?</span>
                                 </div>
                             </div>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
-                                    className="flex-1 p-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-indigo-500 outline-none font-mono text-center uppercase font-bold"
+                                    className="flex-1 p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:border-indigo-500 outline-none font-mono text-center uppercase font-bold text-gray-900 dark:text-white"
                                     placeholder="Enter SUB-ID"
                                     value={subscriptionId}
                                     onChange={e => setSubscriptionId(e.target.value)}
@@ -125,16 +125,16 @@ const VendorDashboard = () => {
                     {/* Left Side: Login with ID option for existing users */}
                     <div className="space-y-8 order-2 lg:order-1">
                         <div>
-                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight leading-tight">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
                                 Vendor <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">Portal.</span>
                             </h1>
-                            <p className="text-lg text-gray-500 font-medium mt-4 leading-relaxed">
+                            <p className="text-lg text-gray-500 dark:text-gray-400 font-medium mt-4 leading-relaxed">
                                 Apply to become a verified vendor or login with your subscription ID.
                             </p>
                         </div>
 
-                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                            <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                                 <Shield size={20} className="text-indigo-600" /> Vendor Login
                             </h3>
                             <div className="space-y-3">
@@ -142,7 +142,7 @@ const VendorDashboard = () => {
                                 <div className="flex gap-3">
                                     <input
                                         type="text"
-                                        className="flex-1 p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 transition-all font-mono font-bold text-gray-900 uppercase"
+                                        className="flex-1 p-4 rounded-xl bg-gray-50 dark:bg-gray-700 border-2 border-transparent focus:bg-white dark:focus:bg-gray-600 focus:border-indigo-500 transition-all font-mono font-bold text-gray-900 dark:text-white uppercase"
                                         placeholder="SUB-XXXX-XXXX"
                                         value={subscriptionId}
                                         onChange={e => setSubscriptionId(e.target.value)}
@@ -158,24 +158,24 @@ const VendorDashboard = () => {
                     </div>
 
                     {/* Right Side: Application Wizard */}
-                    <div className="bg-white rounded-[2.5rem] p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-gray-100 relative overflow-hidden order-1 lg:order-2">
+                    <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden order-1 lg:order-2">
                         <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
 
                         {onboardingStep === 0 && (
                             <div className="space-y-6 animate-in slide-in-from-right duration-300">
-                                <h2 className="text-2xl font-black text-gray-900">Apply for Subscription</h2>
+                                <h2 className="text-2xl font-black text-gray-900 dark:text-white">Apply for Subscription</h2>
                                 <div className="space-y-4">
                                     {plans.map(plan => (
                                         <div
                                             key={plan.id}
                                             onClick={() => setSelectedPlan(plan.id)}
                                             className={`relative p-6 rounded-3xl border-2 cursor-pointer transition-all duration-200 ${selectedPlan === plan.id
-                                                ? 'border-indigo-500 bg-indigo-50/30 ring-4 ring-indigo-100'
-                                                : 'border-gray-100 hover:border-indigo-200 hover:bg-gray-50'
+                                                ? 'border-indigo-500 bg-indigo-50/30 dark:bg-indigo-900/20 ring-4 ring-indigo-100 dark:ring-indigo-900/30'
+                                                : 'border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-gray-50 dark:hover:bg-gray-700'
                                                 }`}
                                         >
                                             <div className="flex justify-between items-center mb-2">
-                                                <h3 className="font-bold text-lg text-gray-900">{plan.name}</h3>
+                                                <h3 className="font-bold text-lg text-gray-900 dark:text-white">{plan.name}</h3>
                                                 <div className="text-right">
                                                     <span className="block text-xl font-black text-indigo-600">{plan.price}</span>
                                                 </div>
@@ -196,17 +196,17 @@ const VendorDashboard = () => {
 
                         {onboardingStep === 1 && (
                             <div className="space-y-6 animate-in slide-in-from-right duration-300">
-                                <button onClick={() => setOnboardingStep(0)} className="text-xs font-bold text-gray-400 hover:text-gray-600 flex items-center gap-1 mb-2">
+                                <button onClick={() => setOnboardingStep(0)} className="text-xs font-bold text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex items-center gap-1 mb-2">
                                     <ChevronRight className="rotate-180" size={14} /> Back
                                 </button>
 
-                                <h2 className="text-2xl font-black text-gray-900">Shop Application</h2>
+                                <h2 className="text-2xl font-black text-gray-900 dark:text-white">Shop Application</h2>
                                 <div className="space-y-4">
                                     <div>
                                         <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Shop Name</label>
                                         <input
                                             type="text"
-                                            className="w-full p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900"
+                                            className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-700 border-2 border-transparent focus:bg-white dark:focus:bg-gray-600 focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900 dark:text-white"
                                             placeholder="e.g. Alex's Canteen"
                                             value={shopDetails.name}
                                             onChange={e => setShopDetails({ ...shopDetails, name: e.target.value })}
@@ -215,7 +215,7 @@ const VendorDashboard = () => {
                                     <div>
                                         <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Category</label>
                                         <select
-                                            className="w-full p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900"
+                                            className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-700 border-2 border-transparent focus:bg-white dark:focus:bg-gray-600 focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900 dark:text-white"
                                             value={shopDetails.category}
                                             onChange={e => setShopDetails({ ...shopDetails, category: e.target.value })}
                                         >
@@ -227,7 +227,7 @@ const VendorDashboard = () => {
                                     <div>
                                         <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Why do you want to sell?</label>
                                         <textarea
-                                            className="w-full p-4 rounded-xl bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900 h-20 resize-none"
+                                            className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-700 border-2 border-transparent focus:bg-white dark:focus:bg-gray-600 focus:border-indigo-500 focus:outline-none transition-all font-bold text-gray-900 dark:text-white h-20 resize-none"
                                             value={shopDetails.bio}
                                             onChange={e => setShopDetails({ ...shopDetails, bio: e.target.value })}
                                         />
@@ -258,13 +258,13 @@ const VendorDashboard = () => {
             </div>
 
             {/* Header / Shop Status */}
-            <div className="rounded-[2.5rem] bg-white p-8 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="rounded-[2.5rem] bg-white dark:bg-gray-800 p-8 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex items-center gap-6">
                     <div className="h-20 w-20 rounded-3xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white shadow-lg shadow-orange-200">
                         <Store size={40} />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-black text-gray-900 tracking-tight">{shopInfo.name}</h1>
+                        <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{shopInfo.name}</h1>
                         <div className="flex items-center gap-3 mt-1">
                             <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide flex items-center gap-1.5">
                                 <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
@@ -292,25 +292,25 @@ const VendorDashboard = () => {
                 <div className="lg:col-span-2 space-y-6">
                     {/* Stats Row */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm">
+                        <div className="bg-white dark:bg-gray-800 p-5 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm">
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Today's Revenue</p>
-                            <h3 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
                                 ৳<span className="tabular-nums">{shopInfo.todayRevenue}</span>
                             </h3>
                         </div>
-                        <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm">
+                        <div className="bg-white dark:bg-gray-800 p-5 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm">
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Active Orders</p>
-                            <h3 className="text-2xl font-black text-gray-900">{activeOrders.length}</h3>
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white">{activeOrders.length}</h3>
                         </div>
-                        <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm hidden sm:block">
+                        <div className="bg-white dark:bg-gray-800 p-5 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm hidden sm:block">
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Total Completed</p>
-                            <h3 className="text-2xl font-black text-gray-900 tabular-nums">{shopInfo.totalOrders}</h3>
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white tabular-nums">{shopInfo.totalOrders}</h3>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
-                        <div className="p-6 border-b border-gray-50 flex justify-between items-center">
-                            <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
+                    <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+                        <div className="p-6 border-b border-gray-50 dark:border-gray-700 flex justify-between items-center">
+                            <h2 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
                                 <ChefHat size={24} className="text-orange-500" />
                                 Incoming Orders
                             </h2>
@@ -320,9 +320,9 @@ const VendorDashboard = () => {
                             </div>
                         </div>
 
-                        <div className="divide-y divide-gray-50">
+                        <div className="divide-y divide-gray-50 dark:divide-gray-700">
                             {activeOrders.map(order => (
-                                <div key={order.id} className="p-6 hover:bg-gray-50/50 transition-colors group cursor-pointer">
+                                <div key={order.id} className="p-6 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors group cursor-pointer">
                                     <div className="flex justify-between items-start mb-3">
                                         <div className="flex items-center gap-3">
                                             <span className={`px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-tight ${order.status === 'Pending' ? 'bg-orange-100 text-orange-600' :
@@ -339,11 +339,11 @@ const VendorDashboard = () => {
                                     </div>
                                     <div className="flex justify-between items-end">
                                         <div>
-                                            <h4 className="font-bold text-gray-900 text-lg mb-1">{order.items.join(', ')}</h4>
-                                            <p className="text-sm font-medium text-gray-500">Customer: {order.customer}</p>
+                                            <h4 className="font-bold text-gray-900 dark:text-white text-lg mb-1">{order.items.join(', ')}</h4>
+                                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Customer: {order.customer}</p>
                                         </div>
                                         <div className="text-right">
-                                            <div className="text-xl font-black text-gray-900">৳{order.total.toFixed(2)}</div>
+                                            <div className="text-xl font-black text-gray-900 dark:text-white">৳{order.total.toFixed(2)}</div>
                                             <button className="mt-2 text-xs font-bold text-primary hover:underline flex items-center gap-1 justify-end">
                                                 Manage Order <ChevronRight size={12} />
                                             </button>
@@ -352,30 +352,30 @@ const VendorDashboard = () => {
                                 </div>
                             ))}
                         </div>
-                        <div className="p-4 bg-gray-50 text-center">
-                            <button className="text-sm font-bold text-gray-500 hover:text-primary transition-colors">View All History</button>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700/30 text-center">
+                            <button className="text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-primary transition-colors">View All History</button>
                         </div>
                     </div>
                 </div>
 
                 {/* Right Panel - Quick Inventory */}
                 <div>
-                    <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-6 h-full">
-                        <h3 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-2">
+                    <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-sm p-6 h-full">
+                        <h3 className="text-lg font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                             <Package size={20} className="text-indigo-500" /> Quick Inventory
                         </h3>
 
                         <div className="space-y-4">
                             {[1, 2, 3, 4].map(i => (
-                                <div key={i} className="flex items-center gap-4 p-3 rounded-2xl border border-gray-100 hover:shadow-md transition-all cursor-pointer">
-                                    <div className="h-12 w-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                                <div key={i} className="flex items-center gap-4 p-3 rounded-2xl border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all cursor-pointer">
+                                    <div className="h-12 w-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
                                         <ShoppingBag size={20} className="text-gray-400" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h4 className="font-bold text-sm text-gray-900 truncate">Item Name {i}</h4>
-                                        <p className="text-xs text-gray-500 font-bold">Stock: 12 left</p>
+                                        <h4 className="font-bold text-sm text-gray-900 dark:text-white truncate">Item Name {i}</h4>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 font-bold">Stock: 12 left</p>
                                     </div>
-                                    <div className="h-8 w-8 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 text-gray-600">
+                                    <div className="h-8 w-8 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300">
                                         <TrendingUp size={14} />
                                     </div>
                                 </div>

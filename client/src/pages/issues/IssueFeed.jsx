@@ -35,10 +35,10 @@ const IssueFeed = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'Open': return 'text-red-600 bg-red-50';
-            case 'In Progress': return 'text-orange-600 bg-orange-50';
-            case 'Resolved': return 'text-green-600 bg-green-50';
-            default: return 'text-gray-600 bg-gray-50';
+            case 'Open': return 'text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400';
+            case 'In Progress': return 'text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400';
+            case 'Resolved': return 'text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400';
+            default: return 'text-gray-600 bg-gray-50 dark:bg-gray-700/50 dark:text-gray-400';
         }
     };
 
@@ -46,8 +46,8 @@ const IssueFeed = () => {
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Issue Reporting</h1>
-                    <p className="text-gray-500 font-medium">Track and report maintenance issues on campus.</p>
+                    <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Issue Reporting</h1>
+                    <p className="text-gray-500 dark:text-gray-400 font-medium">Track and report maintenance issues on campus.</p>
                 </div>
                 <Button
                     onClick={() => navigate('/issues/new')}
@@ -60,17 +60,17 @@ const IssueFeed = () => {
 
             <div className="grid gap-4">
                 {issues.map((issue) => (
-                    <Card key={issue.id} className="border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <Card key={issue.id} className="border-gray-100 dark:border-gray-700 dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <CardContent className="p-6">
                             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-3">
-                                        <h3 className="text-lg font-bold text-gray-900">{issue.title}</h3>
+                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">{issue.title}</h3>
                                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(issue.status)}`}>
                                             {issue.status}
                                         </span>
                                     </div>
-                                    <p className="text-gray-600 text-base leading-relaxed">{issue.description}</p>
+                                    <p className="text-gray-600 dark:text-gray-300 text-base leading-relaxed">{issue.description}</p>
                                     <div className="flex items-center gap-6 text-sm text-gray-400 font-medium pt-1">
                                         <span className="flex items-center gap-1.5">
                                             <MapPin className="h-4 w-4" />

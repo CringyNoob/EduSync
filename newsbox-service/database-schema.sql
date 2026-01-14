@@ -7,7 +7,20 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- =====================================================
--- 1. POSTS TABLE
+-- 1. CATEGORIES TABLE
+-- Stores dynamic categories for posts
+-- =====================================================
+CREATE TABLE IF NOT EXISTS categories (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Index for category name lookup
+CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name);
+
+-- =====================================================
+-- 2. POSTS TABLE
 -- Stores all community posts
 -- =====================================================
 CREATE TABLE IF NOT EXISTS posts (
@@ -17,17 +30,18 @@ CREATE TABLE IF NOT EXISTS posts (
     title VARCHAR(500) NOT NULL,
     description TEXT NOT NULL,
     images TEXT[] DEFAULT '{}',
-    tag VARCHAR(50) NOT NULL CHECK (tag IN ('QUERY', 'ACCOMMODATION', 'JOB_POSTING', 'LOST_AND_FOUND', 'GENERAL')),
+    category_id UUID NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Index for faster tag filtering
-CREATE INDEX IF NOT EXISTS idx_posts_tag ON posts(tag);
+-- Index for faster category filtering
+CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category_id);
 -- Index for sorting by date
 CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at DESC);
 -- Index for author lookup
 CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author_id);
+CREATE INDEX IF NOT EXISTS idx_posts_pinned ON posts(is_pinned) WHERE is_pinned = TRUE;
 
 -- =====================================================
 -- 2. COMMENTS TABLE
@@ -103,7 +117,11 @@ SELECT
     p.title,
     p.description,
     p.images,
-    p.tag,
+    p.category_id,
+    c.name AS category_name,
+    p.is_official,
+    p.is_pinned,
+    p.status,
     p.created_at,
     COALESCE(
         (SELECT SUM(CASE WHEN vote_type = 'UP' THEN 1 ELSE -1 END) 
@@ -114,7 +132,8 @@ SELECT
         (SELECT COUNT(*) FROM comments WHERE post_id = p.id), 
         0
     )::INTEGER AS comment_count
-FROM posts p;
+FROM posts p
+JOIN categories c ON p.category_id = c.id;
 
 -- View for comments with vote counts
 CREATE OR REPLACE VIEW comments_with_stats AS
@@ -131,3 +150,17 @@ SELECT
         0
     )::INTEGER AS vote_count
 FROM comments c;
+
+-- =====================================================
+-- INSERT DEFAULT CATEGORIES
+-- =====================================================
+INSERT INTO categories (name) VALUES 
+    ('Campus'),
+    ('Sports'),
+    ('Academics'),
+    ('Career'),
+    ('Lifestyle'),
+    ('Tech'),
+    ('Emergency'),
+    ('Events')
+ON CONFLICT (name) DO NOTHING;
