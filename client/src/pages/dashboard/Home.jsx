@@ -1,12 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
+import api from '../../utils/api';
 import {
     ShoppingBag, MessageSquare, Bell, AlertCircle, TrendingUp, Clock, ArrowRight,
     Zap, Star, Shield, Search, User, Heart, Bookmark, Calendar, Users,
     Package, MessageCircle, Activity, Filter, ChevronRight, Plus, Settings,
-    BookOpen, Award, Target, Sparkles, Home as HomeIcon, LayoutDashboard, Newspaper, Repeat
+    BookOpen, Award, Target, Sparkles, Home as HomeIcon, LayoutDashboard, Newspaper, Repeat, ExternalLink, Loader2, X,
+    FileText, Download, File, FileSpreadsheet, Archive, Image as ImageIcon
 } from 'lucide-react';
 
 // Reusing the styled Button from LandingPage for consistency
@@ -158,6 +160,30 @@ const Home = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [activityFilter, setActivityFilter] = useState('all');
     const [isNewListingOpen, setIsNewListingOpen] = useState(false);
+    
+    // UIU Notices state
+    const [uiuNotices, setUiuNotices] = useState([]);
+    const [noticesLoading, setNoticesLoading] = useState(true);
+    const [selectedNotice, setSelectedNotice] = useState(null);
+
+    // Fetch latest UIU notices for Attention section
+    useEffect(() => {
+        const fetchLatestNotices = async () => {
+            try {
+                setNoticesLoading(true);
+                const response = await api.get('/notices/latest?count=5');
+                if (response.data.success) {
+                    setUiuNotices(response.data.data || []);
+                }
+            } catch (error) {
+                console.error('Failed to fetch UIU notices:', error);
+                setUiuNotices([]);
+            } finally {
+                setNoticesLoading(false);
+            }
+        };
+        fetchLatestNotices();
+    }, []);
 
     // Get current time-based greeting
     const getGreeting = () => {
@@ -377,25 +403,54 @@ const Home = () => {
 
             {/* Main Content Grid */}
             <div className="grid gap-6 lg:grid-cols-3">
-                {/* Priority Notifications */}
+                {/* UIU Notices - Attention Section */}
                 <div className="lg:col-span-1 rounded-[2.5rem] bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 flex flex-col h-full hover:shadow-[0_15px_40px_rgb(0,0,0,0.08)] transition-shadow">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
                             <div className="p-2 bg-yellow-100/50 dark:bg-yellow-900/20 rounded-lg"><Sparkles className="h-5 w-5 text-yellow-600 dark:text-yellow-400" /></div>
-                            Attention
+                            UIU Notices
                         </h2>
-                        <Button variant="ghost" size="sm" className="text-xs font-bold h-8 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-lg px-3" onClick={() => navigate('/notifications')}>
+                        <Button variant="ghost" size="sm" className="text-xs font-bold h-8 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-lg px-3" onClick={() => navigate('/notices')}>
                             View All
                         </Button>
                     </div>
-                    <div className="space-y-4 flex-1">
-                        {priorityNotifications.map((notification) => (
-                            <PriorityNotification
-                                key={notification.id}
-                                notification={notification}
-                                onClick={() => navigate(notification.link)}
-                            />
-                        ))}
+                    <div className="space-y-3 flex-1">
+                        {noticesLoading ? (
+                            <div className="flex items-center justify-center h-32">
+                                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                            </div>
+                        ) : uiuNotices.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center h-32 text-gray-400">
+                                <Bell className="h-8 w-8 mb-2 opacity-50" />
+                                <p className="text-sm">No notices available</p>
+                            </div>
+                        ) : (
+                            uiuNotices.map((notice) => (
+                                <div
+                                    key={notice.id}
+                                    onClick={() => setSelectedNotice(notice)}
+                                    className="block p-4 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-all duration-300 cursor-pointer group"
+                                >
+                                    <div className="flex items-start gap-3">
+                                        <div className="rounded-lg p-2 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform flex-shrink-0">
+                                            <Bell className="h-4 w-4" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="font-bold text-sm text-blue-900 dark:text-blue-300 line-clamp-2 group-hover:text-primary transition-colors">{notice.title}</h4>
+                                            <div className="flex items-center justify-between mt-2">
+                                                <span className="text-xs text-blue-600/70 dark:text-blue-400/70 flex items-center gap-1">
+                                                    <Calendar className="h-3 w-3" />
+                                                    {notice.date}
+                                                </span>
+                                                <span className="text-[10px] text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-100 dark:bg-blue-800 px-1.5 py-0.5 rounded">
+                                                    View
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
 
@@ -522,6 +577,151 @@ const Home = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Notice Details Modal */}
+            {selectedNotice && (
+                <div 
+                    className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4"
+                    style={{ margin: 0 }}
+                    onClick={() => setSelectedNotice(null)}
+                >
+                    <div 
+                        className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden border border-gray-200 dark:border-gray-700 animate-in zoom-in-95 duration-200"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal Header - Gradient Banner */}
+                        <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-6 pb-8">
+                            {/* Close Button */}
+                            <button
+                                onClick={() => setSelectedNotice(null)}
+                                className="absolute top-4 right-4 p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
+                            >
+                                <X className="h-5 w-5 text-white" />
+                            </button>
+                            
+                            {/* Header Content */}
+                            <div className="flex items-start gap-4">
+                                <div className="p-3 rounded-2xl bg-white/20 backdrop-blur-sm">
+                                    <Bell className="h-6 w-6 text-white" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <span className="text-xs font-semibold text-white/70 uppercase tracking-wider">UIU Notice</span>
+                                    <h2 className="text-xl font-bold text-white mt-1 leading-tight line-clamp-2">
+                                        {selectedNotice.title}
+                                    </h2>
+                                </div>
+                            </div>
+                            
+                            {/* Meta Tags */}
+                            <div className="flex flex-wrap items-center gap-3 mt-4">
+                                <span className="flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium">
+                                    <Calendar className="h-4 w-4" />
+                                    {selectedNotice.date}
+                                </span>
+                                {selectedNotice.attachments?.length > 0 && (
+                                    <span className="flex items-center gap-2 bg-emerald-500/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-semibold animate-pulse">
+                                        <Download className="h-4 w-4" />
+                                        {selectedNotice.attachments.length} Download{selectedNotice.attachments.length > 1 ? 's' : ''} Available
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)] bg-white dark:bg-gray-900">
+                            {/* Notice Image */}
+                            {selectedNotice.image && (
+                                <div className="mb-6 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 shadow-inner">
+                                    <img 
+                                        src={selectedNotice.image} 
+                                        alt={selectedNotice.title}
+                                        className="w-full h-auto max-h-64 object-contain"
+                                        onError={(e) => {
+                                            e.target.parentElement.style.display = 'none';
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Notice Content */}
+                            {selectedNotice.content ? (
+                                <div 
+                                    className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed
+                                        [&>p]:mb-4 
+                                        [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-4
+                                        [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-4
+                                        [&>li]:mb-2
+                                        [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mt-6 [&>h1]:mb-4
+                                        [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mt-5 [&>h2]:mb-3
+                                        [&>h3]:text-lg [&>h3]:font-semibold [&>h3]:mt-4 [&>h3]:mb-2
+                                        [&>a]:text-blue-600 [&>a]:underline [&>a]:hover:text-blue-800
+                                        [&>table]:w-full [&>table]:border-collapse [&>table]:my-4 [&>table]:rounded-lg [&>table]:overflow-hidden
+                                        [&_.wp-block-table]:overflow-x-auto [&_.wp-block-table]:my-4
+                                        [&_.wp-block-table_table]:w-full [&_.wp-block-table_table]:border-collapse [&_.wp-block-table_table]:rounded-xl [&_.wp-block-table_table]:overflow-hidden [&_.wp-block-table_table]:shadow-sm
+                                        [&_.wp-block-table_th]:bg-gradient-to-r [&_.wp-block-table_th]:from-blue-50 [&_.wp-block-table_th]:to-indigo-50 [&_.wp-block-table_th]:dark:from-blue-900/30 [&_.wp-block-table_th]:dark:to-indigo-900/30 [&_.wp-block-table_th]:p-3 [&_.wp-block-table_th]:text-left [&_.wp-block-table_th]:font-bold [&_.wp-block-table_th]:text-gray-800 [&_.wp-block-table_th]:dark:text-gray-200 [&_.wp-block-table_th]:border [&_.wp-block-table_th]:border-gray-200 [&_.wp-block-table_th]:dark:border-gray-700
+                                        [&_.wp-block-table_td]:p-3 [&_.wp-block-table_td]:border [&_.wp-block-table_td]:border-gray-200 [&_.wp-block-table_td]:dark:border-gray-700 [&_.wp-block-table_td]:bg-white [&_.wp-block-table_td]:dark:bg-gray-800
+                                        [&_.wp-block-table_tr:hover_td]:bg-blue-50 [&_.wp-block-table_tr:hover_td]:dark:bg-blue-900/20
+                                        [&_.wp-block-table_a]:text-blue-600 [&_.wp-block-table_a]:font-semibold [&_.wp-block-table_a]:hover:text-blue-800
+                                        [&_.wp-block-heading]:font-bold [&_.wp-block-heading]:mt-6 [&_.wp-block-heading]:mb-3 [&_.wp-block-heading]:text-gray-900 [&_.wp-block-heading]:dark:text-white
+                                        [&_.wp-block-list]:pl-6 [&_.wp-block-list]:my-3
+                                        [&>strong]:font-bold [&>strong]:text-gray-900 [&>strong]:dark:text-white
+                                    "
+                                    dangerouslySetInnerHTML={{ __html: selectedNotice.content }}
+                                />
+                            ) : (
+                                <div className="text-center py-8">
+                                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                        <FileText className="h-8 w-8 text-gray-400" />
+                                    </div>
+                                    <p className="text-gray-500 dark:text-gray-400 italic">
+                                        No additional content available for this notice.
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Content Images */}
+                            {selectedNotice.contentImages?.length > 0 && (
+                                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                    <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2 uppercase tracking-wider">
+                                        <ImageIcon className="h-4 w-4" />
+                                        Gallery
+                                    </h4>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                        {selectedNotice.contentImages.map((img, idx) => (
+                                            <a 
+                                                key={idx}
+                                                href={img.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 hover:shadow-lg hover:scale-105 transition-all duration-200"
+                                            >
+                                                <img 
+                                                    src={img.url} 
+                                                    alt={img.alt || `Image ${idx + 1}`}
+                                                    className="w-full h-24 object-cover"
+                                                    onError={(e) => {
+                                                        e.target.parentElement.style.display = 'none';
+                                                    }}
+                                                />
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="flex items-center justify-center gap-3 p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                            <button
+                                onClick={() => setSelectedNotice(null)}
+                                className="px-8 py-3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-200 rounded-xl hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all font-semibold shadow-sm hover:shadow-md"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
