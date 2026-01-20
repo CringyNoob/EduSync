@@ -25,6 +25,10 @@ import RentHubNewListing from '../pages/renthub/RentHubNewListing';
 import RentHubDashboard from '../pages/renthub/RentHubDashboard';
 import VendorRegistration from '../pages/vendor/VendorRegistration';
 import VendorPayment from '../pages/vendor/VendorPayment';
+import VendorShop from '../pages/vendor/VendorShop';
+import VendorOrders from '../pages/vendor/VendorOrders';
+import VendorProducts from '../pages/vendor/VendorProducts';
+import VendorAnalytics from '../pages/vendor/VendorAnalytics';
 
 import PlaceholderPage from '../pages/PlaceholderPage';
 import SettingsPage from '../pages/settings/SettingsPage';
@@ -164,10 +168,10 @@ const router = createBrowserRouter([
             // Vendor Routes
             { path: '/vendor/register', element: <VendorRegistration /> },
             { path: '/vendor/payment', element: <VendorPayment /> },
-            { path: '/vendor/shop', element: <PlaceholderPage title="My Shop Settings" /> },
-            { path: '/vendor/orders', element: <PlaceholderPage title="Vendor Orders" /> },
-            { path: '/vendor/products', element: <PlaceholderPage title="Product Management" /> },
-            { path: '/vendor/analytics', element: <PlaceholderPage title="Sales Analytics" /> },
+            { path: '/vendor/shop', element: <VendorShop /> },
+            { path: '/vendor/orders', element: <VendorOrders /> },
+            { path: '/vendor/products', element: <VendorProducts /> },
+            { path: '/vendor/analytics', element: <VendorAnalytics /> },
 
             // Admin Routes
             { path: '/admin/users', element: <PlaceholderPage title="User Management" /> },
