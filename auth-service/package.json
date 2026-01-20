@@ -1,4 +1,12 @@
 {
+<<<<<<< HEAD
+=======
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "db:populate": "node populate-db.js"
+  },
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
@@ -8,4 +16,8 @@
     "nodemailer": "^7.0.11",
     "pg": "^8.16.3"
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)

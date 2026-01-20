@@ -58,6 +58,7 @@ router.put('/profile', authMiddleware, authController.updateProfile);
  */
 router.get('/user/:id', authController.getUserById);
 
+<<<<<<< HEAD
 /**
  * POST /api/auth/add-vendor-role
  * Add VENDOR role to authenticated user (used by marketplace-service)
@@ -71,4 +72,6 @@ router.post('/add-vendor-role', authMiddleware, authController.addVendorRole);
  */
 router.post('/switch-role', authMiddleware, authController.switchActiveRole);
 
+=======
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 module.exports = router;

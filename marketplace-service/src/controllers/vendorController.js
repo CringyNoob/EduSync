@@ -1,7 +1,10 @@
 // src/controllers/vendorController.js
 // Controller for Shop-First Architecture (Startups & Food Vendors)
 const db = require('../config/db');
+<<<<<<< HEAD
 const axios = require('axios');
+=======
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 
 /**
  * Get all vendors by type (STARTUP or FOOD_VENDOR)
@@ -197,6 +200,7 @@ async function registerVendor(req, res) {
 
         const newVendorId = insertResult.rows[0].id;
 
+<<<<<<< HEAD
         // Call auth-service to add VENDOR role to user
         try {
             const authToken = req.headers.authorization; // Forward the JWT token
@@ -232,6 +236,8 @@ async function registerVendor(req, res) {
             // Continue - vendor is created even if role update fails
         }
 
+=======
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
         return res.status(201).json({
             success: true,
             vendorId: newVendorId,

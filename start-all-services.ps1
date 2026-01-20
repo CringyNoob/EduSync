@@ -11,7 +11,12 @@ Write-Host "Cleaning up existing processes..." -ForegroundColor Yellow
 try {
     npx kill-port 3001 3002 3003 3004 8000 5173 2>$null
     Start-Sleep -Seconds 2
+<<<<<<< HEAD
 } catch {
+=======
+}
+catch {
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
     Write-Host "Cleanup skipped" -ForegroundColor Gray
 }
 
@@ -32,12 +37,18 @@ function Start-EduService {
         
         # Using a more robust way to pass arguments to Start-Process
         Start-Process $Shell -WorkingDirectory $FullDir -ArgumentList "-NoExit", "-Command", "Write-Host '$Name' -ForegroundColor $Color; $Command"
+<<<<<<< HEAD
     } else {
+=======
+    }
+    else {
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
         Write-Warning "Directory not found: $FullDir"
     }
 }
 
 # Start Auth Service (Port 3001)
+<<<<<<< HEAD
 Write-Host "Starting Auth Service (Port 3001)..." -ForegroundColor Green
 Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\auth-service; Write-Host '🔐 AUTH SERVICE' -ForegroundColor Cyan; npm start"
 
@@ -56,6 +67,21 @@ Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\n
 # Start Gateway (Port 8000)
 Write-Host "Starting API Gateway (Port 8000)..." -ForegroundColor Green
 Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\gateway; Write-Host '🌐 API GATEWAY' -ForegroundColor Blue; node server.js"
+=======
+Start-EduService -Name "AUTH SERVICE" -Dir "auth-service" -Command "npm start" -Color "Cyan"
+
+# Start Marketplace Service (Port 3002)
+Start-EduService -Name "MARKETPLACE SERVICE" -Dir "marketplace-service" -Command "npm start" -Color "Magenta"
+
+# Start RentHub Service (Port 3003)
+Start-EduService -Name "RENTHUB SERVICE" -Dir "renthub-service" -Command "npm start" -Color "Yellow"
+
+# Start NewsBox Service (Port 3004)
+Start-EduService -Name "NEWSBOX SERVICE" -Dir "newsbox-service" -Command "npm start" -Color "Magenta"
+
+# Start Gateway (Port 8000)
+Start-EduService -Name "API GATEWAY" -Dir "gateway" -Command "node server.js" -Color "Blue"
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 
 # Wait a bit for backend services to start
 Start-Sleep -Seconds 3
@@ -67,12 +93,21 @@ Write-Host ""
 Write-Host "All services are starting!" -ForegroundColor Green
 Write-Host ""
 Write-Host "Services will open in separate terminal windows:" -ForegroundColor White
+<<<<<<< HEAD
 Write-Host "  🔐 Auth Service:        http://localhost:3001" -ForegroundColor Cyan
 Write-Host "  🛒 Marketplace Service: http://localhost:3002" -ForegroundColor Magenta
 Write-Host "  🏠 RentHub Service:     http://localhost:3003" -ForegroundColor Yellow
 Write-Host "  📰 NewsBox Service:     http://localhost:3004" -ForegroundColor Magenta
 Write-Host "  🌐 API Gateway:         http://localhost:8000" -ForegroundColor Blue
 Write-Host "  ⚛️  React Client:        http://localhost:5173" -ForegroundColor Cyan
+=======
+Write-Host "  [AUTH] Auth Service:        http://localhost:3001" -ForegroundColor Cyan
+Write-Host "  [MARKET] Marketplace Service: http://localhost:3002" -ForegroundColor Magenta
+Write-Host "  [RENT] RentHub Service:     http://localhost:3003" -ForegroundColor Yellow
+Write-Host "  [NEWS] NewsBox Service:     http://localhost:3004" -ForegroundColor Magenta
+Write-Host "  [GATE] API Gateway:         http://localhost:8000" -ForegroundColor Blue
+Write-Host "  [CLIENT]  React Client:        http://localhost:5173" -ForegroundColor Cyan
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 Write-Host ""
 Write-Host "Press any key to exit this window..."
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

@@ -25,6 +25,7 @@ const marketplaceService = {
   },
 
   /**
+<<<<<<< HEAD
    * Register a new vendor (shop registration)
    * @param {Object} vendorData - Vendor registration data
    * @param {string} vendorData.name - Shop name
@@ -38,6 +39,8 @@ const marketplaceService = {
   },
 
   /**
+=======
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
    * Get single product by ID
    * @param {string} id - Product ID
    * @returns {Promise} Response with product details

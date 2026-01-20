@@ -23,8 +23,11 @@ import RentHubHome from '../pages/renthub/RentHubHome';
 import RentHubItemDetails from '../pages/renthub/RentHubItemDetails';
 import RentHubNewListing from '../pages/renthub/RentHubNewListing';
 import RentHubDashboard from '../pages/renthub/RentHubDashboard';
+<<<<<<< HEAD
 import VendorRegistration from '../pages/vendor/VendorRegistration';
 import VendorPayment from '../pages/vendor/VendorPayment';
+=======
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 
 import PlaceholderPage from '../pages/PlaceholderPage';
 import SettingsPage from '../pages/settings/SettingsPage';
@@ -56,6 +59,7 @@ const router = createBrowserRouter([
         element: <AdminDashboard />,
     },
     {
+<<<<<<< HEAD
         element: <Layout />,
         children: [
             {
@@ -63,6 +67,15 @@ const router = createBrowserRouter([
                 element: <VendorDashboard />,
             },
             {
+=======
+        path: '/vendor-dashboard',
+        element: <VendorDashboard />,
+    },
+    {
+        element: <Layout />,
+        children: [
+            {
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
                 path: '/dashboard',
                 element: <Home />,
             },
@@ -162,8 +175,11 @@ const router = createBrowserRouter([
             { path: '/groups/:id', element: <PlaceholderPage title="Study Group" /> },
 
             // Vendor Routes
+<<<<<<< HEAD
             { path: '/vendor/register', element: <VendorRegistration /> },
             { path: '/vendor/payment', element: <VendorPayment /> },
+=======
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
             { path: '/vendor/shop', element: <PlaceholderPage title="My Shop Settings" /> },
             { path: '/vendor/orders', element: <PlaceholderPage title="Vendor Orders" /> },
             { path: '/vendor/products', element: <PlaceholderPage title="Product Management" /> },

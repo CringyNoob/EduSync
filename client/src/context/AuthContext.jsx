@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getUserFromToken } from '../utils/jwtDecode';
+<<<<<<< HEAD
 import authService from '../services/authService';
+=======
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 
 const AuthContext = createContext(null);
 
@@ -10,6 +13,7 @@ const getStoredUser = () => {
         // First, check if there's a temporary role override in sessionStorage
         const sessionRole = sessionStorage.getItem('edusync_temp_role');
 
+<<<<<<< HEAD
         // Get user from JWT token (contains original login data)
         const userFromToken = getUserFromToken();
         
@@ -35,6 +39,10 @@ const getStoredUser = () => {
         }
         
         // Otherwise use token data
+=======
+        // Try to get user from JWT token
+        const userFromToken = getUserFromToken();
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
         if (userFromToken && userFromToken.id && userFromToken.name) {
             console.log('User loaded from token:', userFromToken.name);
             // Apply session role override if exists
@@ -45,6 +53,7 @@ const getStoredUser = () => {
         }
 
         // Fallback: check localStorage for manually stored user
+<<<<<<< HEAD
         if (storedUser && storedUser.id && storedUser.name) {
             console.log('User loaded from localStorage:', storedUser.name);
             // Apply session role override if exists
@@ -52,6 +61,19 @@ const getStoredUser = () => {
                 return { ...storedUser, role: sessionRole };
             }
             return storedUser;
+=======
+        const storedUser = localStorage.getItem('edusync_user');
+        if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
+            if (parsedUser.id && parsedUser.name) {
+                console.log('User loaded from localStorage:', parsedUser.name);
+                // Apply session role override if exists
+                if (sessionRole) {
+                    return { ...parsedUser, role: sessionRole };
+                }
+                return parsedUser;
+            }
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
         }
     } catch (error) {
         console.error('Error reading stored user:', error);
@@ -63,9 +85,13 @@ const getStoredUser = () => {
         id: '00000001-0000-0000-0000-000000000001',
         name: 'John Doe',
         email: 'john.doe@university.edu',
+<<<<<<< HEAD
         role: 'Student',
         roles: ['STUDENT'],
         activeRole: 'STUDENT'
+=======
+        role: 'Student'
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
     };
 };
 
@@ -115,6 +141,7 @@ export const AuthProvider = ({ children }) => {
         window.dispatchEvent(new Event('tokenUpdated'));
     };
 
+<<<<<<< HEAD
     const switchRole = async (newRole) => {
         console.log('🔄 Switching role to:', newRole);
         
@@ -171,10 +198,27 @@ export const AuthProvider = ({ children }) => {
     const updateUser = (updatedData) => {
         console.log('🔄 updateUser called with:', updatedData);
         
+=======
+    const switchRole = (newRole) => {
+        // Store role temporarily in sessionStorage (clears on tab close or navigation)
+        sessionStorage.setItem('edusync_temp_role', newRole);
+
+        const updatedUser = {
+            ...user,
+            role: newRole,
+            activeRole: newRole
+        };
+        setUser(updatedUser);
+    };
+
+    // Update user profile data (used after profile update)
+    const updateUser = (updatedData) => {
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
         const updatedUser = {
             ...user,
             ...updatedData
         };
+<<<<<<< HEAD
         
         console.log('📝 Updated user object:', updatedUser);
         console.log('📝 Updated roles:', updatedUser.roles);
@@ -187,6 +231,12 @@ export const AuthProvider = ({ children }) => {
         
         // Trigger custom event to notify other components (like Sidebar)
         console.log('📢 Dispatching tokenUpdated event');
+=======
+        setUser(updatedUser);
+        localStorage.setItem('edusync_user', JSON.stringify(updatedUser));
+        
+        // Trigger custom event to notify other components
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
         window.dispatchEvent(new Event('tokenUpdated'));
     };
 

@@ -144,6 +144,7 @@ const authService = {
     const response = await api.get(`/auth/user/${userId}`);
     return response.data;
   },
+<<<<<<< HEAD
 
   /**
    * Switch active role for user
@@ -154,6 +155,8 @@ const authService = {
     const response = await api.post('/auth/switch-role', { role });
     return response.data;
   },
+=======
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 };
 
 export default authService;

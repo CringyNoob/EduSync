@@ -23,6 +23,10 @@ import authService from '../../services/authService';
 import newsboxService from '../../services/newsboxService';
 import marketplaceService from '../../services/marketplaceService';
 import renthubService from '../../services/renthubService';
+<<<<<<< HEAD
+=======
+import chatService from '../../services/chatService';
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 
 const Profile = () => {
     const { id } = useParams();
@@ -265,8 +269,13 @@ const Profile = () => {
                             <div className="relative">
                                 <div className="h-32 w-32 rounded-3xl bg-white dark:bg-gray-800 p-1.5 shadow-xl">
                                     {profileUser.avatarUrl ? (
+<<<<<<< HEAD
                                         <img 
                                             src={profileUser.avatarUrl} 
+=======
+                                        <img
+                                            src={profileUser.avatarUrl}
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
                                             alt={profileUser.name}
                                             className="w-full h-full rounded-2xl object-cover"
                                         />
@@ -305,7 +314,20 @@ const Profile = () => {
                             {/* Actions */}
                             <div className="flex gap-3 mb-2">
                                 {!isOwnProfile && (
+<<<<<<< HEAD
                                     <Button variant="outline" onClick={() => navigate('/chat')}>
+=======
+                                    <Button variant="outline" onClick={async () => {
+                                        try {
+                                            const chat = await chatService.initiatePrivateChat(profileUser.id, profileUser.name);
+                                            navigate('/chat', { state: { targetChat: chat } });
+                                        } catch (error) {
+                                            console.error("Failed to start chat", error);
+                                            // Fallback
+                                            navigate('/chat');
+                                        }
+                                    }}>
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
                                         <MessageCircle className="mr-2 h-4 w-4" />
                                         Message
                                     </Button>
@@ -337,10 +359,17 @@ const Profile = () => {
                                             .filter(role => role !== 'ADMIN') // Exclude ADMIN from display
                                             .map(role => {
                                                 const roleDisplay = role === 'STUDENT' ? 'Student' : role === 'TEACHER' ? 'Teacher' : role;
+<<<<<<< HEAD
                                                 const roleColor = role === 'STUDENT' 
                                                     ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border-indigo-100 dark:border-indigo-800'
                                                     : 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-100 dark:border-purple-800';
                                                 
+=======
+                                                const roleColor = role === 'STUDENT'
+                                                    ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border-indigo-100 dark:border-indigo-800'
+                                                    : 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-100 dark:border-purple-800';
+
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
                                                 return (
                                                     <span key={role} className={`px-4 py-2 rounded-full text-sm font-bold border flex items-center gap-2 ${roleColor}`}>
                                                         <GraduationCap size={16} />
@@ -410,6 +439,7 @@ const Profile = () => {
                         <div className="space-y-6">
                             <div className="space-y-4">
                                 {paginatedActivities.map((activity) => {
+<<<<<<< HEAD
                                 const style = getActivityStyle(activity.type);
                                 const Icon = style.icon;
 
@@ -573,6 +603,167 @@ const Profile = () => {
                                 </span>
                             </div>
                         )}
+=======
+                                    const style = getActivityStyle(activity.type);
+                                    const Icon = style.icon;
+
+                                    return (
+                                        <div
+                                            key={`${activity.type}-${activity.id}`}
+                                            onClick={() => handleActivityClick(activity)}
+                                            className="group flex items-start gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-gray-700/30 border border-gray-100 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700/50 cursor-pointer transition-all"
+                                        >
+                                            {/* Activity Image or Icon */}
+                                            <div className="relative flex-shrink-0">
+                                                {activity.image ? (
+                                                    <div className="w-16 h-16 rounded-xl overflow-hidden">
+                                                        <img src={activity.image} alt={activity.title} className="w-full h-full object-cover" />
+                                                    </div>
+                                                ) : (
+                                                    <div className={`w-16 h-16 rounded-xl ${style.color} flex items-center justify-center`}>
+                                                        <Icon className="text-white" size={24} />
+                                                    </div>
+                                                )}
+                                                {/* Type Badge */}
+                                                <div className={`absolute -bottom-1 -right-1 p-1 rounded-lg ${style.color}`}>
+                                                    <Icon className="text-white" size={12} />
+                                                </div>
+                                            </div>
+
+                                            {/* Content */}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${activity.type === 'newsbox' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                                                        activity.type === 'preowned' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                                            'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+                                                        }`}>
+                                                        {style.label}
+                                                    </span>
+                                                    {activity.category && (
+                                                        <span className="text-[10px] font-bold text-gray-400 flex items-center gap-1">
+                                                            <Tag size={10} />
+                                                            {activity.category}
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                <h3 className="font-bold text-gray-900 dark:text-white line-clamp-1 group-hover:text-primary transition-colors">
+                                                    {activity.title}
+                                                </h3>
+
+                                                {/* Extra Info */}
+                                                <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                    <span className="flex items-center gap-1">
+                                                        <Clock size={12} />
+                                                        {formatTimeAgo(activity.created_at)}
+                                                    </span>
+
+                                                    {activity.type === 'newsbox' && (
+                                                        <>
+                                                            <span className="flex items-center gap-1">
+                                                                {activity.extra.vote_count} votes
+                                                            </span>
+                                                            <span className="flex items-center gap-1">
+                                                                <MessageCircle size={12} />
+                                                                {activity.extra.comment_count} comments
+                                                            </span>
+                                                        </>
+                                                    )}
+
+                                                    {activity.type === 'preowned' && (
+                                                        <>
+                                                            <span className="flex items-center gap-1 font-bold text-green-600 dark:text-green-400">
+                                                                <DollarSign size={12} />
+                                                                ৳{activity.extra.price}
+                                                            </span>
+                                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${activity.extra.status === 'AVAILABLE'
+                                                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                                                : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                                                                }`}>
+                                                                {activity.extra.status}
+                                                            </span>
+                                                        </>
+                                                    )}
+
+                                                    {activity.type === 'rental' && (
+                                                        <>
+                                                            <span className="flex items-center gap-1 font-bold text-purple-600 dark:text-purple-400">
+                                                                <DollarSign size={12} />
+                                                                ৳{activity.extra.daily_price}/day
+                                                            </span>
+                                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${activity.extra.status === 'AVAILABLE'
+                                                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                                                : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                                                }`}>
+                                                                {activity.extra.status}
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Arrow */}
+                                            <ChevronRight className="text-gray-400 group-hover:text-primary transition-colors flex-shrink-0" size={20} />
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Pagination Controls */}
+                            {totalPages > 1 && (
+                                <div className="flex flex-wrap items-center justify-center gap-2 mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                        disabled={currentPage === 1}
+                                    >
+                                        Previous
+                                    </Button>
+
+                                    <div className="flex items-center gap-2">
+                                        {[...Array(totalPages)].map((_, index) => {
+                                            const page = index + 1;
+                                            // Show first page, last page, current page, and pages around current
+                                            const showPage = page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1);
+                                            const showEllipsis = (page === 2 && currentPage > 3) || (page === totalPages - 1 && currentPage < totalPages - 2);
+
+                                            if (!showPage && !showEllipsis) return null;
+
+                                            if (showEllipsis) {
+                                                return <span key={`ellipsis-${page}`} className="text-gray-400 px-2">...</span>;
+                                            }
+
+                                            return (
+                                                <button
+                                                    key={`page-${page}`}
+                                                    onClick={() => setCurrentPage(page)}
+                                                    className={`w-10 h-10 rounded-xl font-bold transition-all ${currentPage === page
+                                                        ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                                        }`}
+                                                >
+                                                    {page}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                        disabled={currentPage === totalPages}
+                                    >
+                                        Next
+                                    </Button>
+
+                                    <span className="ml-4 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                        Page {currentPage} of {totalPages} • {allActivities.length} total
+                                    </span>
+                                </div>
+                            )}
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
                         </div>
                     )}
                 </div>

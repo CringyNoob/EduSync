@@ -7,9 +7,65 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
+<<<<<<< HEAD
 const PORT = 8000;
 
 // 0. File Logging (Diagnostic mechanism)
+=======
+const http = require('http');
+const { Server } = require('socket.io');
+const server = http.createServer(app);
+const PORT = 8080;
+
+// Import Chat Logic
+const chatRoutes = require('./src/routes/chatRoutes');
+const chatController = require('./src/controllers/chatController');
+
+// Socket.IO Setup
+const io = new Server(server, {
+    cors: {
+        origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
+
+// Socket.IO Events
+io.on('connection', (socket) => {
+    log(`🔌 New Client Connected: ${socket.id}`);
+
+    socket.on('join_room', (roomId) => {
+        socket.join(roomId);
+        log(`👤 User ${socket.id} joined room: ${roomId}`);
+    });
+
+    socket.on('send_message', async (data) => {
+        // Broadcast to others immediately for speed
+        socket.to(data.roomId).emit('receive_message', data);
+
+        // Save to Database Asynchronously
+        try {
+            const savedMsg = await chatController.saveMessage(
+                data.roomId,
+                data.senderId || '00000000-0000-0000-0000-000000000000', // Default UUID if missing
+                data.sender,
+                data.message
+            );
+            if (savedMsg) {
+                log(`💾 Message saved to DB: ${savedMsg.id}`);
+            }
+        } catch (err) {
+            log(`❌ Failed to save message: ${err.message}`);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        log(`❌ Client Disconnected: ${socket.id}`);
+    });
+});
+
+// 0. File Logging
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 const logFile = path.join(__dirname, 'gateway.log');
 const logStream = fs.createWriteStream(logFile, { flags: 'a' });
 
@@ -26,7 +82,11 @@ app.use((req, res, next) => {
     next();
 });
 
+<<<<<<< HEAD
 // 1. CORS Setup: Allow both localhost and 127.0.0.1
+=======
+// 1. CORS Setup
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 app.use(cors({
     origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
     credentials: true
@@ -37,6 +97,12 @@ app.get('/', (req, res) => {
     res.send('Gateway is Running');
 });
 
+<<<<<<< HEAD
+=======
+// --- CHAT API ROUTES ---
+app.use('/api/chat', chatRoutes);
+
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 // 3. Proxy Configuration
 // Auth Service (Port 3001)
 app.use('/api/auth', createProxyMiddleware({
@@ -102,6 +168,11 @@ app.use('/api/newsbox', createProxyMiddleware({
     },
 }));
 
+<<<<<<< HEAD
 app.listen(PORT, () => {
     log(`🚀 Gateway running on http://localhost:${PORT}`);
+=======
+server.listen(PORT, () => {
+    log(`🚀 Gateway (HTTP + Socket.IO) running on http://localhost:${PORT}`);
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 });

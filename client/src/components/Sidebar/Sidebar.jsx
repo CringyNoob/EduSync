@@ -1,5 +1,9 @@
 
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
+=======
+import React, { useState } from 'react';
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard,
@@ -18,8 +22,12 @@ import {
     Repeat,
     TrendingUp,
     Newspaper,
+<<<<<<< HEAD
     Package,
     Briefcase
+=======
+    Package
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useAuth } from '../../context/AuthContext';
@@ -29,6 +37,7 @@ const Sidebar = () => {
     const navigate = useNavigate();
     const [hoveredItem, setHoveredItem] = useState(null);
     const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
+<<<<<<< HEAD
     const [forceUpdate, setForceUpdate] = useState(0);
 
     // Listen for token/user updates to force re-render
@@ -41,12 +50,15 @@ const Sidebar = () => {
         window.addEventListener('tokenUpdated', handleUserUpdate);
         return () => window.removeEventListener('tokenUpdated', handleUserUpdate);
     }, []);
+=======
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 
     const handleLogout = () => {
         logout();
         navigate('/');
     };
 
+<<<<<<< HEAD
     // Helper to normalize role from backend format (STUDENT, VENDOR) to display format (Student, Vendor)
     const normalizeRole = (role) => {
         if (!role) return "Student";
@@ -78,10 +90,13 @@ const Sidebar = () => {
     // Get the current active role - prefer activeRole over role
     const currentRole = normalizeRole(user?.activeRole || user?.role);
 
+=======
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
     // Use context user data defaulting to mock if partial info
     const userData = {
         name: user?.name || "Alex Johnson",
         email: user?.email || "alex@university.edu",
+<<<<<<< HEAD
         avatar: user?.avatarUrl || null,
         role: currentRole, // Normalized role for display
         roles: user?.roles || ['STUDENT']
@@ -122,6 +137,10 @@ const Sidebar = () => {
             profiles.push({ role: 'Admin', icon: Shield, path: '/admin-dashboard', color: 'text-red-600 bg-red-50' });
         }
         return profiles;
+=======
+        avatar: user?.avatarUrl || null, // Use avatar from context
+        role: user?.role || "Student"
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
     };
 
     // Dynamic Navigation Items based on Role
@@ -198,11 +217,16 @@ const Sidebar = () => {
                 {/* User Profile & Switcher - Inline Accordion */}
                 <div className="mb-2 relative group/profile">
                     <button
+<<<<<<< HEAD
                         onClick={() => canSwitchProfiles && setIsSwitcherOpen(!isSwitcherOpen)}
                         className={cn(
                             "w-full text-left p-1.5 rounded-[1.2rem] bg-white/60 dark:bg-gray-800/60 border border-white dark:border-gray-700 shadow-sm transition-all duration-300 group-hover/profile:ring-2 ring-primary/10",
                             canSwitchProfiles ? "hover:shadow-md hover:bg-white dark:hover:bg-gray-800 cursor-pointer" : "cursor-default"
                         )}
+=======
+                        onClick={() => setIsSwitcherOpen(!isSwitcherOpen)}
+                        className="w-full text-left p-1.5 rounded-[1.2rem] bg-white/60 dark:bg-gray-800/60 border border-white dark:border-gray-700 shadow-sm hover:shadow-md hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 group-hover/profile:ring-2 ring-primary/10"
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
                     >
                         <div className="flex items-center gap-3 p-1.5">
                             <div className="relative">
@@ -224,6 +248,7 @@ const Sidebar = () => {
                                 </p>
                                 <div className="flex items-center gap-1 text-[10px] text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wide">
                                     {userData.role}
+<<<<<<< HEAD
                                     {canSwitchProfiles && (
                                         <>
                                             <span className="text-gray-300">|</span>
@@ -240,11 +265,24 @@ const Sidebar = () => {
 
                     {/* Inline Menu - Only show if user can switch profiles */}
                     {canSwitchProfiles && isSwitcherOpen && (
+=======
+                                    <span className="text-gray-300">|</span>
+                                    <span className="text-primary hover:underline flex items-center gap-0.5">Switch <Repeat size={8} /></span>
+                                </div>
+                            </div>
+                            <ChevronRight size={14} className={`text-gray-400 transition-transform duration-300 ${isSwitcherOpen ? 'rotate-90' : ''}`} />
+                        </div>
+                    </button>
+
+                    {/* Inline Menu */}
+                    {isSwitcherOpen && (
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
                         <div className="mt-2 w-full bg-white/50 dark:bg-gray-800/50 rounded-2xl border border-white/50 dark:border-gray-700/50 overflow-hidden animate-in slide-in-from-top-2 fade-in">
                             <div className="p-1.5 space-y-1">
                                 <div className="px-3 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 mb-1">
                                     Select Workspace
                                 </div>
+<<<<<<< HEAD
                                 {getAvailableProfiles().map((profile) => (
                                     <button
                                         key={profile.role}
@@ -255,6 +293,17 @@ const Sidebar = () => {
                                                 console.log('🔄 Switching to role:', backendRole);
                                                 switchRole(backendRole);
                                             }
+=======
+                                {[
+                                    { role: 'Student', icon: User, path: '/dashboard', color: 'text-indigo-600 bg-indigo-50' },
+                                    { role: 'Vendor', icon: Store, path: '/vendor-dashboard', color: 'text-pink-600 bg-pink-50' },
+                                    { role: 'Admin', icon: Shield, path: '/admin-dashboard', color: 'text-red-600 bg-red-50' }
+                                ].map((profile) => (
+                                    <button
+                                        key={profile.role}
+                                        onClick={() => {
+                                            if (switchRole) switchRole(profile.role);
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
                                             navigate(profile.path);
                                             setIsSwitcherOpen(false);
                                         }}
@@ -330,6 +379,7 @@ const Sidebar = () => {
 
                 {/* Bottom Section */}
                 <div className="mt-auto pt-4 border-t border-gray-200/50 space-y-1">
+<<<<<<< HEAD
                     {/* Become a Vendor - Only show for students who don't have VENDOR role */}
                     {isOnlyStudent && (
                         <NavLink
@@ -349,6 +399,8 @@ const Sidebar = () => {
                         </NavLink>
                     )}
 
+=======
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
                     <NavLink
                         to="/settings"
                         className={({ isActive }) => cn(

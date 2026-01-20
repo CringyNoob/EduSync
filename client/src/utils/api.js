@@ -2,7 +2,11 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const api = axios.create({
+<<<<<<< HEAD
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+=======
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
@@ -32,10 +36,17 @@ api.interceptors.response.use(
     // Handle specific error cases
     if (error.response) {
       const { status, data } = error.response;
+<<<<<<< HEAD
       
       // Extract error message from various possible formats
       let errorMessage = 'An error occurred';
       
+=======
+
+      // Extract error message from various possible formats
+      let errorMessage = 'An error occurred';
+
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
       if (typeof data === 'string') {
         errorMessage = data;
       } else if (data) {

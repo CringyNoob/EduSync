@@ -19,6 +19,10 @@
     "react-dom": "^19.2.0",
     "react-quill-new": "^3.7.0",
     "react-router-dom": "^7.10.1",
+<<<<<<< HEAD
+=======
+    "socket.io-client": "^4.8.3",
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
     "tailwind-merge": "^3.4.0",
     "three": "^0.182.0"
   },

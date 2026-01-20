@@ -167,9 +167,15 @@ async function register(req, res) {
 
             // Insert into users table (authentication data)
             const userResult = await client.query(
+<<<<<<< HEAD
                 `INSERT INTO users (email, password_hash, roles, active_role, is_verified) 
                  VALUES ($1, $2, ARRAY['STUDENT'], 'STUDENT', true) 
                  RETURNING id, email, roles, active_role, created_at`,
+=======
+                `INSERT INTO users (email, password_hash, role, roles, active_role, is_verified) 
+                 VALUES ($1, $2, 'student', ARRAY['STUDENT'], 'STUDENT', true) 
+                 RETURNING id, email, role, roles, active_role, created_at`,
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
                 [email, hashedPassword]
             );
 
@@ -506,9 +512,15 @@ async function updateProfile(req, res) {
 
         const updatedProfile = result.rows[0];
 
+<<<<<<< HEAD
         // Get email and roles from users table for complete response
         const userResult = await db.query(
             'SELECT email, roles, active_role FROM users WHERE id = $1',
+=======
+        // Get email from users table for complete response
+        const userResult = await db.query(
+            'SELECT email, role FROM users WHERE id = $1',
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
             [userId]
         );
 
@@ -518,8 +530,12 @@ async function updateProfile(req, res) {
             profile: {
                 id: userId,
                 email: userResult.rows[0].email,
+<<<<<<< HEAD
                 roles: userResult.rows[0].roles || ['STUDENT'],
                 activeRole: userResult.rows[0].active_role || 'STUDENT',
+=======
+                role: userResult.rows[0].role,
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
                 fullName: updatedProfile.full_name,
                 studentId: updatedProfile.student_id,
                 department: updatedProfile.department,
@@ -671,6 +687,7 @@ async function getUserById(req, res) {
     }
 }
 
+<<<<<<< HEAD
 /**
  * Add VENDOR role to user
  * POST /api/auth/add-vendor-role
@@ -809,6 +826,8 @@ async function switchActiveRole(req, res) {
     }
 }
 
+=======
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 module.exports = {
     sendOtp,
     register,
@@ -817,7 +836,11 @@ module.exports = {
     resetPassword,
     getProfile,
     updateProfile,
+<<<<<<< HEAD
     getUserById,
     addVendorRole,
     switchActiveRole
+=======
+    getUserById
+>>>>>>> d919d14 (Enhanced Chat Feature. for standup 3.)
 };
