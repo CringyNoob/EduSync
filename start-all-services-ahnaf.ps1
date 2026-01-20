@@ -11,7 +11,7 @@ $ROOT = $PSScriptRoot
 Write-Host "Project Root: $ROOT" -ForegroundColor Gray
 
 # Check if required directories exist
-$services = @("auth-service", "marketplace-service", "renthub-service", "gateway", "client")
+$services = @("auth-service", "marketplace-service", "renthub-service", "notices-service", "gateway", "client")
 foreach ($service in $services) {
     $path = Join-Path $ROOT $service
     if (-not (Test-Path $path)) {
@@ -23,10 +23,10 @@ Write-Host "All service directories found." -ForegroundColor Green
 Write-Host ""
 
 # Kill any existing processes on these ports
-Write-Host "Cleaning up existing processes on ports 3001, 3002, 3003, 8000, 5173..." -ForegroundColor Yellow
+Write-Host "Cleaning up existing processes on ports 3001, 3002, 3003, 3005, 8000, 5173..." -ForegroundColor Yellow
 try {
     # Try using npx kill-port if available
-    $killPortResult = npx kill-port 3001 3002 3003 8000 5173 2>&1
+    $killPortResult = npx kill-port 3001 3002 3003 3005 8000 5173 2>&1
     Start-Sleep -Seconds 2
     Write-Host "Ports cleared." -ForegroundColor Green
 } catch {
@@ -57,6 +57,11 @@ Write-Host "Starting RentHub Service (Port 3003)..." -ForegroundColor Yellow
 $rentPath = Join-Path $ROOT "renthub-service"
 Start-Process $shell -ArgumentList "-NoExit", "-Command", "Set-Location '$rentPath'; Write-Host '=== RENTHUB SERVICE (Port 3003) ===' -ForegroundColor Yellow; npm start"
 
+# Start Notices Service (Port 3005)
+Write-Host "Starting Notices Service (Port 3005)..." -ForegroundColor DarkYellow
+$noticesPath = Join-Path $ROOT "notices-service"
+Start-Process $shell -ArgumentList "-NoExit", "-Command", "Set-Location '$noticesPath'; Write-Host '=== NOTICES SERVICE (Port 3005) ===' -ForegroundColor DarkYellow; npm start"
+
 # Start Gateway (Port 8000)
 Write-Host "Starting API Gateway (Port 8000)..." -ForegroundColor Blue
 $gatewayPath = Join-Path $ROOT "gateway"
@@ -81,6 +86,7 @@ Write-Host "Services running in separate terminal windows:" -ForegroundColor Whi
 Write-Host "  Auth Service:        http://localhost:3001" -ForegroundColor Cyan
 Write-Host "  Marketplace Service: http://localhost:3002" -ForegroundColor Magenta
 Write-Host "  RentHub Service:     http://localhost:3003" -ForegroundColor Yellow
+Write-Host "  Notices Service:     http://localhost:3005" -ForegroundColor DarkYellow
 Write-Host "  API Gateway:         http://localhost:8000" -ForegroundColor Blue
 Write-Host "  React Client:        http://localhost:5173" -ForegroundColor Green
 Write-Host ""

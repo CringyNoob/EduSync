@@ -102,6 +102,22 @@ app.use('/api/newsbox', createProxyMiddleware({
     },
 }));
 
+// 5. Notices Proxy (Port 3005) - UIU Notice Scraper
+app.use('/api/notices', createProxyMiddleware({
+    target: 'http://localhost:3005/notices',
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api/notices': '',
+    },
+    onProxyReq: (proxyReq, req, res) => {
+        log('→ Proxying to Notices Service: ' + req.method + ' ' + req.originalUrl);
+    },
+    onError: (err, req, res) => {
+        log('❌ Notices Proxy Error: ' + err.message);
+        res.status(500).json({ error: 'Could not reach Notices Service', details: err.message });
+    },
+}));
+
 app.listen(PORT, () => {
     log(`🚀 Gateway running on http://localhost:${PORT}`);
 });
