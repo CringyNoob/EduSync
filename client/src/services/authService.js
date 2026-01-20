@@ -144,6 +144,16 @@ const authService = {
     const response = await api.get(`/auth/user/${userId}`);
     return response.data;
   },
+
+  /**
+   * Switch active role for user
+   * @param {string} role - The role to switch to (STUDENT, VENDOR, ADMIN)
+   * @returns {Promise} Response with updated roles and activeRole
+   */
+  switchRole: async (role) => {
+    const response = await api.post('/auth/switch-role', { role });
+    return response.data;
+  },
 };
 
 export default authService;

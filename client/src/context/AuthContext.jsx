@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getUserFromToken } from '../utils/jwtDecode';
+import authService from '../services/authService';
 
 const AuthContext = createContext(null);
 
@@ -9,8 +10,31 @@ const getStoredUser = () => {
         // First, check if there's a temporary role override in sessionStorage
         const sessionRole = sessionStorage.getItem('edusync_temp_role');
 
-        // Try to get user from JWT token
+        // Get user from JWT token (contains original login data)
         const userFromToken = getUserFromToken();
+        
+        // Get user from localStorage (may have updated roles after registration)
+        const storedUserJson = localStorage.getItem('edusync_user');
+        const storedUser = storedUserJson ? JSON.parse(storedUserJson) : null;
+        
+        // PRIORITY: Use localStorage if it has MORE roles than token (updated after vendor registration)
+        // This ensures role updates persist without re-login
+        if (storedUser && storedUser.id && storedUser.name) {
+            const storedRoles = storedUser.roles || [];
+            const tokenRoles = userFromToken?.roles || [];
+            
+            // If localStorage has more roles or different roles, prefer it
+            if (storedRoles.length >= tokenRoles.length || 
+                storedRoles.some(r => !tokenRoles.includes(r))) {
+                console.log('User loaded from localStorage (has updated roles):', storedUser.name, storedUser.roles);
+                if (sessionRole) {
+                    return { ...storedUser, role: sessionRole };
+                }
+                return storedUser;
+            }
+        }
+        
+        // Otherwise use token data
         if (userFromToken && userFromToken.id && userFromToken.name) {
             console.log('User loaded from token:', userFromToken.name);
             // Apply session role override if exists
@@ -21,17 +45,13 @@ const getStoredUser = () => {
         }
 
         // Fallback: check localStorage for manually stored user
-        const storedUser = localStorage.getItem('edusync_user');
-        if (storedUser) {
-            const parsedUser = JSON.parse(storedUser);
-            if (parsedUser.id && parsedUser.name) {
-                console.log('User loaded from localStorage:', parsedUser.name);
-                // Apply session role override if exists
-                if (sessionRole) {
-                    return { ...parsedUser, role: sessionRole };
-                }
-                return parsedUser;
+        if (storedUser && storedUser.id && storedUser.name) {
+            console.log('User loaded from localStorage:', storedUser.name);
+            // Apply session role override if exists
+            if (sessionRole) {
+                return { ...storedUser, role: sessionRole };
             }
+            return storedUser;
         }
     } catch (error) {
         console.error('Error reading stored user:', error);
@@ -43,7 +63,9 @@ const getStoredUser = () => {
         id: '00000001-0000-0000-0000-000000000001',
         name: 'John Doe',
         email: 'john.doe@university.edu',
-        role: 'Student'
+        role: 'Student',
+        roles: ['STUDENT'],
+        activeRole: 'STUDENT'
     };
 };
 
@@ -93,28 +115,78 @@ export const AuthProvider = ({ children }) => {
         window.dispatchEvent(new Event('tokenUpdated'));
     };
 
-    const switchRole = (newRole) => {
-        // Store role temporarily in sessionStorage (clears on tab close or navigation)
-        sessionStorage.setItem('edusync_temp_role', newRole);
-
-        const updatedUser = {
-            ...user,
-            role: newRole,
-            activeRole: newRole
-        };
-        setUser(updatedUser);
+    const switchRole = async (newRole) => {
+        console.log('🔄 Switching role to:', newRole);
+        
+        // Validate user has this role
+        if (!user?.roles?.includes(newRole)) {
+            console.error('❌ User does not have role:', newRole, 'Available roles:', user?.roles);
+            return false;
+        }
+        
+        try {
+            // Call backend to update active_role in database
+            console.log('📡 Calling backend to switch role...');
+            const response = await authService.switchRole(newRole);
+            console.log('📨 Backend response:', response);
+            
+            if (response.success) {
+                console.log('✅ Role switched in database');
+                
+                // Update local state
+                const updatedUser = {
+                    ...user,
+                    role: newRole,
+                    activeRole: newRole,
+                    roles: response.roles || user.roles
+                };
+                setUser(updatedUser);
+                localStorage.setItem('edusync_user', JSON.stringify(updatedUser));
+                sessionStorage.setItem('edusync_temp_role', newRole);
+                
+                return true;
+            } else {
+                console.error('❌ Backend failed to switch role:', response.error);
+                // Still update locally for UI consistency
+                const updatedUser = { ...user, role: newRole, activeRole: newRole };
+                setUser(updatedUser);
+                sessionStorage.setItem('edusync_temp_role', newRole);
+                return false;
+            }
+        } catch (error) {
+            console.error('❌ Error calling switchRole API:', error.message);
+            if (error.response) {
+                console.error('Response status:', error.response.status);
+                console.error('Response data:', error.response.data);
+            }
+            // Still update locally for UI consistency
+            const updatedUser = { ...user, role: newRole, activeRole: newRole };
+            setUser(updatedUser);
+            sessionStorage.setItem('edusync_temp_role', newRole);
+            return false;
+        }
     };
 
-    // Update user profile data (used after profile update)
+    // Update user profile data (used after profile update or vendor registration)
     const updateUser = (updatedData) => {
+        console.log('🔄 updateUser called with:', updatedData);
+        
         const updatedUser = {
             ...user,
             ...updatedData
         };
-        setUser(updatedUser);
+        
+        console.log('📝 Updated user object:', updatedUser);
+        console.log('📝 Updated roles:', updatedUser.roles);
+        
+        // Save to localStorage FIRST (before setUser) to ensure persistence
         localStorage.setItem('edusync_user', JSON.stringify(updatedUser));
         
-        // Trigger custom event to notify other components
+        // Update React state
+        setUser(updatedUser);
+        
+        // Trigger custom event to notify other components (like Sidebar)
+        console.log('📢 Dispatching tokenUpdated event');
         window.dispatchEvent(new Event('tokenUpdated'));
     };
 

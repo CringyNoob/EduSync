@@ -1,6 +1,7 @@
 // src/controllers/vendorController.js
 // Controller for Shop-First Architecture (Startups & Food Vendors)
 const db = require('../config/db');
+const axios = require('axios');
 
 /**
  * Get all vendors by type (STARTUP or FOOD_VENDOR)
@@ -195,6 +196,41 @@ async function registerVendor(req, res) {
         ]);
 
         const newVendorId = insertResult.rows[0].id;
+
+        // Call auth-service to add VENDOR role to user
+        try {
+            const authToken = req.headers.authorization; // Forward the JWT token
+            const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:3001';
+            
+            // Auth service routes are mounted at root level, not /api/auth
+            const addRoleUrl = `${authServiceUrl}/add-vendor-role`;
+            console.log('🔄 Calling auth-service to add VENDOR role:', addRoleUrl);
+            console.log('🔑 Token present:', !!authToken);
+            
+            const authResponse = await axios.post(
+                addRoleUrl,
+                {},
+                {
+                    headers: {
+                        'Authorization': authToken,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            if (authResponse.data.success) {
+                console.log('✅ VENDOR role added successfully:', authResponse.data);
+            } else {
+                console.warn('⚠️ Unexpected response from auth-service:', authResponse.data);
+            }
+        } catch (authError) {
+            console.error('❌ Error calling auth-service to add VENDOR role:', authError.message);
+            if (authError.response) {
+                console.error('Response status:', authError.response.status);
+                console.error('Response data:', authError.response.data);
+            }
+            // Continue - vendor is created even if role update fails
+        }
 
         return res.status(201).json({
             success: true,

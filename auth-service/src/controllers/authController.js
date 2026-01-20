@@ -167,9 +167,9 @@ async function register(req, res) {
 
             // Insert into users table (authentication data)
             const userResult = await client.query(
-                `INSERT INTO users (email, password_hash, role, roles, active_role, is_verified) 
-                 VALUES ($1, $2, 'student', ARRAY['STUDENT'], 'STUDENT', true) 
-                 RETURNING id, email, role, roles, active_role, created_at`,
+                `INSERT INTO users (email, password_hash, roles, active_role, is_verified) 
+                 VALUES ($1, $2, ARRAY['STUDENT'], 'STUDENT', true) 
+                 RETURNING id, email, roles, active_role, created_at`,
                 [email, hashedPassword]
             );
 
@@ -506,9 +506,9 @@ async function updateProfile(req, res) {
 
         const updatedProfile = result.rows[0];
 
-        // Get email from users table for complete response
+        // Get email and roles from users table for complete response
         const userResult = await db.query(
-            'SELECT email, role FROM users WHERE id = $1',
+            'SELECT email, roles, active_role FROM users WHERE id = $1',
             [userId]
         );
 
@@ -518,7 +518,8 @@ async function updateProfile(req, res) {
             profile: {
                 id: userId,
                 email: userResult.rows[0].email,
-                role: userResult.rows[0].role,
+                roles: userResult.rows[0].roles || ['STUDENT'],
+                activeRole: userResult.rows[0].active_role || 'STUDENT',
                 fullName: updatedProfile.full_name,
                 studentId: updatedProfile.student_id,
                 department: updatedProfile.department,
@@ -670,6 +671,144 @@ async function getUserById(req, res) {
     }
 }
 
+/**
+ * Add VENDOR role to user
+ * POST /api/auth/add-vendor-role
+ * Requires: Bearer token
+ * Used by marketplace-service after successful vendor registration
+ */
+async function addVendorRole(req, res) {
+    try {
+        const userId = req.user.userId;
+
+        console.log('📝 addVendorRole called for userId:', userId);
+
+        // Get current roles
+        const userResult = await db.query(
+            'SELECT roles, active_role FROM users WHERE id = $1',
+            [userId]
+        );
+
+        if (userResult.rows.length === 0) {
+            console.error('❌ User not found:', userId);
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        const currentRoles = userResult.rows[0].roles || ['STUDENT'];
+        console.log('Current roles:', currentRoles);
+
+        // Check if user already has VENDOR role
+        if (currentRoles.includes('VENDOR')) {
+            console.log('✅ User already has VENDOR role');
+            return res.status(200).json({
+                success: true,
+                message: 'User already has VENDOR role',
+                roles: currentRoles
+            });
+        }
+
+        // Add VENDOR role to the array
+        const updatedRoles = [...currentRoles, 'VENDOR'];
+        console.log('Updated roles:', updatedRoles);
+
+        // Update user roles and set active_role to VENDOR
+        // Use PostgreSQL array literal syntax
+        const updateResult = await db.query(
+            'UPDATE users SET roles = $1::text[], active_role = $2 WHERE id = $3 RETURNING roles, active_role',
+            [updatedRoles, 'VENDOR', userId]
+        );
+
+        console.log('✅ Database updated:', updateResult.rows[0]);
+
+        return res.status(200).json({
+            success: true,
+            message: 'VENDOR role added successfully',
+            roles: updateResult.rows[0].roles,
+            activeRole: updateResult.rows[0].active_role
+        });
+
+    } catch (error) {
+        console.error('❌ Error in addVendorRole:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to add VENDOR role',
+            details: error.message
+        });
+    }
+}
+
+/**
+ * Switch active role for user
+ * POST /switch-role
+ * Requires: Bearer token
+ * Body: { role }
+ * Used when user switches between STUDENT/VENDOR/ADMIN profiles
+ */
+async function switchActiveRole(req, res) {
+    try {
+        const userId = req.user.userId;
+        const { role } = req.body;
+
+        console.log('📝 switchActiveRole called for userId:', userId, 'to role:', role);
+
+        if (!role) {
+            return res.status(400).json({
+                success: false,
+                error: 'Role is required'
+            });
+        }
+
+        // Get current roles to validate
+        const userResult = await db.query(
+            'SELECT roles, active_role FROM users WHERE id = $1',
+            [userId]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        const currentRoles = userResult.rows[0].roles || ['STUDENT'];
+        console.log('Current roles:', currentRoles);
+
+        // Validate that user has the role they're trying to switch to
+        if (!currentRoles.includes(role)) {
+            return res.status(403).json({
+                success: false,
+                error: `User does not have ${role} role`
+            });
+        }
+
+        // Update active_role in database
+        const updateResult = await db.query(
+            'UPDATE users SET active_role = $1 WHERE id = $2 RETURNING roles, active_role',
+            [role, userId]
+        );
+
+        console.log('✅ Active role switched to:', updateResult.rows[0].active_role);
+
+        return res.status(200).json({
+            success: true,
+            message: `Active role switched to ${role}`,
+            roles: updateResult.rows[0].roles,
+            activeRole: updateResult.rows[0].active_role
+        });
+
+    } catch (error) {
+        console.error('❌ Error in switchActiveRole:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to switch active role'
+        });
+    }
+}
+
 module.exports = {
     sendOtp,
     register,
@@ -678,5 +817,7 @@ module.exports = {
     resetPassword,
     getProfile,
     updateProfile,
-    getUserById
+    getUserById,
+    addVendorRole,
+    switchActiveRole
 };

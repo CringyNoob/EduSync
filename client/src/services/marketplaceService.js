@@ -25,6 +25,19 @@ const marketplaceService = {
   },
 
   /**
+   * Register a new vendor (shop registration)
+   * @param {Object} vendorData - Vendor registration data
+   * @param {string} vendorData.name - Shop name
+   * @param {string} vendorData.type - 'STARTUP' or 'FOOD_VENDOR'
+   * @param {string} vendorData.description - Shop description (optional)
+   * @returns {Promise} Response with vendorId and success status
+   */
+  registerVendor: async (vendorData) => {
+    const response = await api.post('/market/vendors/register', vendorData);
+    return response.data;
+  },
+
+  /**
    * Get single product by ID
    * @param {string} id - Product ID
    * @returns {Promise} Response with product details

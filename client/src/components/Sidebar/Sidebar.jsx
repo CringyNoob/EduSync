@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard,
@@ -18,7 +18,8 @@ import {
     Repeat,
     TrendingUp,
     Newspaper,
-    Package
+    Package,
+    Briefcase
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useAuth } from '../../context/AuthContext';
@@ -28,18 +29,99 @@ const Sidebar = () => {
     const navigate = useNavigate();
     const [hoveredItem, setHoveredItem] = useState(null);
     const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
+    const [forceUpdate, setForceUpdate] = useState(0);
+
+    // Listen for token/user updates to force re-render
+    useEffect(() => {
+        const handleUserUpdate = () => {
+            console.log('🔄 Sidebar: tokenUpdated event received, forcing re-render');
+            setForceUpdate(prev => prev + 1);
+        };
+
+        window.addEventListener('tokenUpdated', handleUserUpdate);
+        return () => window.removeEventListener('tokenUpdated', handleUserUpdate);
+    }, []);
 
     const handleLogout = () => {
         logout();
         navigate('/');
     };
 
+    // Helper to normalize role from backend format (STUDENT, VENDOR) to display format (Student, Vendor)
+    const normalizeRole = (role) => {
+        if (!role) return "Student";
+        const roleUpper = role.toUpperCase();
+        switch (roleUpper) {
+            case 'VENDOR':
+                return 'Vendor';
+            case 'ADMIN':
+                return 'Admin';
+            case 'STUDENT':
+            default:
+                return 'Student';
+        }
+    };
+
+    // Helper to convert display format (Student, Vendor) back to backend format (STUDENT, VENDOR)
+    const denormalizeRole = (role) => {
+        switch (role) {
+            case 'Vendor':
+                return 'VENDOR';
+            case 'Admin':
+                return 'ADMIN';
+            case 'Student':
+            default:
+                return 'STUDENT';
+        }
+    };
+
+    // Get the current active role - prefer activeRole over role
+    const currentRole = normalizeRole(user?.activeRole || user?.role);
+
     // Use context user data defaulting to mock if partial info
     const userData = {
         name: user?.name || "Alex Johnson",
         email: user?.email || "alex@university.edu",
-        avatar: user?.avatarUrl || null, // Use avatar from context
-        role: user?.role || "Student"
+        avatar: user?.avatarUrl || null,
+        role: currentRole, // Normalized role for display
+        roles: user?.roles || ['STUDENT']
+    };
+
+    // Debug logging
+    console.log('=== SIDEBAR DEBUG ===');
+    console.log('Raw user object:', user);
+    console.log('User activeRole:', user?.activeRole);
+    console.log('User role:', user?.role);
+    console.log('Normalized currentRole:', currentRole);
+    console.log('User roles array:', user?.roles);
+    console.log('userData.role (for nav):', userData.role);
+
+    // Check if user can switch profiles (has VENDOR or ADMIN role)
+    const canSwitchProfiles = userData.roles.some(role => 
+        role === 'VENDOR' || role === 'ADMIN'
+    );
+
+    // Check if user is only a student (can become a vendor)
+    const isOnlyStudent = userData.roles.length === 1 && userData.roles[0] === 'STUDENT';
+    
+    console.log('canSwitchProfiles:', canSwitchProfiles);
+    console.log('isOnlyStudent:', isOnlyStudent);
+    console.log('Should show Become a Vendor:', isOnlyStudent);
+    console.log('===================');
+
+    // Get available profiles based on user's roles
+    const getAvailableProfiles = () => {
+        const profiles = [];
+        if (userData.roles.includes('STUDENT')) {
+            profiles.push({ role: 'Student', icon: User, path: '/dashboard', color: 'text-indigo-600 bg-indigo-50' });
+        }
+        if (userData.roles.includes('VENDOR')) {
+            profiles.push({ role: 'Vendor', icon: Store, path: '/vendor-dashboard', color: 'text-pink-600 bg-pink-50' });
+        }
+        if (userData.roles.includes('ADMIN')) {
+            profiles.push({ role: 'Admin', icon: Shield, path: '/admin-dashboard', color: 'text-red-600 bg-red-50' });
+        }
+        return profiles;
     };
 
     // Dynamic Navigation Items based on Role
@@ -116,8 +198,11 @@ const Sidebar = () => {
                 {/* User Profile & Switcher - Inline Accordion */}
                 <div className="mb-2 relative group/profile">
                     <button
-                        onClick={() => setIsSwitcherOpen(!isSwitcherOpen)}
-                        className="w-full text-left p-1.5 rounded-[1.2rem] bg-white/60 dark:bg-gray-800/60 border border-white dark:border-gray-700 shadow-sm hover:shadow-md hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 group-hover/profile:ring-2 ring-primary/10"
+                        onClick={() => canSwitchProfiles && setIsSwitcherOpen(!isSwitcherOpen)}
+                        className={cn(
+                            "w-full text-left p-1.5 rounded-[1.2rem] bg-white/60 dark:bg-gray-800/60 border border-white dark:border-gray-700 shadow-sm transition-all duration-300 group-hover/profile:ring-2 ring-primary/10",
+                            canSwitchProfiles ? "hover:shadow-md hover:bg-white dark:hover:bg-gray-800 cursor-pointer" : "cursor-default"
+                        )}
                     >
                         <div className="flex items-center gap-3 p-1.5">
                             <div className="relative">
@@ -139,30 +224,37 @@ const Sidebar = () => {
                                 </p>
                                 <div className="flex items-center gap-1 text-[10px] text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wide">
                                     {userData.role}
-                                    <span className="text-gray-300">|</span>
-                                    <span className="text-primary hover:underline flex items-center gap-0.5">Switch <Repeat size={8} /></span>
+                                    {canSwitchProfiles && (
+                                        <>
+                                            <span className="text-gray-300">|</span>
+                                            <span className="text-primary hover:underline flex items-center gap-0.5">Switch <Repeat size={8} /></span>
+                                        </>
+                                    )}
                                 </div>
                             </div>
-                            <ChevronRight size={14} className={`text-gray-400 transition-transform duration-300 ${isSwitcherOpen ? 'rotate-90' : ''}`} />
+                            {canSwitchProfiles && (
+                                <ChevronRight size={14} className={`text-gray-400 transition-transform duration-300 ${isSwitcherOpen ? 'rotate-90' : ''}`} />
+                            )}
                         </div>
                     </button>
 
-                    {/* Inline Menu */}
-                    {isSwitcherOpen && (
+                    {/* Inline Menu - Only show if user can switch profiles */}
+                    {canSwitchProfiles && isSwitcherOpen && (
                         <div className="mt-2 w-full bg-white/50 dark:bg-gray-800/50 rounded-2xl border border-white/50 dark:border-gray-700/50 overflow-hidden animate-in slide-in-from-top-2 fade-in">
                             <div className="p-1.5 space-y-1">
                                 <div className="px-3 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 mb-1">
                                     Select Workspace
                                 </div>
-                                {[
-                                    { role: 'Student', icon: User, path: '/dashboard', color: 'text-indigo-600 bg-indigo-50' },
-                                    { role: 'Vendor', icon: Store, path: '/vendor-dashboard', color: 'text-pink-600 bg-pink-50' },
-                                    { role: 'Admin', icon: Shield, path: '/admin-dashboard', color: 'text-red-600 bg-red-50' }
-                                ].map((profile) => (
+                                {getAvailableProfiles().map((profile) => (
                                     <button
                                         key={profile.role}
                                         onClick={() => {
-                                            if (switchRole) switchRole(profile.role);
+                                            // Convert display format (Vendor) to backend format (VENDOR)
+                                            const backendRole = denormalizeRole(profile.role);
+                                            if (switchRole) {
+                                                console.log('🔄 Switching to role:', backendRole);
+                                                switchRole(backendRole);
+                                            }
                                             navigate(profile.path);
                                             setIsSwitcherOpen(false);
                                         }}
@@ -238,6 +330,25 @@ const Sidebar = () => {
 
                 {/* Bottom Section */}
                 <div className="mt-auto pt-4 border-t border-gray-200/50 space-y-1">
+                    {/* Become a Vendor - Only show for students who don't have VENDOR role */}
+                    {isOnlyStudent && (
+                        <NavLink
+                            to="/vendor/register"
+                            className={({ isActive }) => cn(
+                                "flex w-full items-center rounded-xl p-2.5 transition-all duration-200 group gap-3",
+                                isActive 
+                                    ? "bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 text-pink-600 font-bold border border-pink-200 dark:border-pink-800" 
+                                    : "text-gray-500 hover:bg-gradient-to-r hover:from-pink-50 hover:to-rose-50 dark:hover:from-pink-900/20 dark:hover:to-rose-900/20 hover:text-pink-600"
+                            )}
+                        >
+                            <div className="h-5 w-5 flex items-center justify-center">
+                                <Briefcase className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                            </div>
+                            <span className="text-sm font-semibold">Become a Vendor</span>
+                            <Sparkles size={12} className="ml-auto text-pink-400" />
+                        </NavLink>
+                    )}
+
                     <NavLink
                         to="/settings"
                         className={({ isActive }) => cn(

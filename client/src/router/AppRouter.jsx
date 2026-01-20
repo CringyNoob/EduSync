@@ -23,6 +23,8 @@ import RentHubHome from '../pages/renthub/RentHubHome';
 import RentHubItemDetails from '../pages/renthub/RentHubItemDetails';
 import RentHubNewListing from '../pages/renthub/RentHubNewListing';
 import RentHubDashboard from '../pages/renthub/RentHubDashboard';
+import VendorRegistration from '../pages/vendor/VendorRegistration';
+import VendorPayment from '../pages/vendor/VendorPayment';
 
 import PlaceholderPage from '../pages/PlaceholderPage';
 import SettingsPage from '../pages/settings/SettingsPage';
@@ -54,12 +56,12 @@ const router = createBrowserRouter([
         element: <AdminDashboard />,
     },
     {
-        path: '/vendor-dashboard',
-        element: <VendorDashboard />,
-    },
-    {
         element: <Layout />,
         children: [
+            {
+                path: '/vendor-dashboard',
+                element: <VendorDashboard />,
+            },
             {
                 path: '/dashboard',
                 element: <Home />,
@@ -160,6 +162,8 @@ const router = createBrowserRouter([
             { path: '/groups/:id', element: <PlaceholderPage title="Study Group" /> },
 
             // Vendor Routes
+            { path: '/vendor/register', element: <VendorRegistration /> },
+            { path: '/vendor/payment', element: <VendorPayment /> },
             { path: '/vendor/shop', element: <PlaceholderPage title="My Shop Settings" /> },
             { path: '/vendor/orders', element: <PlaceholderPage title="Vendor Orders" /> },
             { path: '/vendor/products', element: <PlaceholderPage title="Product Management" /> },

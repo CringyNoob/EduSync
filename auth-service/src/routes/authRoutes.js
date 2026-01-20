@@ -58,4 +58,17 @@ router.put('/profile', authMiddleware, authController.updateProfile);
  */
 router.get('/user/:id', authController.getUserById);
 
+/**
+ * POST /api/auth/add-vendor-role
+ * Add VENDOR role to authenticated user (used by marketplace-service)
+ */
+router.post('/add-vendor-role', authMiddleware, authController.addVendorRole);
+
+/**
+ * POST /api/auth/switch-role
+ * Switch active role for authenticated user
+ * Body: { role }
+ */
+router.post('/switch-role', authMiddleware, authController.switchActiveRole);
+
 module.exports = router;
