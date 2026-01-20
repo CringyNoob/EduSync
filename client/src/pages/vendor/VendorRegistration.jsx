@@ -9,7 +9,12 @@ import {
     Rocket,
     CheckCircle,
     Loader2,
-    AlertCircle
+    AlertCircle,
+    Mail,
+    Phone,
+    MapPin,
+    Image,
+    Building
 } from 'lucide-react';
 import Button from '../../components/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -23,7 +28,11 @@ const VendorRegistration = () => {
     const [formData, setFormData] = useState({
         shopName: '',
         type: '',
-        description: ''
+        description: '',
+        logoUrl: '',
+        businessAddress: '',
+        contactEmail: user?.email || '',
+        contactPhone: ''
     });
 
     const [loading, setLoading] = useState(false);
@@ -92,13 +101,51 @@ const VendorRegistration = () => {
             return;
         }
 
+        if (!formData.businessAddress.trim()) {
+            setError('Business address is required');
+            return;
+        }
+
+        if (!formData.contactEmail.trim()) {
+            setError('Contact email is required');
+            return;
+        }
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.contactEmail.trim())) {
+            setError('Please enter a valid email address');
+            return;
+        }
+
+        if (!formData.contactPhone.trim()) {
+            setError('Contact phone is required');
+            return;
+        }
+
+        // Basic phone validation (at least 10 digits)
+        const phoneDigits = formData.contactPhone.replace(/\D/g, '');
+        if (phoneDigits.length < 10) {
+            setError('Please enter a valid phone number (at least 10 digits)');
+            return;
+        }
+
+        if (!formData.description.trim()) {
+            setError('Description is required');
+            return;
+        }
+
         setLoading(true);
 
         try {
             const response = await marketplaceService.registerVendor({
                 name: formData.shopName.trim(),
                 type: formData.type,
-                description: formData.description.trim() || null
+                description: formData.description.trim(),
+                logoUrl: formData.logoUrl.trim() || null,
+                businessAddress: formData.businessAddress.trim(),
+                contactEmail: formData.contactEmail.trim(),
+                contactPhone: formData.contactPhone.trim()
             });
 
             if (response.success) {
@@ -210,7 +257,7 @@ const VendorRegistration = () => {
                         <div>
                             <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                                 <Briefcase className="inline mr-2 h-4 w-4" />
-                                Shop Name *
+                                Shop/Business Name *
                             </label>
                             <input
                                 type="text"
@@ -219,10 +266,10 @@ const VendorRegistration = () => {
                                 onChange={handleInputChange}
                                 placeholder="e.g., Campus Canteen, Tech Startup Hub"
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500"
-                                maxLength={100}
+                                maxLength={255}
                             />
                             <p className="mt-1 text-xs text-gray-400">
-                                Choose a unique and memorable name for your shop
+                                This will be used as both your shop name and legal business name
                             </p>
                         </div>
 
@@ -270,20 +317,97 @@ const VendorRegistration = () => {
                         <div>
                             <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                                 <FileText className="inline mr-2 h-4 w-4" />
-                                Description (Optional)
+                                Description *
                             </label>
                             <textarea
                                 name="description"
                                 value={formData.description}
                                 onChange={handleInputChange}
                                 placeholder="Tell customers what makes your shop special..."
-                                rows={4}
+                                rows={3}
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500 resize-none"
                                 maxLength={500}
                             />
                             <p className="mt-1 text-xs text-gray-400">
                                 {formData.description.length}/500 characters
                             </p>
+                        </div>
+
+                        {/* Business Details Section */}
+                        <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <Building className="h-5 w-5" />
+                                Business Details
+                            </h3>
+                            
+                            <div className="space-y-4">
+                                {/* Business Address */
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                                        <MapPin className="inline mr-2 h-4 w-4" />
+                                        Business Address *
+                                    </label>
+                                    <textarea
+                                        name="businessAddress"
+                                        value={formData.businessAddress}
+                                        onChange={handleInputChange}
+                                        placeholder="Full business address"
+                                        rows={2}
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500 resize-none"
+                                    />
+                                </div>
+                                }
+                                {/* Contact Email & Phone */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                                            <Mail className="inline mr-2 h-4 w-4" />
+                                            Contact Email *
+                                        </label>
+                                        <input
+                                            type="email"
+                                            name="contactEmail"
+                                            value={formData.contactEmail}
+                                            onChange={handleInputChange}
+                                            placeholder="vendor@example.com"
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                                            <Phone className="inline mr-2 h-4 w-4" />
+                                            Contact Phone *
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            name="contactPhone"
+                                            value={formData.contactPhone}
+                                            onChange={handleInputChange}
+                                            placeholder="01XXXXXXXXX"
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Logo URL (Optional) */}
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                                        <Image className="inline mr-2 h-4 w-4" />
+                                        Logo URL (Optional)
+                                    </label>
+                                    <input
+                                        type="url"
+                                        name="logoUrl"
+                                        value={formData.logoUrl}
+                                        onChange={handleInputChange}
+                                        placeholder="https://example.com/logo.png"
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500"
+                                    />
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        Provide a direct link to your shop logo image
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Info Box */}

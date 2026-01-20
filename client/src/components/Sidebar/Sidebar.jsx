@@ -101,12 +101,14 @@ const Sidebar = () => {
         role === 'VENDOR' || role === 'ADMIN'
     );
 
-    // Check if user is only a student (can become a vendor)
-    const isOnlyStudent = userData.roles.length === 1 && userData.roles[0] === 'STUDENT';
+    // Check if user doesn't have VENDOR role (can become a vendor)
+    // Show "Become a Vendor" button if VENDOR role is not in their roles array
+    const canBecomeVendor = !userData.roles.includes('VENDOR');
     
     console.log('canSwitchProfiles:', canSwitchProfiles);
-    console.log('isOnlyStudent:', isOnlyStudent);
-    console.log('Should show Become a Vendor:', isOnlyStudent);
+    console.log('canBecomeVendor:', canBecomeVendor);
+    console.log('Has VENDOR role:', userData.roles.includes('VENDOR'));
+    console.log('Should show Become a Vendor:', canBecomeVendor);
     console.log('===================');
 
     // Get available profiles based on user's roles
@@ -330,8 +332,8 @@ const Sidebar = () => {
 
                 {/* Bottom Section */}
                 <div className="mt-auto pt-4 border-t border-gray-200/50 space-y-1">
-                    {/* Become a Vendor - Only show for students who don't have VENDOR role */}
-                    {isOnlyStudent && (
+                    {/* Become a Vendor - Show if user doesn't have VENDOR role */}
+                    {canBecomeVendor && (
                         <NavLink
                             to="/vendor/register"
                             className={({ isActive }) => cn(

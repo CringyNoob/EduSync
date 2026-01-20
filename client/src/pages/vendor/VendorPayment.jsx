@@ -60,29 +60,35 @@ const VendorPayment = () => {
         setLoading(true);
 
         try {
-            // TODO: Integrate SSLCommerz API here
-            // Call backend endpoint to initialize payment session
-            // Backend will call SSLCommerz API and return payment URL
-            // Redirect user to SSLCommerz payment gateway
+            console.log('💳 Initiating payment for vendor:', vendorId);
             
-            console.log('Initiating SSLCommerz payment for vendor:', vendorId);
-            
-            // Placeholder: Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // Call backend to initialize SSLCommerz payment
+            const response = await fetch('http://localhost:8000/api/market/payment/init', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('edusync_token')}`
+                },
+                body: JSON.stringify({
+                    vendorId: vendorId,
+                    amount: subscriptionPrice
+                })
+            });
 
-            // For now, show alert and redirect
-            alert('SSLCommerz payment integration will be implemented here. Redirecting to dashboard...');
+            const data = await response.json();
             
-            // Clear session storage
-            sessionStorage.removeItem('pendingVendorId');
-            sessionStorage.removeItem('pendingVendorName');
-            sessionStorage.removeItem('pendingVendorType');
-
-            navigate('/vendor-dashboard');
+            if (data.success && data.url) {
+                console.log('✅ Payment initialized, redirecting to gateway...');
+                console.log('Transaction ID:', data.tran_id);
+                
+                // Redirect to SSLCommerz payment gateway
+                window.location.href = data.url;
+            } else {
+                throw new Error(data.message || 'Failed to initialize payment');
+            }
         } catch (err) {
-            console.error('Payment initialization error:', err);
-            setError('Failed to initialize payment. Please try again.');
-        } finally {
+            console.error('❌ Payment initialization error:', err);
+            setError(err.message || 'Failed to initialize payment. Please try again.');
             setLoading(false);
         }
     };

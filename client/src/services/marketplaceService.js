@@ -27,9 +27,13 @@ const marketplaceService = {
   /**
    * Register a new vendor (shop registration)
    * @param {Object} vendorData - Vendor registration data
-   * @param {string} vendorData.name - Shop name
+   * @param {string} vendorData.name - Shop/Business name
    * @param {string} vendorData.type - 'STARTUP' or 'FOOD_VENDOR'
-   * @param {string} vendorData.description - Shop description (optional)
+   * @param {string} vendorData.description - Shop description
+   * @param {string} vendorData.logoUrl - Logo URL (optional)
+   * @param {string} vendorData.businessAddress - Business address
+   * @param {string} vendorData.contactEmail - Contact email
+   * @param {string} vendorData.contactPhone - Contact phone number
    * @returns {Promise} Response with vendorId and success status
    */
   registerVendor: async (vendorData) => {

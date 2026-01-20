@@ -143,7 +143,15 @@ async function getVendorById(req, res) {
  */
 async function registerVendor(req, res) {
     try {
-        const { name, description, type } = req.body;
+        const { 
+            name, 
+            description, 
+            type, 
+            logoUrl, 
+            businessAddress, 
+            contactEmail, 
+            contactPhone 
+        } = req.body;
         const ownerId = req.user?.id;
 
         // Validate required fields
@@ -158,6 +166,13 @@ async function registerVendor(req, res) {
             return res.status(400).json({
                 success: false,
                 error: 'Missing required fields: name and type are required.'
+            });
+        }
+
+        if (!businessAddress || !contactEmail || !contactPhone || !description) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required fields: businessAddress, contactEmail, contactPhone, and description are required.'
             });
         }
 
@@ -182,17 +197,25 @@ async function registerVendor(req, res) {
             });
         }
 
-        // Insert new vendor with PENDING_PAYMENT status and is_active = false
+        // Insert new vendor with all fields
         const insertQuery = `
-            INSERT INTO vendors (owner_id, name, type, description, status, is_active)
-            VALUES ($1, $2, $3, $4, 'PENDING_PAYMENT', false)
+            INSERT INTO vendors (
+                owner_id, name, type, description, logo_url, 
+                business_address, contact_email, contact_phone,
+                status, is_active, is_verified_merchant
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'PENDING_PAYMENT', false, false)
             RETURNING id
         `;
         const insertResult = await db.query(insertQuery, [
             ownerId,
             name,
             type,
-            description || null
+            description,
+            logoUrl || null,
+            businessAddress,
+            contactEmail,
+            contactPhone
         ]);
 
         const newVendorId = insertResult.rows[0].id;
