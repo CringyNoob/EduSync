@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
@@ -23,6 +22,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useAuth } from '../../context/AuthContext';
+import marketplaceService from '../../services/marketplaceService';
 
 const Sidebar = () => {
     const { user, logout, switchRole } = useAuth();
@@ -30,6 +30,7 @@ const Sidebar = () => {
     const [hoveredItem, setHoveredItem] = useState(null);
     const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
     const [forceUpdate, setForceUpdate] = useState(0);
+    const [activeOrdersCount, setActiveOrdersCount] = useState(0);
 
     // Listen for token/user updates to force re-render
     useEffect(() => {
@@ -41,6 +42,31 @@ const Sidebar = () => {
         window.addEventListener('tokenUpdated', handleUserUpdate);
         return () => window.removeEventListener('tokenUpdated', handleUserUpdate);
     }, []);
+
+    // Fetch active orders count for vendor users
+    useEffect(() => {
+        const fetchActiveOrders = async () => {
+            if (user?.roles?.includes('VENDOR')) {
+                try {
+                    const response = await marketplaceService.getMyOrders();
+                    if (response.success) {
+                        const orders = response.orders || [];
+                        const active = orders.filter(o => 
+                            ['PENDING', 'PREPARING', 'READY'].includes(o.status)
+                        );
+                        setActiveOrdersCount(active.length);
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch active orders:', err);
+                }
+            }
+        };
+
+        fetchActiveOrders();
+        // Refresh every 30 seconds
+        const interval = setInterval(fetchActiveOrders, 30000);
+        return () => clearInterval(interval);
+    }, [user]);
 
     const handleLogout = () => {
         logout();
@@ -133,7 +159,7 @@ const Sidebar = () => {
                 return [
                     { icon: LayoutDashboard, label: 'Dashboard', path: '/vendor-dashboard', activeClass: 'text-pink-600 bg-pink-50 border-pink-600' },
                     { icon: Store, label: 'My Shop', path: '/vendor/shop', activeClass: 'text-rose-600 bg-rose-50 border-rose-600' },
-                    { icon: ShoppingBag, label: 'Orders', path: '/vendor/orders', activeClass: 'text-orange-600 bg-orange-50 border-orange-600', badge: 12 },
+                    { icon: ShoppingBag, label: 'Orders', path: '/vendor/orders', activeClass: 'text-orange-600 bg-orange-50 border-orange-600', badge: activeOrdersCount },
                     { icon: Package, label: 'Products', path: '/vendor/products', activeClass: 'text-amber-600 bg-amber-50 border-amber-600' },
                     { icon: TrendingUp, label: 'Analytics', path: '/vendor/analytics', activeClass: 'text-green-600 bg-green-50 border-green-600' },
                 ];

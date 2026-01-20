@@ -270,8 +270,66 @@ async function registerVendor(req, res) {
     }
 }
 
+/**
+ * Increment vendor profile views (for public marketplace visits)
+ * POST /vendors/:id/increment-views
+ * 
+ * Business Logic:
+ * - Increments visitor count in vendor_stats for today's date
+ * - Used when users visit vendor profile from marketplace
+ * - Does NOT require authentication (public endpoint)
+ */
+async function incrementVendorViews(req, res) {
+    try {
+        const { id } = req.params;
+
+        // Validate UUID
+        if (!id || id.length < 36) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid vendor ID format'
+            });
+        }
+
+        // Check if vendor exists
+        const vendorQuery = `SELECT id FROM vendors WHERE id = $1`;
+        const vendorResult = await db.query(vendorQuery, [id]);
+
+        if (vendorResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Vendor not found'
+            });
+        }
+
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Increment visitor count for today
+        const incrementQuery = `
+            INSERT INTO vendor_stats (vendor_id, date, visitors)
+            VALUES ($1, $2, 1)
+            ON CONFLICT (vendor_id, date)
+            DO UPDATE SET visitors = vendor_stats.visitors + 1
+        `;
+        await db.query(incrementQuery, [id, today]);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Profile view incremented'
+        });
+
+    } catch (error) {
+        console.error('Error in incrementVendorViews:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to increment profile views'
+        });
+    }
+}
+
 module.exports = {
     getVendors,
     getVendorById,
+    incrementVendorViews,
     registerVendor
 };

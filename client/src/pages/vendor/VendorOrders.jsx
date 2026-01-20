@@ -6,120 +6,93 @@ import {
     User, Phone, MapPin, MessageSquare, AlertCircle,
     Printer, ChefHat
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import marketplaceService from '../../services/marketplaceService';
 
 const VendorOrders = () => {
+    const { user } = useAuth();
     const [loading, setLoading] = useState(true);
+    const [updating, setUpdating] = useState(false);
     const [selectedTab, setSelectedTab] = useState('ALL');
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedOrder, setSelectedOrder] = useState(null); // For detail view
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [error, setError] = useState(null);
 
-    // Mock Data
     const [orders, setOrders] = useState([]);
     const [stats, setStats] = useState({
-        totalRevenue: 24500,
-        pendingOrders: 12,
-        completedToday: 45,
-        avgProcessingTime: '18m',
-        orderVolumeTrend: '+12%'
+        totalRevenue: 0,
+        pendingOrders: 0,
+        completedToday: 0,
+        avgProcessingTime: '0m'
     });
 
+    // Fetch orders from backend
     useEffect(() => {
-        // Simulate loading data
-        setTimeout(() => {
-            const mockOrders = [
-                {
-                    id: 'ORD-9921',
-                    customer: 'Alex Johnson',
-                    phone: '+880 1711-000000',
-                    address: 'UIU Campus, Room 402',
-                    customer_image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&h=100&fit=crop',
-                    items: [
-                        { name: 'Chicken Teriyaki Bowl', quantity: 2, price: 550, options: 'Extra Spicy' },
-                        { name: 'Cola 500ml', quantity: 1, price: 60, options: 'Chilled' }
-                    ],
-                    subtotal: 1160,
-                    delivery_fee: 40,
-                    total: 1200,
-                    status: 'PENDING',
-                    payment_status: 'PAID',
-                    payment_method: 'BKASH',
-                    time: 'Just now',
-                    time_elapsed: '2m',
-                    notes: 'Please double bag it, thanks!',
-                    is_new: true
-                },
-                {
-                    id: 'ORD-9920',
-                    customer: 'Sarah Miller',
-                    phone: '+880 1900-112233',
-                    address: 'UIU Library, 3rd Floor',
-                    customer_image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
-                    items: [
-                        { name: 'Veggie Burger Combo', quantity: 1, price: 450, options: 'No Onions' }
-                    ],
-                    subtotal: 450,
-                    delivery_fee: 0,
-                    total: 450,
-                    status: 'PREPARING',
-                    payment_status: 'PAID',
-                    payment_method: 'CASH',
-                    time: '15 mins ago',
-                    time_elapsed: '15m',
-                    notes: '',
-                    is_new: false
-                },
-                {
-                    id: 'ORD-9919',
-                    customer: 'Lab Group 4',
-                    phone: '+880 1800-444444',
-                    address: 'CSE Lab 2, Ground Floor',
-                    customer_image: null,
-                    items: [
-                        { name: 'Large Coffee', quantity: 4, price: 120, options: 'Less Sugar' },
-                        { name: 'Donut Box (6pcs)', quantity: 1, price: 350, options: 'Assorted' }
-                    ],
-                    subtotal: 830,
-                    delivery_fee: 0,
-                    total: 830,
-                    status: 'READY',
-                    payment_status: 'PAID',
-                    payment_method: 'NAGAD',
-                    time: '25 mins ago',
-                    time_elapsed: '25m',
-                    notes: 'Call upon arrival',
-                    is_new: false
-                },
-                {
-                    id: 'ORD-9918',
-                    customer: 'Michael Brown',
-                    phone: '+880 1600-999999',
-                    address: 'East Wing Canteen',
-                    customer_image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
-                    items: [
-                        { name: 'Fried Rice Platter', quantity: 1, price: 220, options: '' }
-                    ],
-                    subtotal: 220,
-                    delivery_fee: 0,
-                    total: 220,
-                    status: 'COMPLETED',
-                    payment_status: 'PAID',
-                    payment_method: 'CASH',
-                    time: '45 mins ago',
-                    time_elapsed: '45m',
-                    notes: '',
-                    is_new: false
+        const fetchOrders = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const response = await marketplaceService.getMyOrders();
+                
+                if (response.success) {
+                    // Transform backend data to match component structure
+                    const transformedOrders = (response.orders || []).map(order => ({
+                        id: order.id,
+                        customer: order.customer_name,
+                        phone: order.customer_phone || '',
+                        address: order.customer_address || '',
+                        customer_image: order.customer_image,
+                        items: order.items || [],
+                        subtotal: parseFloat(order.subtotal) || 0,
+                        delivery_fee: parseFloat(order.delivery_fee) || 0,
+                        total: parseFloat(order.total) || 0,
+                        status: order.status,
+                        payment_status: order.payment_status,
+                        payment_method: order.payment_method,
+                        time_elapsed: order.time_elapsed || 'Just now',
+                        notes: order.notes || '',
+                        is_new: order.is_new || false,
+                        created_at: order.created_at
+                    }));
+                    setOrders(transformedOrders);
+                    
+                    if (response.stats) {
+                        setStats({
+                            totalRevenue: response.stats.totalRevenue || 0,
+                            pendingOrders: response.stats.pendingOrders || 0,
+                            completedToday: response.stats.completedToday || 0,
+                            avgProcessingTime: response.stats.avgProcessingTime || '0m'
+                        });
+                    }
                 }
-            ];
+            } catch (err) {
+                console.error('Error fetching orders:', err);
+                setError(err.message || 'Failed to load orders');
+            } finally {
+                setLoading(false);
+            }
+        };
 
-            setOrders(mockOrders);
-            setLoading(false);
-        }, 800);
+        fetchOrders();
     }, []);
 
-    const handleUpdateStatus = (orderId, newStatus) => {
-        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
-        if (selectedOrder?.id === orderId) {
-            setSelectedOrder(prev => ({ ...prev, status: newStatus }));
+    const handleUpdateStatus = async (orderId, newStatus) => {
+        try {
+            setUpdating(true);
+            setError(null);
+            const response = await marketplaceService.updateOrderStatus(orderId, newStatus);
+            
+            if (response.success) {
+                setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+                if (selectedOrder?.id === orderId) {
+                    setSelectedOrder(prev => ({ ...prev, status: newStatus }));
+                }
+            }
+        } catch (err) {
+            console.error('Error updating order status:', err);
+            setError(err.message || 'Failed to update order status');
+        } finally {
+            setUpdating(false);
         }
     };
 
@@ -165,6 +138,17 @@ const VendorOrders = () => {
                 <div className="absolute top-[-20%] right-[10%] w-[800px] h-[800px] bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-full blur-[120px] mix-blend-multiply"></div>
                 <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-gradient-to-tl from-indigo-500/5 to-violet-500/5 rounded-full blur-[100px] mix-blend-multiply"></div>
             </div>
+
+            {/* Error Banner */}
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2">
+                    <AlertCircle size={18} />
+                    <span className="font-medium">{error}</span>
+                    <button onClick={() => setError(null)} className="ml-auto text-red-500 hover:text-red-700">
+                        <X size={18} />
+                    </button>
+                </div>
+            )}
 
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-6">
@@ -409,32 +393,36 @@ const VendorOrders = () => {
                                         <>
                                             <button
                                                 onClick={() => handleUpdateStatus(selectedOrder.id, 'CANCELLED')}
-                                                className="py-4 rounded-2xl border border-red-100 text-red-600 font-bold hover:bg-red-50 transition-colors"
+                                                disabled={updating}
+                                                className="py-4 rounded-2xl border border-red-100 text-red-600 font-bold hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
-                                                Reject Order
+                                                {updating ? 'Updating...' : 'Reject Order'}
                                             </button>
                                             <button
                                                 onClick={() => handleUpdateStatus(selectedOrder.id, 'PREPARING')}
-                                                className="py-4 rounded-2xl bg-gray-900 text-white font-bold hover:bg-black transition-colors shadow-lg shadow-gray-900/20"
+                                                disabled={updating}
+                                                className="py-4 rounded-2xl bg-gray-900 text-white font-bold hover:bg-black transition-colors shadow-lg shadow-gray-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
-                                                Accept & Cook
+                                                {updating ? 'Updating...' : 'Accept & Cook'}
                                             </button>
                                         </>
                                     )}
                                     {selectedOrder.status === 'PREPARING' && (
                                         <button
                                             onClick={() => handleUpdateStatus(selectedOrder.id, 'READY')}
-                                            className="col-span-2 py-4 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2"
+                                            disabled={updating}
+                                            className="col-span-2 py-4 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            <ChefHat /> Mark as Ready
+                                            {updating ? 'Updating...' : <><ChefHat /> Mark as Ready</>}
                                         </button>
                                     )}
                                     {selectedOrder.status === 'READY' && (
                                         <button
                                             onClick={() => handleUpdateStatus(selectedOrder.id, 'COMPLETED')}
-                                            className="col-span-2 py-4 rounded-2xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2"
+                                            disabled={updating}
+                                            className="col-span-2 py-4 rounded-2xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            <CheckCircle /> Complete Order
+                                            {updating ? 'Updating...' : <><CheckCircle /> Complete Order</>}
                                         </button>
                                     )}
                                     {selectedOrder.status === 'COMPLETED' && (

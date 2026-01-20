@@ -6,12 +6,12 @@ Write-Host "Setting Up All EduSync Services..." -ForegroundColor Cyan
 Write-Host ""
 
 $services = @(
-    @{Name="Auth Service"; Path="k:\10th\swlab\Edusync\auth-service"},
-    @{Name="Marketplace Service"; Path="k:\10th\swlab\Edusync\marketplace-service"},
-    @{Name="RentHub Service"; Path="k:\10th\swlab\Edusync\renthub-service"},
-    @{Name="NewsBox Service"; Path="k:\10th\swlab\Edusync\newsbox-service"},
-    @{Name="Gateway"; Path="k:\10th\swlab\Edusync\gateway"},
-    @{Name="React Client"; Path="k:\10th\swlab\Edusync\client"}
+    @{Name="Auth Service"; Path="c:\Edusync\Edusync\auth-service"},
+    @{Name="Marketplace Service"; Path="c:\Edusync\Edusync\marketplace-service"},
+    @{Name="RentHub Service"; Path="c:\Edusync\Edusync\renthub-service"},
+    @{Name="NewsBox Service"; Path="c:\Edusync\Edusync\newsbox-service"},
+    @{Name="Gateway"; Path="c:\Edusync\Edusync\gateway"},
+    @{Name="React Client"; Path="c:\Edusync\Edusync\client"}
 )
 
 $totalServices = $services.Count

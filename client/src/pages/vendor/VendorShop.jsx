@@ -3,56 +3,74 @@ import { useNavigate } from 'react-router-dom';
 import {
     Store, MapPin, Mail, Phone, Clock, Star,
     Edit3, Save, X, TrendingUp, Users, DollarSign,
-    Package, Settings, ShieldCheck, AlertCircle
+    Package, Settings, ShieldCheck, AlertCircle, Plus
 } from 'lucide-react';
-import Button from '../../components/Button'; // Assuming we have a Button component, checking usage in VendorDashboard
-
-// If Button component is not universally available or props differ, I'll fallback to standard HTML button with classes
-// VendorDashboard uses: import Button from '../../components/Button';
+import Button from '../../components/Button';
+import { useAuth } from '../../context/AuthContext';
+import marketplaceService from '../../services/marketplaceService';
 
 const VendorShop = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [error, setError] = useState(null);
 
-    // Improved Mock Data
-    const [vendor, setVendor] = useState({
-        id: 'v1',
-        name: 'The Daily Grind Cafe',
-        description: 'Premium coffee and snacks for late-night study sessions. We source the finest beans and fresh local ingredients.',
-        logo_url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-        cover_url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        type: 'FOOD_VENDOR',
-        status: 'OPEN', // OPEN, CLOSED, BUSY
-        rating: 4.8,
-        total_reviews: 124,
-        is_verified: true,
-        contact: {
-            email: 'contact@dailygrind.uiu.ac.bd',
-            phone: '+880 1711-223344',
-            address: 'UIU Campus, Ground Floor, East Wing'
-        },
-        stats: {
-            revenue_today: 15400,
-            orders_today: 45,
-            profile_views: 128
-        },
-        operating_hours: '8:00 AM - 9:00 PM'
-    });
-
+    const [vendor, setVendor] = useState(null);
     const [formData, setFormData] = useState({});
 
+    // Fetch vendor data from backend
     useEffect(() => {
-        // Simulate initial load
-        setTimeout(() => {
-            setLoading(false);
-            setFormData(vendor);
-        }, 600);
+        const fetchVendorData = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const response = await marketplaceService.getMyVendor();
+                
+                if (response.success && response.vendor) {
+                    const v = response.vendor;
+                    // Transform backend data to match component structure
+                    const vendorData = {
+                        id: v.id,
+                        name: v.name,
+                        description: v.description || '',
+                        logo_url: v.logo_url || 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+                        cover_url: v.cover_url || 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+                        type: v.type,
+                        status: v.is_active ? 'OPEN' : 'CLOSED',
+                        rating: parseFloat(v.rating) || 0,
+                        total_reviews: parseInt(v.total_reviews) || 0,
+                        is_verified: v.is_verified_merchant || false,
+                        contact: {
+                            email: v.contact_email || '',
+                            phone: v.contact_phone || '',
+                            address: v.business_address || ''
+                        },
+                        stats: {
+                            revenue_today: v.stats?.revenue_today || 0,
+                            orders_today: v.stats?.orders_today || 0,
+                            profile_views: v.stats?.profile_views || 0
+                        },
+                        operating_hours: v.operating_hours || '9:00 AM - 9:00 PM'
+                    };
+                    setVendor(vendorData);
+                    setFormData(vendorData);
+                }
+            } catch (err) {
+                console.error('Error fetching vendor:', err);
+                setError(err.message || 'Failed to load shop data');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchVendorData();
     }, []);
 
     const handleEditToggle = () => {
         if (!isEditing) {
-            setFormData({ ...vendor }); // Reset form to current cached data
+            setFormData({ ...vendor });
         }
         setIsEditing(!isEditing);
     };
@@ -73,14 +91,58 @@ const VendorShop = () => {
         }
     };
 
-    const handleSave = () => {
-        setLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            setVendor(formData);
-            setIsEditing(false);
-            setLoading(false);
-        }, 800);
+    const handleImageChange = (e, imageType) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                setError('Please select an image file');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                setError('Image must be less than 5MB');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({
+                    ...prev,
+                    [imageType]: reader.result
+                }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSave = async () => {
+        try {
+            setSaving(true);
+            setError(null);
+
+            // Transform form data back to backend format
+            const updateData = {
+                name: formData.name,
+                description: formData.description,
+                logo_url: formData.logo_url,
+                cover_url: formData.cover_url,
+                business_address: formData.contact?.address,
+                contact_email: formData.contact?.email,
+                contact_phone: formData.contact?.phone,
+                operating_hours: formData.operating_hours,
+                is_active: formData.status === 'OPEN'
+            };
+
+            const response = await marketplaceService.updateMyVendor(updateData);
+
+            if (response.success) {
+                setVendor(formData);
+                setIsEditing(false);
+            }
+        } catch (err) {
+            console.error('Error updating vendor:', err);
+            setError(err.message || 'Failed to update shop profile');
+        } finally {
+            setSaving(false);
+        }
     };
 
     if (loading) {
@@ -94,6 +156,42 @@ const VendorShop = () => {
         );
     }
 
+    if (error && !vendor) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50/50">
+                <div className="text-center max-w-md">
+                    <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">Error Loading Shop</h2>
+                    <p className="text-gray-500 mb-4">{error}</p>
+                    <button 
+                        onClick={() => window.location.reload()}
+                        className="bg-primary-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-primary-700"
+                    >
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (!vendor) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50/50">
+                <div className="text-center max-w-md">
+                    <Store className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">No Shop Found</h2>
+                    <p className="text-gray-500 mb-4">You haven't registered a shop yet.</p>
+                    <button 
+                        onClick={() => navigate('/vendor/register')}
+                        className="bg-primary-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-primary-700"
+                    >
+                        Register Your Shop
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen p-6 space-y-8 font-sans animate-in fade-in duration-500 pb-20">
             {/* Ambient Background */}
@@ -101,6 +199,17 @@ const VendorShop = () => {
                 <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-[100px]"></div>
                 <div className="absolute bottom-[20%] left-[-10%] w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[100px]"></div>
             </div>
+
+            {/* Error Banner */}
+            {error && (
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3">
+                    <AlertCircle className="text-red-500" size={20} />
+                    <p className="text-red-700 font-medium">{error}</p>
+                    <button onClick={() => setError(null)} className="ml-auto text-red-500 hover:text-red-700">
+                        <X size={20} />
+                    </button>
+                </div>
+            )}
 
             {/* Header Card */}
             <div className="relative rounded-[2.5rem] bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden group">
@@ -207,19 +316,50 @@ const VendorShop = () => {
                                     </h3>
                                     <button
                                         onClick={handleSave}
-                                        className="bg-primary-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-primary-700 transition-colors flex items-center gap-2 shadow-lg shadow-primary-500/30"
+                                        disabled={saving}
+                                        className="bg-primary-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-primary-700 transition-colors flex items-center gap-2 shadow-lg shadow-primary-500/30 disabled:opacity-50"
                                     >
-                                        <Save size={18} /> Save Changes
+                                        {saving ? (
+                                            <>
+                                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                                                <span className="text-white">Saving...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Save size={18} />
+                                                <span className="text-white">Save Changes</span>
+                                            </>
+                                        )}
                                     </button>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="col-span-2">
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Shop Logo</label>
+                                        <div className="flex items-center gap-4">
+                                            <img src={formData.logo_url} alt="Logo Preview" className="h-20 w-20 rounded-xl object-cover border-2 border-gray-200" />
+                                            <label className="cursor-pointer bg-primary-50 hover:bg-primary-100 border border-primary-200 px-4 py-2 rounded-xl font-bold text-primary-700 text-sm transition-colors">
+                                                Upload New Logo
+                                                <input type="file" accept="image/*" onChange={(e) => handleImageChange(e, 'logo_url')} className="hidden" />
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Cover Image</label>
+                                        <div className="flex items-center gap-4">
+                                            <img src={formData.cover_url} alt="Cover Preview" className="h-20 w-32 rounded-xl object-cover border-2 border-gray-200" />
+                                            <label className="cursor-pointer bg-primary-50 hover:bg-primary-100 border border-primary-200 px-4 py-2 rounded-xl font-bold text-primary-700 text-sm transition-colors">
+                                                Upload New Cover
+                                                <input type="file" accept="image/*" onChange={(e) => handleImageChange(e, 'cover_url')} className="hidden" />
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div className="col-span-2">
                                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Shop Name</label>
                                         <input
                                             type="text"
                                             name="name"
-                                            value={formData.name}
+                                            value={formData.name || ''}
                                             onChange={handleInputChange}
                                             className="w-full bg-gray-50 border-gray-200 rounded-xl px-4 py-3 font-bold text-gray-900 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                         />
@@ -334,35 +474,8 @@ const VendorShop = () => {
 
                 {/* Right Column - Sidebar */}
                 <div className="space-y-6">
-                    {/* Quick Actions */}
-                    <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-[2.5rem] shadow-lg p-6 text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
-
-                        <h3 className="text-lg font-black mb-6 flex items-center gap-2">
-                            <TrendingUp className="text-yellow-400" /> Quick Actions
-                        </h3>
-
-                        <div className="space-y-3 relative z-10">
-                            <button className="w-full bg-white/10 hover:bg-white/20 border border-white/5 p-3 rounded-xl flex items-center gap-3 transition-colors text-left group">
-                                <div className="h-8 w-8 rounded-lg bg-blue-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                    <Package size={16} />
-                                </div>
-                                <span className="font-bold text-sm">Add New Product</span>
-                            </button>
-                            <button className="w-full bg-white/10 hover:bg-white/20 border border-white/5 p-3 rounded-xl flex items-center gap-3 transition-colors text-left group">
-                                <div className="h-8 w-8 rounded-lg bg-purple-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                    <Settings size={16} />
-                                </div>
-                                <span className="font-bold text-sm">Shop Settings</span>
-                            </button>
-                            <button className="w-full bg-white/10 hover:bg-white/20 border border-white/5 p-3 rounded-xl flex items-center gap-3 transition-colors text-left group">
-                                <div className="h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                    <DollarSign size={16} />
-                                </div>
-                                <span className="font-bold text-sm">Withdraw Funds</span>
-                            </button>
-                        </div>
-                    </div>
+                    {/* Add Product Card */}
+                    <AddProductCard />
 
                     {/* Alerts */}
                     <div className="bg-orange-50 rounded-[2.5rem] border border-orange-100 p-6">
@@ -378,6 +491,225 @@ const VendorShop = () => {
                     </div>
                 </div>
             </div>
+        </div>
+    );
+};
+
+// Add Product Card Component
+const AddProductCard = () => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState(null);
+    const [formData, setFormData] = useState({
+        name: '',
+        description: '',
+        price: '',
+        category: 'FOOD',
+        image_url: '',
+        is_available: true,
+        stock_count: 50
+    });
+
+    const handleInputChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                setError('Please select an image file');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                setError('Image must be less than 5MB');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({
+                    ...prev,
+                    image_url: reader.result
+                }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            setSaving(true);
+            setError(null);
+
+            const productData = {
+                name: formData.name,
+                description: formData.description,
+                price: parseFloat(formData.price),
+                category: formData.category,
+                image_url: formData.image_url,
+                is_available: formData.is_available,
+                stock_count: parseInt(formData.stock_count) || 50
+            };
+
+            const response = await marketplaceService.createProduct(productData);
+            if (response.success) {
+                // Reset form
+                setFormData({
+                    name: '',
+                    description: '',
+                    price: '',
+                    category: 'FOOD',
+                    image_url: '',
+                    is_available: true,
+                    stock_count: 50
+                });
+                setIsExpanded(false);
+                alert('Product added successfully!');
+            }
+        } catch (err) {
+            console.error('Error creating product:', err);
+            setError(err.message || 'Failed to create product');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return (
+        <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
+            <div 
+                className="p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => setIsExpanded(!isExpanded)}
+            >
+                <h3 className="text-lg font-black flex items-center gap-2">
+                    <Plus className="text-primary-500" /> Add New Product
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">Click to expand the form</p>
+            </div>
+
+            {isExpanded && (
+                <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4 border-t border-gray-100 pt-4">
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-center gap-2">
+                            <AlertCircle className="text-red-500" size={16} />
+                            <p className="text-red-700 text-sm font-medium">{error}</p>
+                        </div>
+                    )}
+
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Product Name</label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full bg-gray-50 border-gray-200 rounded-xl px-4 py-2.5 font-medium text-gray-900 focus:ring-2 focus:ring-primary-500 transition-all"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Description</label>
+                        <textarea
+                            name="description"
+                            rows="3"
+                            value={formData.description}
+                            onChange={handleInputChange}
+                            className="w-full bg-gray-50 border-gray-200 rounded-xl px-4 py-2.5 font-medium text-gray-900 focus:ring-2 focus:ring-primary-500 transition-all"
+                        ></textarea>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Price (৳)</label>
+                            <input
+                                type="number"
+                                name="price"
+                                value={formData.price}
+                                onChange={handleInputChange}
+                                required
+                                min="0"
+                                step="0.01"
+                                className="w-full bg-gray-50 border-gray-200 rounded-xl px-4 py-2.5 font-medium text-gray-900 focus:ring-2 focus:ring-primary-500 transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Stock</label>
+                            <input
+                                type="number"
+                                name="stock_count"
+                                value={formData.stock_count}
+                                onChange={handleInputChange}
+                                required
+                                min="0"
+                                className="w-full bg-gray-50 border-gray-200 rounded-xl px-4 py-2.5 font-medium text-gray-900 focus:ring-2 focus:ring-primary-500 transition-all"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Category</label>
+                        <select
+                            name="category"
+                            value={formData.category}
+                            onChange={handleInputChange}
+                            className="w-full bg-gray-50 border-gray-200 rounded-xl px-4 py-2.5 font-medium text-gray-900 focus:ring-2 focus:ring-primary-500 transition-all"
+                        >
+                            <option value="FOOD">Food</option>
+                            <option value="DRINKS">Drinks</option>
+                            <option value="SNACKS">Snacks</option>
+                            <option value="ELECTRONICS">Electronics</option>
+                            <option value="ACCESSORIES">Accessories</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Product Image</label>
+                        <div className="flex items-center gap-4">
+                            {formData.image_url && (
+                                <img src={formData.image_url} alt="Preview" className="h-20 w-20 rounded-xl object-cover border-2 border-gray-200" />
+                            )}
+                            <label className="cursor-pointer bg-primary-50 hover:bg-primary-100 border border-primary-200 px-4 py-2 rounded-xl font-bold text-primary-700 text-sm transition-colors">
+                                {formData.image_url ? 'Change Image' : 'Upload Image'}
+                                <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            name="is_available"
+                            checked={formData.is_available}
+                            onChange={handleInputChange}
+                            className="h-4 w-4 text-primary-600 rounded"
+                        />
+                        <label className="text-sm font-medium text-gray-700">Available for sale</label>
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                        <button
+                            type="submit"
+                            disabled={saving}
+                            className="flex-1 bg-primary-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-primary-700 transition-colors disabled:opacity-50"
+                        >
+                            {saving ? 'Adding...' : 'Add Product'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setIsExpanded(false)}
+                            className="px-4 py-2.5 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            )}
         </div>
     );
 };

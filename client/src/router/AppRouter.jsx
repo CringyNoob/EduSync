@@ -11,6 +11,7 @@ import AdminDashboard from '../pages/dashboard/AdminDashboard';
 import VendorDashboard from '../pages/dashboard/VendorDashboard';
 import MarketplaceHome from '../pages/marketplace/MarketplaceHome';
 import MarketplaceItemDetails from '../pages/marketplace/MarketplaceItemDetails';
+import PublicVendorProfile from '../pages/marketplace/PublicVendorProfile';
 import CartPage from '../pages/marketplace/CartPage';
 import NewsBoxHome from '../pages/newsbox/NewsBoxHome';
 import NewsManagement from '../pages/newsbox/NewsManagement';
@@ -93,6 +94,10 @@ const router = createBrowserRouter([
             {
                 path: '/marketplace/:id',
                 element: <MarketplaceItemDetails />,
+            },
+            {
+                path: '/marketplace/vendor/:vendorId',
+                element: <PublicVendorProfile />,
             },
             {
                 path: '/marketplace/cart',

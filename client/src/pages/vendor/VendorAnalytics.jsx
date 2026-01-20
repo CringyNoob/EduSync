@@ -3,46 +3,97 @@ import {
     TrendingUp, TrendingDown, DollarSign, Calendar,
     ArrowUpRight, ArrowDownRight, CreditCard, Activity,
     PieChart, BarChart2, ShoppingBag, Users, Clock,
-    Download, ChevronDown
+    Download, ChevronDown, AlertCircle, X
 } from 'lucide-react';
+import marketplaceService from '../../services/marketplaceService';
 
 const VendorAnalytics = () => {
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [timeRange, setTimeRange] = useState('THIS_WEEK');
-
-    // Mock Data
-    const stats = {
-        totalRevenue: 24500,
-        revenueGrowth: 12.5,
-        totalOrders: 156,
-        ordersGrowth: 8.2,
-        avgOrderValue: 157,
-        avgOrderGrowth: -2.1,
-        visitors: 1240,
-        visitorsGrowth: 15.3,
-    };
-
-    const dailyRevenue = [
-        { day: 'Mon', value: 3200, height: '40%' },
-        { day: 'Tue', value: 4500, height: '55%' },
-        { day: 'Wed', value: 3800, height: '45%' },
-        { day: 'Thu', value: 5200, height: '65%' },
-        { day: 'Fri', value: 6800, height: '85%' },
-        { day: 'Sat', value: 7500, height: '95%' },
-        { day: 'Sun', value: 5100, height: '60%' },
-    ];
-
-    const topProducts = [
-        { name: 'Spicy Chicken Wings', sales: 450, revenue: 12500, growth: '+12%' },
-        { name: 'Cold Brew Coffee', sales: 320, revenue: 8900, growth: '+8%' },
-        { name: 'Cheese Burger', sales: 210, revenue: 6500, growth: '-3%' },
-        { name: 'Chocolate Brownie', sales: 180, revenue: 4200, growth: '+15%' },
-    ];
+    
+    // Analytics data from API
+    const [stats, setStats] = useState({
+        totalRevenue: 0,
+        revenueGrowth: 0,
+        totalOrders: 0,
+        ordersGrowth: 0,
+        avgOrderValue: 0,
+        avgOrderGrowth: 0,
+        visitors: 0,
+        visitorsGrowth: 0,
+    });
+    
+    const [dailyRevenue, setDailyRevenue] = useState([]);
+    const [topProducts, setTopProducts] = useState([]);
+    const [categoryBreakdown, setCategoryBreakdown] = useState([]);
+    const [insights, setInsights] = useState(null);
+    const [alerts, setAlerts] = useState([]);
 
     useEffect(() => {
-        // Simulate load
-        setTimeout(() => setLoading(false), 800);
-    }, []);
+        fetchAnalytics();
+    }, [timeRange]);
+
+    const fetchAnalytics = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await marketplaceService.getMyAnalytics(timeRange);
+            
+            if (response.success) {
+                const data = response.analytics;
+                
+                // Set stats
+                setStats({
+                    totalRevenue: data.totalRevenue || 0,
+                    revenueGrowth: data.revenueGrowth || 0,
+                    totalOrders: data.totalOrders || 0,
+                    ordersGrowth: data.ordersGrowth || 0,
+                    avgOrderValue: data.avgOrderValue || 0,
+                    avgOrderGrowth: data.avgOrderGrowth || 0,
+                    visitors: data.visitors || 0,
+                    visitorsGrowth: data.visitorsGrowth || 0,
+                });
+                
+                // Set daily revenue with calculated heights
+                if (data.dailyRevenue && data.dailyRevenue.length > 0) {
+                    const maxValue = Math.max(...data.dailyRevenue.map(d => d.value || 0));
+                    setDailyRevenue(data.dailyRevenue.map(d => ({
+                        ...d,
+                        height: maxValue > 0 ? `${Math.round((d.value / maxValue) * 95)}%` : '0%'
+                    })));
+                } else {
+                    // Default empty data for the week
+                    setDailyRevenue([
+                        { day: 'Mon', value: 0, height: '0%' },
+                        { day: 'Tue', value: 0, height: '0%' },
+                        { day: 'Wed', value: 0, height: '0%' },
+                        { day: 'Thu', value: 0, height: '0%' },
+                        { day: 'Fri', value: 0, height: '0%' },
+                        { day: 'Sat', value: 0, height: '0%' },
+                        { day: 'Sun', value: 0, height: '0%' },
+                    ]);
+                }
+                
+                // Set top products
+                setTopProducts(data.topProducts || []);
+                
+                // Set category breakdown
+                setCategoryBreakdown(data.categoryBreakdown || []);
+                
+                // Set insights and alerts
+                setInsights(data.insights || null);
+                setAlerts(data.alerts || []);
+            } else {
+                setError(response.error || 'Failed to load analytics');
+            }
+        } catch (err) {
+            console.error('Error fetching analytics:', err);
+            setError('Failed to load analytics. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -59,6 +110,17 @@ const VendorAnalytics = () => {
                 <div className="absolute top-[-20%] right-[10%] w-[800px] h-[800px] bg-gradient-to-br from-emerald-500/5 to-cyan-500/5 rounded-full blur-[120px] mix-blend-multiply"></div>
                 <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-gradient-to-tl from-indigo-500/5 to-purple-500/5 rounded-full blur-[100px] mix-blend-multiply"></div>
             </div>
+
+            {/* Error Banner */}
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2">
+                    <AlertCircle size={18} />
+                    <span className="font-medium">{error}</span>
+                    <button onClick={() => setError(null)} className="ml-auto text-red-500 hover:text-red-700">
+                        <X size={18} />
+                    </button>
+                </div>
+            )}
 
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-6">
@@ -136,12 +198,13 @@ const VendorAnalytics = () => {
                             <h3 className="text-xl font-black text-gray-900 flex items-center gap-2">
                                 <BarChart2 size={20} className="text-gray-400" /> Revenue Overview
                             </h3>
-                            <p className="text-sm font-medium text-gray-400 mt-1">Daily earnings for the past week</p>
+                            <p className="text-sm font-medium text-gray-400 mt-1">Daily earnings for the selected period</p>
                         </div>
                         <div className="text-right">
-                            <p className="text-2xl font-black text-gray-900">৳35,200</p>
-                            <p className="text-xs font-bold text-emerald-500 uppercase flex items-center justify-end gap-1">
-                                <TrendingUp size={12} /> +15% vs last week
+                            <p className="text-2xl font-black text-gray-900">৳{stats.totalRevenue.toLocaleString()}</p>
+                            <p className={`text-xs font-bold uppercase flex items-center justify-end gap-1 ${stats.revenueGrowth >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                                {stats.revenueGrowth >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />} 
+                                {stats.revenueGrowth >= 0 ? '+' : ''}{stats.revenueGrowth}% vs last period
                             </p>
                         </div>
                     </div>
@@ -175,21 +238,35 @@ const VendorAnalytics = () => {
 
                     <div className="flex-1 flex flex-col justify-center space-y-6">
                         {/* Custom Progress Bars */}
-                        <CategoryProgress label="Food" value={65} color="bg-emerald-500" amount="৳15,400" />
-                        <CategoryProgress label="Drinks" value={25} color="bg-blue-500" amount="৳5,200" />
-                        <CategoryProgress label="Desserts" value={10} color="bg-orange-500" amount="৳2,800" />
+                        {categoryBreakdown.length > 0 ? (
+                            categoryBreakdown.map((category, idx) => (
+                                <CategoryProgress 
+                                    key={idx}
+                                    label={category.label} 
+                                    value={category.value} 
+                                    color={['bg-emerald-500', 'bg-blue-500', 'bg-orange-500', 'bg-violet-500'][idx % 4]} 
+                                    amount={`৳${category.amount?.toLocaleString() || 0}`} 
+                                />
+                            ))
+                        ) : (
+                            <>
+                                <CategoryProgress label="No Data" value={0} color="bg-gray-300" amount="৳0" />
+                            </>
+                        )}
 
-                        <div className="pt-6 border-t border-gray-100 mt-4">
-                            <div className="flex items-center gap-4 bg-indigo-50 p-4 rounded-2xl">
-                                <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                                    <TrendingUp size={20} />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-bold text-indigo-900">Desserts are trending!</p>
-                                    <p className="text-xs font-medium text-indigo-600/80">Sales up 15% this week.</p>
+                        {insights && (
+                            <div className="pt-6 border-t border-gray-100 mt-4">
+                                <div className="flex items-center gap-4 bg-indigo-50 p-4 rounded-2xl">
+                                    <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                        <TrendingUp size={20} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-indigo-900">{insights.title || 'Analytics Insight'}</p>
+                                        <p className="text-xs font-medium text-indigo-600/80">{insights.description || 'Keep track of your performance!'}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -206,25 +283,33 @@ const VendorAnalytics = () => {
                     </div>
 
                     <div className="space-y-4">
-                        {topProducts.map((product, i) => (
-                            <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 hover:bg-white border border-transparent hover:border-gray-100 hover:shadow-md transition-all group">
-                                <div className="flex items-center gap-4">
-                                    <div className="h-10 w-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center font-black text-gray-300 text-lg group-hover:text-indigo-500 group-hover:border-indigo-100 transition-colors">
-                                        #{i + 1}
+                        {topProducts.length > 0 ? (
+                            topProducts.map((product, i) => (
+                                <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 hover:bg-white border border-transparent hover:border-gray-100 hover:shadow-md transition-all group">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-10 w-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center font-black text-gray-300 text-lg group-hover:text-indigo-500 group-hover:border-indigo-100 transition-colors">
+                                            #{i + 1}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-900">{product.name}</h4>
+                                            <p className="text-xs font-semibold text-gray-400">{product.sales} Sales</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 className="font-bold text-gray-900">{product.name}</h4>
-                                        <p className="text-xs font-semibold text-gray-400">{product.sales} Sales</p>
+                                    <div className="text-right">
+                                        <p className="font-black text-gray-900">৳{product.revenue?.toLocaleString() || 0}</p>
+                                        <p className={`text-xs font-bold flex items-center justify-end gap-0.5 ${product.growth?.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>
+                                            {product.growth || '0%'}
+                                        </p>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="font-black text-gray-900">৳{product.revenue.toLocaleString()}</p>
-                                    <p className={`text-xs font-bold flex items-center justify-end gap-0.5 ${product.growth.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>
-                                        {product.growth}
-                                    </p>
-                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-8 text-gray-400">
+                                <ShoppingBag size={40} className="mx-auto mb-3 opacity-30" />
+                                <p className="font-medium">No product data yet</p>
+                                <p className="text-sm">Start selling to see your top performers!</p>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </div>
 
@@ -240,7 +325,9 @@ const VendorAnalytics = () => {
                                 <h3 className="text-xl font-black">Smart Insights</h3>
                             </div>
                             <p className="text-indigo-100 font-medium leading-relaxed mb-6">
-                                Your shop is performing <span className="font-bold text-white">better than 85%</span> of vendors on campus this week! Most of your traffic comes between <span className="font-bold text-white">12:00 PM - 2:00 PM</span>.
+                                {insights?.message || (
+                                    <>Your shop analytics will appear here once you start making sales. Track your performance and grow your business!</>
+                                )}
                             </p>
                             <button className="bg-white text-indigo-600 px-6 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-colors shadow-lg">
                                 View Detailed Analysis
@@ -253,18 +340,18 @@ const VendorAnalytics = () => {
                             Alerts
                         </h3>
                         <div className="space-y-4">
-                            <div className="flex items-start gap-3">
-                                <div className="w-2 h-2 rounded-full bg-orange-500 mt-2 shrink-0"></div>
-                                <p className="text-orange-800 font-medium text-sm">
-                                    <span className="font-bold">Low Stock Warning:</span> Spicy Chicken Wings (only 8 left).
-                                </p>
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <div className="w-2 h-2 rounded-full bg-orange-500 mt-2 shrink-0"></div>
-                                <p className="text-orange-800 font-medium text-sm">
-                                    <span className="font-bold">High Demand:</span> Lunch hour is approaching. Prep more meals!
-                                </p>
-                            </div>
+                            {alerts.length > 0 ? (
+                                alerts.map((alert, idx) => (
+                                    <div key={idx} className="flex items-start gap-3">
+                                        <div className="w-2 h-2 rounded-full bg-orange-500 mt-2 shrink-0"></div>
+                                        <p className="text-orange-800 font-medium text-sm">
+                                            <span className="font-bold">{alert.title}:</span> {alert.message}
+                                        </p>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-orange-700 font-medium text-sm">No alerts at this time. Keep up the great work!</p>
+                            )}
                         </div>
                     </div>
                 </div>
