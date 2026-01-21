@@ -4,10 +4,11 @@ import {
     XCircle, ChevronRight, MoreVertical, Truck,
     Calendar, ArrowUpRight, ArrowDownRight, DollarSign,
     User, Phone, MapPin, MessageSquare, AlertCircle,
-    Printer, ChefHat
+    Printer, ChefHat, X
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import marketplaceService from '../../services/marketplaceService';
+import { VendorOrderChatButton } from '../../components/Chat/ChatButton';
 
 const VendorOrders = () => {
     const { user } = useAuth();
@@ -39,6 +40,7 @@ const VendorOrders = () => {
                     const transformedOrders = (response.orders || []).map(order => ({
                         id: order.id,
                         customer: order.customer_name,
+                        customer_id: order.customer_id || order.user_id, // Include customer ID for chat
                         phone: order.customer_phone || '',
                         address: order.customer_address || '',
                         customer_image: order.customer_image,
@@ -336,9 +338,18 @@ const VendorOrders = () => {
                                                         {selectedOrder.address}
                                                     </p>
                                                 </div>
-                                                <button className="mt-2 text-xs font-bold text-emerald-600 flex items-center gap-1 hover:underline">
-                                                    <MessageSquare size={12} /> Message Customer
-                                                </button>
+                                                {selectedOrder.customer_id && !['COMPLETED', 'CANCELLED'].includes(selectedOrder.status) && (
+                                                    <VendorOrderChatButton
+                                                        customerId={selectedOrder.customer_id}
+                                                        customerName={selectedOrder.customer}
+                                                        orderId={selectedOrder.id}
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="mt-2 text-xs font-bold text-emerald-600 hover:bg-emerald-50"
+                                                    >
+                                                        <MessageSquare size={12} className="mr-1" /> Message Customer
+                                                    </VendorOrderChatButton>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -363,11 +374,11 @@ const VendorOrders = () => {
                                                         {item.quantity}x
                                                     </div>
                                                     <div>
-                                                        <h4 className="font-bold text-gray-900">{item.name}</h4>
+                                                        <h4 className="font-bold text-gray-900">{item.product_name || item.name}</h4>
                                                         {item.options && <p className="text-xs font-medium text-gray-500">{item.options}</p>}
                                                     </div>
                                                 </div>
-                                                <span className="font-bold text-gray-900">৳{item.price * item.quantity}</span>
+                                                <span className="font-bold text-gray-900">৳{(parseFloat(item.price) * item.quantity).toFixed(0)}</span>
                                             </div>
                                         ))}
                                     </div>

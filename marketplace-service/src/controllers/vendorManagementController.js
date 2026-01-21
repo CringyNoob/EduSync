@@ -41,7 +41,7 @@ async function getMyVendor(req, res) {
 
         const vendor = result.rows[0];
 
-        // Get today's stats
+        // Get today's stats from vendor_stats
         const statsQuery = `
             SELECT 
                 COALESCE(SUM(revenue), 0) as revenue_today,
@@ -51,16 +51,38 @@ async function getMyVendor(req, res) {
             WHERE vendor_id = $1 AND date = CURRENT_DATE
         `;
         const statsResult = await db.query(statsQuery, [vendor.id]);
-        const stats = statsResult.rows[0] || { revenue_today: 0, orders_today: 0, visitors_today: 0 };
+        const todayStats = statsResult.rows[0] || { revenue_today: 0, orders_today: 0, visitors_today: 0 };
+
+        // Get total orders count and total revenue from orders table
+        const ordersStatsQuery = `
+            SELECT 
+                COUNT(*) as total_orders,
+                COUNT(CASE WHEN status = 'COMPLETED' THEN 1 END) as completed_orders,
+                COALESCE(SUM(CASE WHEN status = 'COMPLETED' THEN total ELSE 0 END), 0) as total_revenue,
+                COALESCE(SUM(CASE WHEN DATE(created_at) = CURRENT_DATE AND status != 'CANCELLED' THEN total ELSE 0 END), 0) as revenue_today_orders
+            FROM orders
+            WHERE vendor_id = $1
+        `;
+        const ordersStatsResult = await db.query(ordersStatsQuery, [vendor.id]);
+        const ordersStats = ordersStatsResult.rows[0] || { total_orders: 0, completed_orders: 0, total_revenue: 0, revenue_today_orders: 0 };
+
+        // Get products count
+        const productsCountQuery = `SELECT COUNT(*) as total_products FROM products WHERE vendor_id = $1`;
+        const productsCountResult = await db.query(productsCountQuery, [vendor.id]);
+        const totalProducts = parseInt(productsCountResult.rows[0]?.total_products) || 0;
 
         return res.status(200).json({
             success: true,
             vendor: {
                 ...vendor,
+                total_orders: parseInt(ordersStats.total_orders) || 0,
+                completed_orders: parseInt(ordersStats.completed_orders) || 0,
+                total_revenue: parseFloat(ordersStats.total_revenue) || 0,
+                total_products: totalProducts,
                 stats: {
-                    revenue_today: parseFloat(stats.revenue_today) || 0,
-                    orders_today: parseInt(stats.orders_today) || 0,
-                    profile_views: parseInt(stats.visitors_today) || 0
+                    revenue_today: parseFloat(todayStats.revenue_today) || parseFloat(ordersStats.revenue_today_orders) || 0,
+                    orders_today: parseInt(todayStats.orders_today) || 0,
+                    profile_views: parseInt(todayStats.visitors_today) || 0
                 }
             }
         });
@@ -711,19 +733,23 @@ async function getMyAnalytics(req, res) {
 
         // Determine date range
         let dateFilter;
+        let orderDateFilter;
         switch (range.toUpperCase()) {
             case 'THIS_MONTH':
                 dateFilter = `AND date >= DATE_TRUNC('month', CURRENT_DATE)`;
+                orderDateFilter = `AND created_at >= DATE_TRUNC('month', CURRENT_DATE)`;
                 break;
             case 'ALL_TIME':
                 dateFilter = '';
+                orderDateFilter = '';
                 break;
             case 'THIS_WEEK':
             default:
                 dateFilter = `AND date >= CURRENT_DATE - INTERVAL '7 days'`;
+                orderDateFilter = `AND created_at >= CURRENT_DATE - INTERVAL '7 days'`;
         }
 
-        // Get aggregate stats
+        // Get aggregate stats from vendor_stats
         const statsQuery = `
             SELECT 
                 COALESCE(SUM(revenue), 0) as total_revenue,
@@ -733,16 +759,37 @@ async function getMyAnalytics(req, res) {
             WHERE vendor_id = $1 ${dateFilter}
         `;
         const statsResult = await db.query(statsQuery, [vendorId]);
-        const stats = statsResult.rows[0];
+        let stats = statsResult.rows[0];
 
-        // Get daily revenue for chart (last 7 days)
+        // If no vendor_stats data, fallback to orders table
+        if (parseFloat(stats.total_revenue) === 0 || parseInt(stats.total_orders) === 0) {
+            const ordersStatsQuery = `
+                SELECT 
+                    COALESCE(SUM(total), 0) as total_revenue,
+                    COUNT(*) as total_orders
+                FROM orders
+                WHERE vendor_id = $1 ${orderDateFilter || ''}
+            `;
+            const ordersStatsResult = await db.query(ordersStatsQuery, [vendorId]);
+            if (ordersStatsResult.rows[0]) {
+                stats = {
+                    ...stats,
+                    total_revenue: parseFloat(ordersStatsResult.rows[0].total_revenue) || stats.total_revenue,
+                    total_orders: parseInt(ordersStatsResult.rows[0].total_orders) || stats.total_orders
+                };
+            }
+        }
+
+        // Get daily revenue for chart (last 7 days) - use orders table for more accurate data
         const dailyQuery = `
             SELECT 
-                TO_CHAR(date, 'Dy') as day,
-                COALESCE(revenue, 0) as value
-            FROM vendor_stats
-            WHERE vendor_id = $1 AND date >= CURRENT_DATE - INTERVAL '6 days'
-            ORDER BY date ASC
+                TO_CHAR(created_at::date, 'Dy') as day,
+                created_at::date as date,
+                COALESCE(SUM(total), 0) as value
+            FROM orders
+            WHERE vendor_id = $1 AND created_at >= CURRENT_DATE - INTERVAL '6 days'
+            GROUP BY created_at::date
+            ORDER BY created_at::date ASC
         `;
         const dailyResult = await db.query(dailyQuery, [vendorId]);
 
@@ -795,16 +842,14 @@ async function getMyAnalytics(req, res) {
         return res.status(200).json({
             success: true,
             analytics: {
-                stats: {
-                    totalRevenue,
-                    revenueGrowth: 12.5, // Would need historical data to calculate
-                    totalOrders,
-                    ordersGrowth: 8.2,
-                    avgOrderValue,
-                    avgOrderGrowth: -2.1,
-                    visitors,
-                    visitorsGrowth: 15.3
-                },
+                totalRevenue,
+                revenueGrowth: 12.5, // Would need historical data to calculate
+                totalOrders,
+                ordersGrowth: 8.2,
+                avgOrderValue,
+                avgOrderGrowth: -2.1,
+                visitors,
+                visitorsGrowth: 15.3,
                 dailyRevenue,
                 topProducts: topProductsResult.rows.map((p, i) => ({
                     name: p.name,
@@ -812,7 +857,8 @@ async function getMyAnalytics(req, res) {
                     revenue: parseFloat(p.revenue) || 0,
                     growth: ['+12%', '+8%', '-3%', '+15%'][i] || '+0%'
                 })),
-                salesByCategory
+                salesByCategory,
+                categoryBreakdown: salesByCategory
             }
         });
 

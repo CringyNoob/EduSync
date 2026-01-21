@@ -8,6 +8,7 @@ import {
 import Button from '../../components/Button';
 import { useAuth } from '../../context/AuthContext';
 import renthubService from '../../services/renthubService';
+import { ChatWithOwnerButton } from '../../components/Chat/ChatButton';
 
 const RentHubItemDetails = () => {
     const { id } = useParams();
@@ -39,6 +40,7 @@ const RentHubItemDetails = () => {
                     rating: 4.5,
                     reviewsCount: 10,
                     owner: {
+                        id: listing.owner_id,
                         name: listing.owner_name,
                         avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80',
                         joined: 'Recently',
@@ -271,9 +273,17 @@ const RentHubItemDetails = () => {
                                 <p className="text-xs font-bold text-gray-400 dark:text-gray-500">SUCCESSFUL RENTALS</p>
                                 <p className="text-xl font-black text-emerald-600">{item.owner.totalRentals}+</p>
                             </div>
-                            <Button variant="outline" className="rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <MessageCircle className="mr-2 h-4 w-4" /> Message
-                            </Button>
+                            {item.owner.id && item.owner.id !== user?.id && (
+                                <ChatWithOwnerButton
+                                    ownerId={item.owner.id}
+                                    ownerName={item.owner.name}
+                                    rentalId={item.id}
+                                    className="rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                    variant="outline"
+                                >
+                                    <MessageCircle className="mr-2 h-4 w-4" /> Message
+                                </ChatWithOwnerButton>
+                            )}
                         </div>
                     </div>
                 </div>

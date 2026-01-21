@@ -9,7 +9,7 @@ $BaseDir = $PSScriptRoot
 # Kill any existing processes on these ports
 Write-Host "Cleaning up existing processes..." -ForegroundColor Yellow
 try {
-    npx kill-port 3001 3002 3003 3004 3005 8000 5173 2>$null
+    npx kill-port 3001 3002 3003 3004 3005 3006 8000 5173 2>$null
     Start-Sleep -Seconds 2
 } catch {
     Write-Host "Cleanup skipped" -ForegroundColor Gray
@@ -57,6 +57,10 @@ Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\n
 Write-Host "Starting Notices Service (Port 3005)..." -ForegroundColor Green
 Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\notices-service; Write-Host '📋 NOTICES SERVICE' -ForegroundColor DarkYellow; npm start"
 
+# Start Chat Service (Port 3006)
+Write-Host "Starting Chat Service (Port 3006)..." -ForegroundColor Green
+Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\chat-service; Write-Host '💬 CHAT SERVICE' -ForegroundColor Green; npm start"
+
 # Start Gateway (Port 8000)
 Write-Host "Starting API Gateway (Port 8000)..." -ForegroundColor Green
 Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd C:\EduSync\EduSync\gateway; Write-Host '🌐 API GATEWAY' -ForegroundColor Blue; node server.js"
@@ -76,6 +80,7 @@ Write-Host "  🛒 Marketplace Service: http://localhost:3002" -ForegroundColor 
 Write-Host "  🏠 RentHub Service:     http://localhost:3003" -ForegroundColor Yellow
 Write-Host "  📰 NewsBox Service:     http://localhost:3004" -ForegroundColor Magenta
 Write-Host "  📋 Notices Service:     http://localhost:3005" -ForegroundColor DarkYellow
+Write-Host "  💬 Chat Service:        http://localhost:3006" -ForegroundColor Green
 Write-Host "  🌐 API Gateway:         http://localhost:8000" -ForegroundColor Blue
 Write-Host "  ⚛️  React Client:        http://localhost:5173" -ForegroundColor Cyan
 Write-Host ""

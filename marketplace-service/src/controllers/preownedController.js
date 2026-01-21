@@ -264,10 +264,184 @@ async function getListingsByUser(req, res) {
     }
 }
 
+/**
+ * Update a pre-owned listing
+ * PUT /preowned/:id
+ * 
+ * Body: { title, description, price, category, images }
+ * Only the seller can update their own listing
+ */
+async function updateListing(req, res) {
+    try {
+        const { id } = req.params;
+        const { title, description, price, category, images, seller_id } = req.body;
+
+        // Validate UUID format
+        if (!id || id.length < 36) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid listing ID format'
+            });
+        }
+
+        // Check if listing exists
+        const checkQuery = `SELECT id, seller_id, status FROM preowned_listings WHERE id = $1`;
+        const checkResult = await db.query(checkQuery, [id]);
+
+        if (checkResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Listing not found'
+            });
+        }
+
+        // Check if seller_id matches (authorization)
+        if (seller_id && checkResult.rows[0].seller_id !== seller_id) {
+            return res.status(403).json({
+                success: false,
+                error: 'You can only update your own listings'
+            });
+        }
+
+        // Check if listing is sold
+        if (checkResult.rows[0].status === 'SOLD') {
+            return res.status(400).json({
+                success: false,
+                error: 'Cannot update a sold listing'
+            });
+        }
+
+        // Validate price if provided
+        if (price !== undefined && price <= 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'Price must be greater than 0'
+            });
+        }
+
+        // Ensure images is an array if provided
+        const imageArray = images ? (Array.isArray(images) ? images : []) : undefined;
+
+        // Build dynamic update query
+        const updates = [];
+        const params = [];
+        let paramIndex = 1;
+
+        if (title !== undefined) {
+            updates.push(`title = $${paramIndex++}`);
+            params.push(title);
+        }
+        if (description !== undefined) {
+            updates.push(`description = $${paramIndex++}`);
+            params.push(description);
+        }
+        if (price !== undefined) {
+            updates.push(`price = $${paramIndex++}`);
+            params.push(price);
+        }
+        if (category !== undefined) {
+            updates.push(`category = $${paramIndex++}`);
+            params.push(category);
+        }
+        if (imageArray !== undefined) {
+            updates.push(`images = $${paramIndex++}`);
+            params.push(imageArray);
+        }
+
+        if (updates.length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'No fields to update'
+            });
+        }
+
+        params.push(id);
+        const updateQuery = `
+            UPDATE preowned_listings
+            SET ${updates.join(', ')}
+            WHERE id = $${paramIndex}
+            RETURNING id, seller_id, seller_name, title, description, price, category, images, status, created_at
+        `;
+
+        const result = await db.query(updateQuery, params);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Listing updated successfully',
+            listing: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('Error in updateListing:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to update listing'
+        });
+    }
+}
+
+/**
+ * Delete a pre-owned listing
+ * DELETE /preowned/:id
+ * 
+ * Only the seller can delete their own listing
+ */
+async function deleteListing(req, res) {
+    try {
+        const { id } = req.params;
+        const { seller_id } = req.body;
+
+        // Validate UUID format
+        if (!id || id.length < 36) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid listing ID format'
+            });
+        }
+
+        // Check if listing exists
+        const checkQuery = `SELECT id, seller_id FROM preowned_listings WHERE id = $1`;
+        const checkResult = await db.query(checkQuery, [id]);
+
+        if (checkResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Listing not found'
+            });
+        }
+
+        // Check if seller_id matches (authorization)
+        if (seller_id && checkResult.rows[0].seller_id !== seller_id) {
+            return res.status(403).json({
+                success: false,
+                error: 'You can only delete your own listings'
+            });
+        }
+
+        // Delete the listing
+        const deleteQuery = `DELETE FROM preowned_listings WHERE id = $1 RETURNING id`;
+        await db.query(deleteQuery, [id]);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Listing deleted successfully'
+        });
+
+    } catch (error) {
+        console.error('Error in deleteListing:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to delete listing'
+        });
+    }
+}
+
 module.exports = {
     getAllListings,
     getListingById,
     createListing,
     markAsSold,
-    getListingsByUser
+    getListingsByUser,
+    updateListing,
+    deleteListing
 };

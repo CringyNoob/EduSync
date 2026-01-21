@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     Store, MapPin, Mail, Phone, Clock, Star, ShoppingBag,
-    Package, ArrowLeft, AlertCircle, Users, TrendingUp
+    Package, ArrowLeft, AlertCircle, Users, TrendingUp, MessageCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import marketplaceService from '../../services/marketplaceService';
 import Button from '../../components/Button';
+import { ChatWithVendorButton } from '../../components/Chat/ChatButton';
 
 const PublicVendorProfile = () => {
     const { vendorId } = useParams();
@@ -148,6 +149,19 @@ const PublicVendorProfile = () => {
                             <div className="font-black text-gray-900 text-xl">{products.length}</div>
                             <div className="text-xs font-bold text-gray-400 uppercase tracking-wide">Products</div>
                         </div>
+                        {/* Chat with Vendor Button */}
+                        {vendor.owner_id && vendor.owner_id !== user?.id && (
+                            <ChatWithVendorButton
+                                vendorId={vendor.owner_id}
+                                vendorName={vendor.name}
+                                variant="primary"
+                                size="md"
+                                className="self-center"
+                            >
+                                <MessageCircle size={18} className="mr-2" />
+                                Chat
+                            </ChatWithVendorButton>
+                        )}
                     </div>
                 </div>
             </div>

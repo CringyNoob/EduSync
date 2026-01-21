@@ -245,8 +245,8 @@ const Home = () => {
     }, [activityFilter, searchQuery]);
 
     const quickActions = [
-        { title: "Sell Item", description: "List on marketplace", icon: ShoppingBag, colorClass: "bg-gradient-to-br from-orange-400 to-pink-500", onClick: () => navigate('/marketplace/new') },
-        { title: "Peer Chat", description: "Connect with students", icon: MessageCircle, colorClass: "bg-gradient-to-br from-blue-400 to-cyan-500", onClick: () => navigate('/chat') },
+        { title: "Sell Item", description: "List on marketplace", icon: ShoppingBag, colorClass: "bg-gradient-to-br from-orange-400 to-pink-500", onClick: () => navigate('/marketplace/pre-owned') },
+        { title: "My Orders", description: "Track your orders", icon: LayoutDashboard, colorClass: "bg-gradient-to-br from-blue-400 to-cyan-500", onClick: () => navigate('/my-orders') },
         { title: "My Rentals", description: "Manage your gear", icon: LayoutDashboard, colorClass: "bg-gradient-to-br from-emerald-400 to-teal-500", onClick: () => navigate('/renthub/my-rentals') },
         { title: "Report Issue", description: "Submit campus issue", icon: AlertCircle, colorClass: "bg-gradient-to-br from-red-400 to-rose-500", onClick: () => navigate('/issues/new') },
     ];

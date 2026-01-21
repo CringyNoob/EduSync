@@ -1,10 +1,53 @@
-import React from 'react';
-import { Search, Bell, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Bell, User, MessageCircle } from 'lucide-react';
 import Button from '../Button';
 import { useAuth } from '../../context/AuthContext';
+import chatService from '../../services/chatService';
 
 const Navbar = () => {
     const { user } = useAuth();
+    const navigate = useNavigate();
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    // Fetch unread count on mount
+    useEffect(() => {
+        const fetchUnreadCount = async () => {
+            if (!user) return;
+            
+            try {
+                const token = localStorage.getItem('edusync_token');
+                if (token && !chatService.isConnected()) {
+                    chatService.connect(token);
+                }
+                
+                const response = await chatService.getMyConversations('ACTIVE');
+                if (response.success && response.conversations) {
+                    const total = response.conversations.reduce((acc, conv) => acc + (conv.unread_count || 0), 0);
+                    setUnreadCount(total);
+                }
+            } catch (err) {
+                console.error('Error fetching unread count:', err);
+            }
+        };
+
+        fetchUnreadCount();
+        // Refresh every 30 seconds
+        const interval = setInterval(fetchUnreadCount, 30000);
+        return () => clearInterval(interval);
+    }, [user]);
+
+    // Listen for new messages to update count
+    useEffect(() => {
+        if (!user || !chatService.isConnected()) return;
+
+        const handleNewMessage = () => {
+            setUnreadCount(prev => prev + 1);
+        };
+
+        chatService.on('new_message', handleNewMessage);
+        return () => chatService.off('new_message', handleNewMessage);
+    }, [user]);
 
     // Get user initials for avatar fallback
     const getInitials = (name) => {
@@ -29,6 +72,23 @@ const Navbar = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
+                    {/* Messages Icon */}
+                    <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="relative hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                        onClick={() => navigate('/chat')}
+                    >
+                        <MessageCircle className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                        {unreadCount > 0 && (
+                            <span className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-blue-500 flex items-center justify-center">
+                                <span className="text-[10px] font-bold text-white">
+                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                </span>
+                            </span>
+                        )}
+                    </Button>
+
                     <Button variant="ghost" size="icon" className="relative hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
                         <Bell className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                         <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500"></span>

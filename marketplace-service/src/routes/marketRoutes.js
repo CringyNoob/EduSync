@@ -8,6 +8,7 @@ const vendorController = require('../controllers/vendorController');
 const productController = require('../controllers/productController');
 const preownedController = require('../controllers/preownedController');
 const vendorManagementController = require('../controllers/vendorManagementController');
+const orderController = require('../controllers/orderController');
 
 // Import middleware
 const authMiddleware = require('../middleware/authMiddleware');
@@ -173,9 +174,51 @@ router.get('/preowned/:id', preownedController.getListingById);
 router.get('/preowned/user/:userId', preownedController.getListingsByUser);
 
 /**
+ * PUT /preowned/:id
+ * Update a listing (title, description, price, category, images)
+ */
+router.put('/preowned/:id', preownedController.updateListing);
+
+/**
  * PUT /preowned/:id/sold
  * Mark listing as sold
  */
 router.put('/preowned/:id/sold', preownedController.markAsSold);
+
+/**
+ * DELETE /preowned/:id
+ * Delete a listing
+ */
+router.delete('/preowned/:id', preownedController.deleteListing);
+
+// ========================================
+// CUSTOMER ORDER ROUTES
+// ========================================
+
+/**
+ * POST /orders
+ * Place a new order (requires authentication)
+ * Body: { vendor_id, items, customer_name, customer_phone, customer_address, payment_method, subtotal, delivery_fee, total, notes }
+ */
+router.post('/orders', authMiddleware, orderController.placeOrder);
+
+/**
+ * GET /orders/my-orders
+ * Get customer's orders (requires authentication)
+ * Query: ?status=PENDING,PREPARING,READY,COMPLETED,CANCELLED
+ */
+router.get('/orders/my-orders', authMiddleware, orderController.getMyOrders);
+
+/**
+ * GET /orders/:orderId
+ * Get single order details (requires authentication)
+ */
+router.get('/orders/:orderId', authMiddleware, orderController.getOrderById);
+
+/**
+ * PUT /orders/:orderId/cancel
+ * Cancel an order (requires authentication, only if PENDING)
+ */
+router.put('/orders/:orderId/cancel', authMiddleware, orderController.cancelOrder);
 
 module.exports = router;

@@ -110,6 +110,46 @@ const marketplaceService = {
   },
 
   /**
+   * Mark pre-owned listing as sold (alias)
+   * @param {string} id - Listing ID
+   * @returns {Promise} Response confirming update
+   */
+  markPreownedAsSold: async (id) => {
+    const response = await api.put(`/market/preowned/${id}/sold`);
+    return response.data;
+  },
+
+  /**
+   * Update a pre-owned listing
+   * @param {string} id - Listing ID
+   * @param {Object} listingData - Updated listing data
+   * @param {string} listingData.title - Listing title
+   * @param {string} listingData.description - Listing description
+   * @param {number} listingData.price - Item price
+   * @param {string} listingData.category - Category
+   * @param {string[]} listingData.images - Array of image URLs
+   * @param {string} listingData.seller_id - Seller ID (for authorization)
+   * @returns {Promise} Response with updated listing
+   */
+  updatePreownedListing: async (id, listingData) => {
+    const response = await api.put(`/market/preowned/${id}`, listingData);
+    return response.data;
+  },
+
+  /**
+   * Delete a pre-owned listing
+   * @param {string} id - Listing ID
+   * @param {string} sellerId - Seller ID (for authorization)
+   * @returns {Promise} Response confirming deletion
+   */
+  deletePreownedListing: async (id, sellerId) => {
+    const response = await api.delete(`/market/preowned/${id}`, {
+      data: { seller_id: sellerId }
+    });
+    return response.data;
+  },
+
+  /**
    * Get all pre-owned listings by a specific user
    * @param {string} userId - User ID
    * @returns {Promise} Response with listings array
@@ -255,6 +295,61 @@ const marketplaceService = {
    */
   deleteCategory: async (categoryId) => {
     const response = await api.delete(`/market/vendors/my-shop/categories/${categoryId}`);
+    return response.data;
+  },
+
+  // ========================================
+  // CUSTOMER ORDER APIs
+  // ========================================
+
+  /**
+   * Place a new order
+   * @param {Object} orderData - Order data
+   * @param {string} orderData.vendor_id - Vendor ID
+   * @param {Array} orderData.items - Order items [{ product_id, product_name, quantity, price }]
+   * @param {string} orderData.customer_name - Customer name
+   * @param {string} orderData.customer_phone - Customer phone
+   * @param {string} orderData.customer_address - Delivery address
+   * @param {string} orderData.payment_method - CASH, BKASH, NAGAD, CARD
+   * @param {number} orderData.subtotal - Subtotal amount
+   * @param {number} orderData.delivery_fee - Delivery fee
+   * @param {number} orderData.total - Total amount
+   * @param {string} orderData.notes - Special notes
+   * @returns {Promise} Response with created order
+   */
+  placeOrder: async (orderData) => {
+    const response = await api.post('/market/orders', orderData);
+    return response.data;
+  },
+
+  /**
+   * Get customer's orders
+   * @param {string} status - Optional status filter (comma-separated)
+   * @returns {Promise} Response with orders array
+   */
+  getMyCustomerOrders: async (status = null) => {
+    const url = status ? `/market/orders/my-orders?status=${status}` : '/market/orders/my-orders';
+    const response = await api.get(url);
+    return response.data;
+  },
+
+  /**
+   * Get single order details
+   * @param {string} orderId - Order ID
+   * @returns {Promise} Response with order details
+   */
+  getOrderById: async (orderId) => {
+    const response = await api.get(`/market/orders/${orderId}`);
+    return response.data;
+  },
+
+  /**
+   * Cancel an order (only if PENDING)
+   * @param {string} orderId - Order ID
+   * @returns {Promise} Response with cancelled order
+   */
+  cancelOrder: async (orderId) => {
+    const response = await api.put(`/market/orders/${orderId}/cancel`);
     return response.data;
   }
 };

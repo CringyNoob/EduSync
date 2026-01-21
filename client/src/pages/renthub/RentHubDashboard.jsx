@@ -43,9 +43,9 @@ const RentHubDashboard = () => {
                     startDate: new Date(rental.start_date).toLocaleDateString(),
                     endDate: new Date(rental.end_date).toLocaleDateString(),
                     status: rental.status === 'ACTIVE' ? 'active' : rental.status.toLowerCase(),
-                    totalPrice: parseFloat(rental.total_price),
+                    totalPrice: parseFloat(rental.total_price) || 0,
                     durationDays: rental.duration_days,
-                    dailyPrice: parseFloat(rental.daily_price),
+                    dailyPrice: parseFloat(rental.daily_price) || 0,
                     progress: calculateProgress(rental.start_date, rental.end_date)
                 }));
                 setActiveRentals(mappedRentals);
@@ -160,7 +160,7 @@ const RentHubDashboard = () => {
                         </div>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Spent</p>
                     </div>
-                    <h3 className="text-3xl font-black text-gray-900 dark:text-white">৳{activeRentals.reduce((sum, r) => sum + r.totalPrice, 0).toFixed(2)}</h3>
+                    <h3 className="text-3xl font-black text-gray-900 dark:text-white">৳{activeRentals.reduce((sum, r) => sum + (parseFloat(r.totalPrice) || 0), 0).toFixed(2)}</h3>
                 </div>
                 <div className="bg-gray-900 p-6 rounded-[2rem] text-white shadow-xl shadow-gray-200 relative overflow-hidden group">
                     <div className="relative z-10">
@@ -233,7 +233,7 @@ const RentHubDashboard = () => {
                                                     </div>
                                                 </div>
                                                 <div className="flex md:flex-col gap-2">
-                                                    <p className="text-xl font-black text-gray-900 dark:text-white">৳{rental.totalPrice.toFixed(2)}</p>
+                                                    <p className="text-xl font-black text-gray-900 dark:text-white">৳{(parseFloat(rental.totalPrice) || 0).toFixed(2)}</p>
                                                     {rental.status === 'ACTIVE' && (
                                                         <Button
                                                             size="sm"

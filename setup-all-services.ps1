@@ -10,6 +10,8 @@ $services = @(
     @{Name="Marketplace Service"; Path="c:\Edusync\Edusync\marketplace-service"},
     @{Name="RentHub Service"; Path="c:\Edusync\Edusync\renthub-service"},
     @{Name="NewsBox Service"; Path="c:\Edusync\Edusync\newsbox-service"},
+    @{Name="Notices Service"; Path="c:\Edusync\Edusync\notices-service"},
+    @{Name="Chat Service"; Path="c:\Edusync\Edusync\chat-service"},
     @{Name="Gateway"; Path="c:\Edusync\Edusync\gateway"},
     @{Name="React Client"; Path="c:\Edusync\Edusync\client"}
 )

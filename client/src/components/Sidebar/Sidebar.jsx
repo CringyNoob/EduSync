@@ -161,11 +161,12 @@ const Sidebar = () => {
                     { icon: Store, label: 'My Shop', path: '/vendor/shop', activeClass: 'text-rose-600 bg-rose-50 border-rose-600' },
                     { icon: ShoppingBag, label: 'Orders', path: '/vendor/orders', activeClass: 'text-orange-600 bg-orange-50 border-orange-600', badge: activeOrdersCount },
                     { icon: Package, label: 'Products', path: '/vendor/products', activeClass: 'text-amber-600 bg-amber-50 border-amber-600' },
+                    { icon: MessageCircle, label: 'Customer Chats', path: '/vendor/chats', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
                     { icon: TrendingUp, label: 'Analytics', path: '/vendor/analytics', activeClass: 'text-green-600 bg-green-50 border-green-600' },
                 ];
             case 'Admin':
                 return [
-                    { icon: LayoutDashboard, label: 'Overview', path: '/admin-dashboard', activeClass: 'text-red-600 bg-red-50 border-red-600' },
+                    { icon: LayoutDashboard, label: 'Overview', path: '/admin-dashboard', activeClass: 'text-red-600 bg-red-600' },
                     { icon: Newspaper, label: 'News Manager', path: '/newsbox/manage', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
                     { icon: User, label: 'Users', path: '/admin/users', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
                     { icon: Shield, label: 'Approvals', path: '/admin/approvals', activeClass: 'text-purple-600 bg-purple-50 border-purple-600', badge: 5 },

@@ -167,10 +167,11 @@ const VendorDashboard = () => {
         );
     }
 
-    // Calculate stats
-    const todayRevenue = activeOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-    const totalOrders = shopInfo?.total_orders || 0;
-    const lowStockProducts = products.filter(p => p.stock_count < 10);
+    // Calculate stats - use shopInfo.stats for today's revenue, fallback to orders
+    const todayRevenue = shopInfo?.stats?.revenue_today || activeOrders.reduce((sum, order) => sum + (parseFloat(order.total) || 0), 0);
+    const totalOrders = shopInfo?.completed_orders || 0;
+    const totalProducts = shopInfo?.total_products || products.length;
+    const lowStockProducts = products.filter(p => (p.stock_count || 0) < 10);
 
     return (
         <div className="min-h-screen p-6 space-y-8 font-sans animate-in fade-in duration-500">
@@ -201,20 +202,33 @@ const VendorDashboard = () => {
                     <div>
                         <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{shopInfo?.name || 'My Shop'}</h1>
                         <div className="flex items-center gap-3 mt-1">
-                            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide flex items-center gap-1.5">
-                                <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-                                {shopInfo?.status || 'Open Now'}
+                            <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide flex items-center gap-1.5 ${
+                                shopInfo?.is_active 
+                                    ? 'bg-green-100 text-green-700' 
+                                    : 'bg-yellow-100 text-yellow-700'
+                            }`}>
+                                <span className={`h-2 w-2 rounded-full ${shopInfo?.is_active ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`}></span>
+                                {shopInfo?.is_active ? 'Open Now' : (shopInfo?.status || 'Pending')}
                             </span>
                             <span className="flex items-center gap-1 text-sm font-bold text-gray-500">
-                                <Star size={14} className="text-yellow-400 fill-current" /> {shopInfo?.rating || 0} Rating
+                                <Star size={14} className="text-yellow-400 fill-current" /> {parseFloat(shopInfo?.rating || 0).toFixed(1)} Rating
+                            </span>
+                            <span className="text-sm font-bold text-gray-400">
+                                {shopInfo?.total_reviews || 0} reviews
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex gap-4 w-full md:w-auto">
+                <div className="flex gap-4 w-full md:w-auto flex-wrap">
                     <Button className="flex-1 md:flex-none shadow-lg shadow-primary/20" onClick={() => navigate('/vendor/products')}>
                         <Plus size={18} className="mr-2" /> Add Item
+                    </Button>
+                    <Button variant="outline" className="md:flex-none" onClick={() => navigate('/vendor/orders')}>
+                        View Orders
+                    </Button>
+                    <Button variant="outline" className="md:flex-none" onClick={() => navigate('/vendor/analytics')}>
+                        <TrendingUp size={18} className="mr-2" /> Analytics
                     </Button>
                     <Button variant="outline" className="md:flex-none" onClick={() => navigate('/vendor/shop')}>
                         Store Settings
@@ -226,7 +240,7 @@ const VendorDashboard = () => {
                 {/* Left Column - Stats & Orders */}
                 <div className="lg:col-span-2 space-y-8">
                     {/* Quick Stats */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         <div className="bg-white dark:bg-gray-800 p-5 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm">
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Today's Revenue</p>
                             <h3 className="text-2xl font-black text-gray-900 dark:text-white">
@@ -237,9 +251,13 @@ const VendorDashboard = () => {
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Active Orders</p>
                             <h3 className="text-2xl font-black text-gray-900 dark:text-white">{activeOrders.length}</h3>
                         </div>
-                        <div className="bg-white dark:bg-gray-800 p-5 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm hidden sm:block">
+                        <div className="bg-white dark:bg-gray-800 p-5 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm">
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Total Completed</p>
                             <h3 className="text-2xl font-black text-gray-900 dark:text-white tabular-nums">{totalOrders}</h3>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-5 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Total Products</p>
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white tabular-nums">{totalProducts}</h3>
                         </div>
                     </div>
 
@@ -282,13 +300,13 @@ const VendorDashboard = () => {
                                             <div className="flex justify-between items-end">
                                                 <div>
                                                     <h4 className="font-bold text-gray-900 dark:text-white text-lg mb-1">
-                                                        {order.items?.slice(0, 2).map(i => i.name).join(', ') || 'Order items'}
+                                                        {order.items?.slice(0, 2).map(i => i.product_name || i.name).join(', ') || 'Order items'}
                                                         {order.items?.length > 2 && ` +${order.items.length - 2} more`}
                                                     </h4>
-                                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Customer: {order.customer}</p>
+                                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Customer: {order.customer_name || order.customer}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <div className="text-xl font-black text-gray-900 dark:text-white">৳{order.total.toFixed(2)}</div>
+                                                    <div className="text-xl font-black text-gray-900 dark:text-white">৳{parseFloat(order.total || 0).toFixed(2)}</div>
                                                     <button className="mt-2 text-xs font-bold text-primary hover:underline flex items-center gap-1 justify-end">
                                                         Manage Order <ChevronRight size={12} />
                                                     </button>

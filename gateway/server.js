@@ -118,6 +118,22 @@ app.use('/api/notices', createProxyMiddleware({
     },
 }));
 
+// 6. Chat Service Proxy (Port 3006) - Real-time Chat
+app.use('/api/chat', createProxyMiddleware({
+    target: 'http://localhost:3006',
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api/chat': '',
+    },
+    onProxyReq: (proxyReq, req, res) => {
+        log('→ Proxying to Chat Service: ' + req.method + ' ' + req.originalUrl);
+    },
+    onError: (err, req, res) => {
+        log('❌ Chat Proxy Error: ' + err.message);
+        res.status(500).json({ error: 'Could not reach Chat Service', details: err.message });
+    },
+}));
+
 app.listen(PORT, () => {
     log(`🚀 Gateway running on http://localhost:${PORT}`);
 });

@@ -10,13 +10,23 @@ import Home from '../pages/dashboard/Home';
 import AdminDashboard from '../pages/dashboard/AdminDashboard';
 import VendorDashboard from '../pages/dashboard/VendorDashboard';
 import MarketplaceHome from '../pages/marketplace/MarketplaceHome';
+import MarketplaceLanding from '../pages/marketplace/MarketplaceLanding';
 import MarketplaceItemDetails from '../pages/marketplace/MarketplaceItemDetails';
 import PublicVendorProfile from '../pages/marketplace/PublicVendorProfile';
 import CartPage from '../pages/marketplace/CartPage';
+// New separate marketplace pages
+import FoodMarketplace from '../pages/marketplace/FoodMarketplace';
+import ShopsMarketplace from '../pages/marketplace/ShopsMarketplace';
+import PreownedMarketplace from '../pages/marketplace/PreownedMarketplace';
+import FoodItemDetails from '../pages/marketplace/FoodItemDetails';
+import ShopItemDetails from '../pages/marketplace/ShopItemDetails';
+import PreownedItemDetails from '../pages/marketplace/PreownedItemDetails';
 import NewsBoxHome from '../pages/newsbox/NewsBoxHome';
 import NewsManagement from '../pages/newsbox/NewsManagement';
 import NoticeFeed from '../pages/notices/NoticeFeed';
-import ChatList from '../pages/chat/ChatList';
+// Chat pages
+import ChatListPage from '../pages/chat/ChatListPage';
+import ChatRoom from '../pages/chat/ChatRoom';
 import IssueFeed from '../pages/issues/IssueFeed';
 import ReportIssue from '../pages/issues/ReportIssue';
 import Profile from '../pages/profile/Profile';
@@ -30,6 +40,8 @@ import VendorShop from '../pages/vendor/VendorShop';
 import VendorOrders from '../pages/vendor/VendorOrders';
 import VendorProducts from '../pages/vendor/VendorProducts';
 import VendorAnalytics from '../pages/vendor/VendorAnalytics';
+import VendorChats from '../pages/vendor/VendorChats';
+import MyOrders from '../pages/orders/MyOrders';
 
 import PlaceholderPage from '../pages/PlaceholderPage';
 import SettingsPage from '../pages/settings/SettingsPage';
@@ -72,21 +84,50 @@ const router = createBrowserRouter([
                 element: <Home />,
             },
             {
-                path: '/marketplace',
-                element: <MarketplaceHome />,
+                path: '/my-orders',
+                element: <MyOrders />,
             },
+            // Main marketplace landing page
+            {
+                path: '/marketplace',
+                element: <MarketplaceLanding />,
+            },
+            // Food Marketplace routes
             {
                 path: '/marketplace/foods',
-                element: <MarketplaceHome />,
+                element: <FoodMarketplace />,
             },
+            {
+                path: '/marketplace/foods/:id',
+                element: <FoodItemDetails />,
+            },
+            {
+                path: '/marketplace/foods/cart',
+                element: <CartPage section="foods" />,
+            },
+            // Pre-owned Marketplace routes
             {
                 path: '/marketplace/pre-owned',
-                element: <MarketplaceHome />,
+                element: <PreownedMarketplace />,
             },
             {
-                path: '/marketplace/shops',
-                element: <MarketplaceHome />,
+                path: '/marketplace/pre-owned/:id',
+                element: <PreownedItemDetails />,
             },
+            // Shops Marketplace routes
+            {
+                path: '/marketplace/shops',
+                element: <ShopsMarketplace />,
+            },
+            {
+                path: '/marketplace/shops/:id',
+                element: <ShopItemDetails />,
+            },
+            {
+                path: '/marketplace/shops/cart',
+                element: <CartPage section="shops" />,
+            },
+            // Legacy routes for backward compatibility
             {
                 path: '/marketplace/new',
                 element: <PlaceholderPage title="Create New Listing" />,
@@ -143,13 +184,14 @@ const router = createBrowserRouter([
                 path: '/notices/:id',
                 element: <PlaceholderPage title="Notice Details" />,
             },
+            // Chat Routes (User personal chats)
             {
                 path: '/chat',
-                element: <ChatList />,
+                element: <ChatListPage />,
             },
             {
-                path: '/chat/:id',
-                element: <ChatList />,
+                path: '/chat/:conversationId',
+                element: <ChatListPage />,
             },
             {
                 path: '/issues',
@@ -177,6 +219,9 @@ const router = createBrowserRouter([
             { path: '/vendor/orders', element: <VendorOrders /> },
             { path: '/vendor/products', element: <VendorProducts /> },
             { path: '/vendor/analytics', element: <VendorAnalytics /> },
+            // Vendor Chat Routes (Customer messages to vendor)
+            { path: '/vendor/chats', element: <VendorChats /> },
+            { path: '/vendor/chats/:conversationId', element: <VendorChats /> },
 
             // Admin Routes
             { path: '/admin/users', element: <PlaceholderPage title="User Management" /> },
