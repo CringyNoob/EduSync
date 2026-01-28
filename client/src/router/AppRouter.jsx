@@ -29,6 +29,7 @@ import ChatListPage from '../pages/chat/ChatListPage';
 import ChatRoom from '../pages/chat/ChatRoom';
 import IssueFeed from '../pages/issues/IssueFeed';
 import ReportIssue from '../pages/issues/ReportIssue';
+import IssueDetails from '../pages/issues/IssueDetails';
 import Profile from '../pages/profile/Profile';
 import RentHubHome from '../pages/renthub/RentHubHome';
 import RentHubItemDetails from '../pages/renthub/RentHubItemDetails';
@@ -42,6 +43,14 @@ import VendorProducts from '../pages/vendor/VendorProducts';
 import VendorAnalytics from '../pages/vendor/VendorAnalytics';
 import VendorChats from '../pages/vendor/VendorChats';
 import MyOrders from '../pages/orders/MyOrders';
+// Admin pages
+import AdminUsers from '../pages/admin/AdminUsers';
+import AdminVendors from '../pages/admin/AdminVendors';
+import AdminNewsManager from '../pages/admin/AdminNewsManager';
+import AdminAnalytics from '../pages/admin/AdminAnalytics';
+import AdminIssues from '../pages/admin/AdminIssues';
+import AdminRentals from '../pages/admin/AdminRentals';
+import AdminActivityLog from '../pages/admin/AdminActivityLog';
 
 import PlaceholderPage from '../pages/PlaceholderPage';
 import SettingsPage from '../pages/settings/SettingsPage';
@@ -69,12 +78,12 @@ const router = createBrowserRouter([
         element: <ForgotPassword />,
     },
     {
-        path: '/admin-dashboard',
-        element: <AdminDashboard />,
-    },
-    {
         element: <Layout />,
         children: [
+            {
+                path: '/admin-dashboard',
+                element: <AdminDashboard />,
+            },
             {
                 path: '/vendor-dashboard',
                 element: <VendorDashboard />,
@@ -202,6 +211,10 @@ const router = createBrowserRouter([
                 element: <ReportIssue />,
             },
             {
+                path: '/issues/:id',
+                element: <IssueDetails />,
+            },
+            {
                 path: '/profile/:id',
                 element: <Profile />,
             },
@@ -224,9 +237,13 @@ const router = createBrowserRouter([
             { path: '/vendor/chats/:conversationId', element: <VendorChats /> },
 
             // Admin Routes
-            { path: '/admin/users', element: <PlaceholderPage title="User Management" /> },
-            { path: '/admin/approvals', element: <PlaceholderPage title="Pending Approvals" /> },
-            { path: '/admin/reports', element: <PlaceholderPage title="System Reports" /> },
+            { path: '/admin/users', element: <AdminUsers /> },
+            { path: '/admin/vendors', element: <AdminVendors /> },
+            { path: '/admin/rentals', element: <AdminRentals /> },
+            { path: '/admin/newsManager', element: <AdminNewsManager /> },
+            { path: '/admin/analytics', element: <AdminAnalytics /> },
+            { path: '/admin/issues', element: <AdminIssues /> },
+            { path: '/admin/activities', element: <AdminActivityLog /> },
         ],
     },
 ]);

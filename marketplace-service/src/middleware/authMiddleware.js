@@ -67,4 +67,29 @@ function authMiddleware(req, res, next) {
     }
 }
 
+/**
+ * Admin Middleware
+ * Requires user to have ADMIN activeRole
+ */
+function adminMiddleware(req, res, next) {
+    if (!req.user) {
+        return res.status(401).json({
+            success: false,
+            message: 'Authentication required.'
+        });
+    }
+
+    // Check if user's active role is ADMIN
+    const isAdmin = req.user.activeRole === 'ADMIN' || req.user.role === 'Admin' || req.user.role === 'ADMIN';
+    if (!isAdmin) {
+        return res.status(403).json({
+            success: false,
+            message: 'Admin access required.'
+        });
+    }
+
+    next();
+}
+
 module.exports = authMiddleware;
+module.exports.adminMiddleware = adminMiddleware;

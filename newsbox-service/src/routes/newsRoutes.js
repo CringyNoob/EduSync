@@ -14,7 +14,8 @@ const {
     getPendingPosts,
     updatePostStatus,
     togglePinPost,
-    getPostsByUser
+    getPostsByUser,
+    getAdminStats
 } = require('../controllers/postController');
 const { votePost, voteComment, getPostVoteStatus } = require('../controllers/voteController');
 const { addComment, getCommentsByPost, deleteComment } = require('../controllers/commentController');
@@ -25,6 +26,14 @@ const {
     updateCategory, 
     deleteCategory 
 } = require('../controllers/categoryController');
+const {
+    getAllPostsAdmin,
+    createAnnouncement,
+    deletePostAdmin,
+    getPostCommentsAdmin,
+    deleteCommentAdmin,
+    getNewsAnalytics
+} = require('../controllers/adminNewsController');
 
 // ==================== HEALTH CHECK ====================
 router.get('/health', (req, res) => {
@@ -183,5 +192,38 @@ router.get('/posts/:id/comments', getCommentsByPost);
 // DELETE /comments/:id
 // Headers: Authorization: Bearer <token>
 router.delete('/comments/:id', authMiddleware, deleteComment);
+
+// ==================== ADMIN STATS ROUTE ====================
+
+// Get admin statistics (ADMIN ONLY)
+// GET /admin/stats
+router.get('/admin/stats', authMiddleware, adminMiddleware, getAdminStats);
+
+// ==================== ADMIN NEWS MANAGEMENT ROUTES ====================
+
+// Get all posts for admin management (ADMIN ONLY)
+// GET /admin/posts?page=1&limit=20&search=&category=
+router.get('/admin/posts', authMiddleware, adminMiddleware, getAllPostsAdmin);
+
+// Create an announcement (ADMIN ONLY)
+// POST /admin/announcements
+// Body: { title, content, category?, priority?, image_url? }
+router.post('/admin/announcements', authMiddleware, adminMiddleware, createAnnouncement);
+
+// Delete a post as admin (ADMIN ONLY)
+// DELETE /admin/posts/:id
+router.delete('/admin/posts/:id', authMiddleware, adminMiddleware, deletePostAdmin);
+
+// Get comments for a post (ADMIN ONLY)
+// GET /admin/posts/:postId/comments
+router.get('/admin/posts/:postId/comments', authMiddleware, adminMiddleware, getPostCommentsAdmin);
+
+// Delete a comment as admin (ADMIN ONLY)
+// DELETE /admin/comments/:id
+router.delete('/admin/comments/:id', authMiddleware, adminMiddleware, deleteCommentAdmin);
+
+// Get news analytics (ADMIN ONLY)
+// GET /admin/analytics/news
+router.get('/admin/analytics/news', authMiddleware, adminMiddleware, getNewsAnalytics);
 
 module.exports = router;

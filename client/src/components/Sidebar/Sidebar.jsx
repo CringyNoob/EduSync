@@ -18,7 +18,8 @@ import {
     TrendingUp,
     Newspaper,
     Package,
-    Briefcase
+    Briefcase,
+    Home
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useAuth } from '../../context/AuthContext';
@@ -167,10 +168,12 @@ const Sidebar = () => {
             case 'Admin':
                 return [
                     { icon: LayoutDashboard, label: 'Overview', path: '/admin-dashboard', activeClass: 'text-red-600 bg-red-600' },
-                    { icon: Newspaper, label: 'News Manager', path: '/newsbox/manage', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
                     { icon: User, label: 'Users', path: '/admin/users', activeClass: 'text-blue-600 bg-blue-50 border-blue-600' },
-                    { icon: Shield, label: 'Approvals', path: '/admin/approvals', activeClass: 'text-purple-600 bg-purple-50 border-purple-600', badge: 5 },
-                    { icon: AlertCircle, label: 'Reports', path: '/admin/reports', activeClass: 'text-orange-600 bg-orange-50 border-orange-600' },
+                    { icon: Store, label: 'Vendors', path: '/admin/vendors', activeClass: 'text-purple-600 bg-purple-50 border-purple-600' },
+                    { icon: Home, label: 'RentHub', path: '/admin/rentals', activeClass: 'text-indigo-600 bg-indigo-50 border-indigo-600' },
+                    { icon: Newspaper, label: 'News Manager', path: '/admin/newsManager', activeClass: 'text-green-600 bg-green-50 border-green-600' },
+                    { icon: AlertCircle, label: 'Issues', path: '/admin/issues', activeClass: 'text-yellow-600 bg-yellow-50 border-yellow-600' },
+                    { icon: TrendingUp, label: 'Analytics', path: '/admin/analytics', activeClass: 'text-orange-600 bg-orange-50 border-orange-600' },
                 ];
             case 'Student':
             default:

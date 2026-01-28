@@ -9,9 +9,11 @@ const productController = require('../controllers/productController');
 const preownedController = require('../controllers/preownedController');
 const vendorManagementController = require('../controllers/vendorManagementController');
 const orderController = require('../controllers/orderController');
+const adminController = require('../controllers/adminController');
 
 // Import middleware
 const authMiddleware = require('../middleware/authMiddleware');
+const { adminMiddleware } = require('../middleware/authMiddleware');
 
 // ========================================
 // VENDOR ROUTES (Shop-First Architecture)
@@ -220,5 +222,53 @@ router.get('/orders/:orderId', authMiddleware, orderController.getOrderById);
  * Cancel an order (requires authentication, only if PENDING)
  */
 router.put('/orders/:orderId/cancel', authMiddleware, orderController.cancelOrder);
+
+// ========================================
+// ADMIN ROUTES
+// ========================================
+
+/**
+ * GET /admin/stats
+ * Get admin statistics for marketplace (Admin only)
+ */
+router.get('/admin/stats', authMiddleware, adminMiddleware, adminController.getAdminStats);
+
+/**
+ * GET /admin/vendors
+ * Get all vendors for admin management (Admin only)
+ * Query: ?status=PENDING&type=STARTUP
+ */
+router.get('/admin/vendors', authMiddleware, adminMiddleware, adminController.getAllVendors);
+
+/**
+ * PATCH /admin/vendors/:id/status
+ * Update vendor status (Admin only)
+ * Body: { status: 'ACTIVE' | 'SUSPENDED' | 'PENDING' }
+ */
+router.patch('/admin/vendors/:id/status', authMiddleware, adminMiddleware, adminController.updateVendorStatus);
+
+/**
+ * DELETE /admin/vendors/:id
+ * Delete a vendor and all their products (Admin only)
+ */
+router.delete('/admin/vendors/:id', authMiddleware, adminMiddleware, adminController.deleteVendor);
+
+/**
+ * GET /admin/vendors/:id/products
+ * Get all products for a specific vendor (Admin only)
+ */
+router.get('/admin/vendors/:id/products', authMiddleware, adminMiddleware, adminController.getVendorProducts);
+
+/**
+ * DELETE /admin/products/:id
+ * Delete a product (Admin only)
+ */
+router.delete('/admin/products/:id', authMiddleware, adminMiddleware, adminController.deleteProduct);
+
+/**
+ * GET /admin/analytics/vendors
+ * Get vendor analytics for admin dashboard (Admin only)
+ */
+router.get('/admin/analytics/vendors', authMiddleware, adminMiddleware, adminController.getVendorAnalytics);
 
 module.exports = router;

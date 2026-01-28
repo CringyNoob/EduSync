@@ -148,10 +148,41 @@ const authService = {
   /**
    * Switch active role for user
    * @param {string} role - The role to switch to (STUDENT, VENDOR, ADMIN)
+   * @param {string} otp - OTP code (required for ADMIN role)
+   * @param {string} hash - OTP hash (required for ADMIN role)
    * @returns {Promise} Response with updated roles and activeRole
    */
-  switchRole: async (role) => {
-    const response = await api.post('/auth/switch-role', { role });
+  switchRole: async (role, otp, hash) => {
+    const payload = { role };
+    if (otp && hash) {
+      payload.otp = otp;
+      payload.hash = hash;
+    }
+    const response = await api.post('/auth/switch-role', payload);
+    
+    // If a new token is returned, update localStorage
+    if (response.data.token) {
+      localStorage.setItem('edusync_token', response.data.token);
+    }
+    
+    return response.data;
+  },
+
+  /**
+   * Send OTP for Admin role verification
+   * @returns {Promise} Response with OTP hash
+   */
+  sendAdminOtp: async () => {
+    const response = await api.post('/auth/send-admin-otp');
+    return response.data;
+  },
+
+  /**
+   * Get admin statistics for auth service
+   * @returns {Promise} Response with user statistics
+   */
+  getAdminStats: async () => {
+    const response = await api.get('/auth/admin/stats');
     return response.data;
   },
 };

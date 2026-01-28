@@ -134,6 +134,22 @@ app.use('/api/chat', createProxyMiddleware({
     },
 }));
 
+// 7. Issue Service Proxy (Port 3007) - Issue Reporting
+app.use('/api/issues', createProxyMiddleware({
+    target: 'http://localhost:3007',
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api/issues': '',
+    },
+    onProxyReq: (proxyReq, req, res) => {
+        log('→ Proxying to Issue Service: ' + req.method + ' ' + req.originalUrl);
+    },
+    onError: (err, req, res) => {
+        log('❌ Issue Proxy Error: ' + err.message);
+        res.status(500).json({ error: 'Could not reach Issue Service', details: err.message });
+    },
+}));
+
 app.listen(PORT, () => {
     log(`🚀 Gateway running on http://localhost:${PORT}`);
 });

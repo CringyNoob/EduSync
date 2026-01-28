@@ -67,8 +67,32 @@ router.post('/add-vendor-role', authMiddleware, authController.addVendorRole);
 /**
  * POST /api/auth/switch-role
  * Switch active role for authenticated user
- * Body: { role }
+ * Body: { role, otp?, hash? } - OTP required for ADMIN role
  */
 router.post('/switch-role', authMiddleware, authController.switchActiveRole);
+
+/**
+ * POST /api/auth/send-admin-otp
+ * Send OTP for Admin role verification
+ */
+router.post('/send-admin-otp', authMiddleware, authController.sendAdminOtp);
+
+/**
+ * GET /api/auth/admin/stats
+ * Get admin statistics (requires ADMIN role)
+ */
+router.get('/admin/stats', authMiddleware, authController.getAdminStats);
+
+/**
+ * GET /api/auth/admin/activities
+ * Get activity logs with pagination (requires ADMIN role)
+ */
+router.get('/admin/activities', authMiddleware, authController.getActivityLogs);
+
+/**
+ * GET /api/auth/admin/activities/recent
+ * Get recent 5 activities (requires ADMIN role)
+ */
+router.get('/admin/activities/recent', authMiddleware, authController.getRecentActivities);
 
 module.exports = router;

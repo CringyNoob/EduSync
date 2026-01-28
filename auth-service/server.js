@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./src/config/db'); // Import the db connection
 const authRoutes = require('./src/routes/authRoutes'); // Import auth routes
+const adminRoutes = require('./src/routes/adminRoutes'); // Import admin routes
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
@@ -20,6 +21,9 @@ app.use(cors());         // Allow Frontend to talk to us
 
 // --- AUTH ROUTES ---
 app.use('/', authRoutes);
+
+// --- ADMIN ROUTES ---
+app.use('/admin', adminRoutes);
 
 // --- TEST ROUTE ---
 // Go to http://localhost:3001/health to see if it works

@@ -744,13 +744,15 @@ async function addVendorRole(req, res) {
  * Switch active role for user
  * POST /switch-role
  * Requires: Bearer token
- * Body: { role }
+ * Body: { role, otp?, hash? }
+ * - For ADMIN role: OTP verification is REQUIRED
+ * - For other roles: No OTP required
  * Used when user switches between STUDENT/VENDOR/ADMIN profiles
  */
 async function switchActiveRole(req, res) {
     try {
         const userId = req.user.userId;
-        const { role } = req.body;
+        const { role, otp, hash } = req.body;
 
         console.log('📝 switchActiveRole called for userId:', userId, 'to role:', role);
 
@@ -761,9 +763,9 @@ async function switchActiveRole(req, res) {
             });
         }
 
-        // Get current roles to validate
+        // Get current user data
         const userResult = await db.query(
-            'SELECT roles, active_role FROM users WHERE id = $1',
+            'SELECT id, email, roles, active_role FROM users WHERE id = $1',
             [userId]
         );
 
@@ -774,7 +776,8 @@ async function switchActiveRole(req, res) {
             });
         }
 
-        const currentRoles = userResult.rows[0].roles || ['STUDENT'];
+        const user = userResult.rows[0];
+        const currentRoles = user.roles || ['STUDENT'];
         console.log('Current roles:', currentRoles);
 
         // Validate that user has the role they're trying to switch to
@@ -785,6 +788,31 @@ async function switchActiveRole(req, res) {
             });
         }
 
+        // ADMIN role requires OTP verification for security
+        if (role === 'ADMIN') {
+            console.log('🔐 Admin role switch requires OTP verification');
+            
+            if (!otp || !hash) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'OTP verification required for Admin role',
+                    requiresOtp: true
+                });
+            }
+
+            // Verify OTP
+            const isValidOtp = otpService.verifyOtp(user.email, otp, hash);
+            
+            if (!isValidOtp) {
+                return res.status(403).json({
+                    success: false,
+                    error: 'Invalid or expired OTP. Please request a new one.'
+                });
+            }
+
+            console.log('✅ OTP verified for Admin switch');
+        }
+
         // Update active_role in database
         const updateResult = await db.query(
             'UPDATE users SET active_role = $1 WHERE id = $2 RETURNING roles, active_role',
@@ -793,11 +821,34 @@ async function switchActiveRole(req, res) {
 
         console.log('✅ Active role switched to:', updateResult.rows[0].active_role);
 
+        // Generate new JWT with updated activeRole
+        // First get profile data for complete token
+        const profileResult = await db.query(
+            'SELECT full_name, department, batch FROM profiles WHERE user_id = $1',
+            [userId]
+        );
+        const profile = profileResult.rows[0] || {};
+
+        const newToken = jwt.sign(
+            {
+                id: userId,
+                name: profile.full_name,
+                email: user.email,
+                department: profile.department,
+                batch: profile.batch,
+                roles: updateResult.rows[0].roles,
+                activeRole: updateResult.rows[0].active_role
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '1d' }
+        );
+
         return res.status(200).json({
             success: true,
             message: `Active role switched to ${role}`,
             roles: updateResult.rows[0].roles,
-            activeRole: updateResult.rows[0].active_role
+            activeRole: updateResult.rows[0].active_role,
+            token: newToken
         });
 
     } catch (error) {
@@ -805,6 +856,192 @@ async function switchActiveRole(req, res) {
         return res.status(500).json({
             success: false,
             error: 'Failed to switch active role'
+        });
+    }
+}
+
+/**
+ * Send OTP for Admin role switch
+ * POST /send-admin-otp
+ * Requires: Bearer token
+ * Sends OTP to user's email for Admin role verification
+ */
+async function sendAdminOtp(req, res) {
+    try {
+        const userId = req.user.userId;
+
+        // Get user data
+        const userResult = await db.query(
+            'SELECT email, roles FROM users WHERE id = $1',
+            [userId]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        const user = userResult.rows[0];
+        const currentRoles = user.roles || ['STUDENT'];
+
+        // Check if user has ADMIN role
+        if (!currentRoles.includes('ADMIN')) {
+            return res.status(403).json({
+                success: false,
+                error: 'User does not have Admin privileges'
+            });
+        }
+
+        // Generate OTP
+        const { otp, hash } = otpService.generateOtp(user.email);
+
+        // Send OTP via email
+        await emailService.sendOtpEmail(user.email, otp);
+
+        console.log('📧 Admin OTP sent to:', user.email);
+
+        return res.status(200).json({
+            success: true,
+            message: 'OTP sent to your email for Admin verification',
+            hash: hash
+        });
+
+    } catch (error) {
+        console.error('❌ Error in sendAdminOtp:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to send OTP. Please try again.'
+        });
+    }
+}
+
+/**
+ * Get admin statistics for auth service
+ * GET /admin/stats
+ * Returns user counts and statistics
+ */
+async function getAdminStats(req, res) {
+    try {
+        // Get user counts
+        const userStats = await db.query(`
+            SELECT 
+                COUNT(*) as total_users,
+                COUNT(*) FILTER (WHERE 'ADMIN' = ANY(roles)) as admin_count,
+                COUNT(*) FILTER (WHERE 'VENDOR' = ANY(roles)) as vendor_count,
+                COUNT(*) FILTER (WHERE is_verified = true) as verified_users,
+                COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days') as new_users_7d,
+                COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days') as new_users_30d,
+                COUNT(*) FILTER (WHERE created_at >= CURRENT_DATE) as new_today
+            FROM users
+        `);
+
+        // Get active users (logged in within last 30 days) - approximate via updated_at
+        const activeUsers = await db.query(`
+            SELECT COUNT(*) as count
+            FROM users
+            WHERE updated_at >= NOW() - INTERVAL '30 days'
+        `);
+
+        // Get department distribution
+        const departmentStats = await db.query(`
+            SELECT department, COUNT(*) as count
+            FROM profiles
+            WHERE department IS NOT NULL
+            GROUP BY department
+            ORDER BY count DESC
+            LIMIT 10
+        `);
+
+        const stats = userStats.rows[0];
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                totalUsers: parseInt(stats.total_users) || 0,
+                total_users: parseInt(stats.total_users) || 0,
+                admin_count: parseInt(stats.admin_count) || 0,
+                vendor_count: parseInt(stats.vendor_count) || 0,
+                verified_users: parseInt(stats.verified_users) || 0,
+                new_users_7d: parseInt(stats.new_users_7d) || 0,
+                new_users_30d: parseInt(stats.new_users_30d) || 0,
+                newToday: parseInt(stats.new_today) || 0,
+                active_users_30d: parseInt(activeUsers.rows[0]?.count) || 0,
+                activeUsers: parseInt(activeUsers.rows[0]?.count) || 0,
+                by_department: departmentStats.rows
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error in getAdminStats:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch admin statistics'
+        });
+    }
+}
+
+/**
+ * Get recent activity logs
+ * GET /admin/activities
+ */
+async function getActivityLogs(req, res) {
+    try {
+        const { page = 1, limit = 10 } = req.query;
+        const offset = (page - 1) * limit;
+
+        // Get total count
+        const countResult = await db.query('SELECT COUNT(*) FROM activity_logs');
+        const totalCount = parseInt(countResult.rows[0].count);
+
+        // Get activities
+        const result = await db.query(`
+            SELECT * FROM activity_logs
+            ORDER BY created_at DESC
+            LIMIT $1 OFFSET $2
+        `, [limit, offset]);
+
+        return res.status(200).json({
+            success: true,
+            data: result.rows,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total: totalCount,
+                totalPages: Math.ceil(totalCount / limit)
+            }
+        });
+    } catch (error) {
+        console.error('❌ Error fetching activity logs:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch activity logs'
+        });
+    }
+}
+
+/**
+ * Get recent activities (last 5)
+ * GET /admin/activities/recent
+ */
+async function getRecentActivities(req, res) {
+    try {
+        const result = await db.query(`
+            SELECT * FROM activity_logs
+            ORDER BY created_at DESC
+            LIMIT 5
+        `);
+
+        return res.status(200).json({
+            success: true,
+            data: result.rows
+        });
+    } catch (error) {
+        console.error('❌ Error fetching recent activities:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch recent activities'
         });
     }
 }
@@ -819,5 +1056,9 @@ module.exports = {
     updateProfile,
     getUserById,
     addVendorRole,
-    switchActiveRole
+    switchActiveRole,
+    sendAdminOtp,
+    getAdminStats,
+    getActivityLogs,
+    getRecentActivities
 };

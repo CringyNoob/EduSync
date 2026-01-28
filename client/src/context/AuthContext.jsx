@@ -115,20 +115,26 @@ export const AuthProvider = ({ children }) => {
         window.dispatchEvent(new Event('tokenUpdated'));
     };
 
-    const switchRole = async (newRole) => {
+    const switchRole = async (newRole, otp = null, hash = null) => {
         console.log('🔄 Switching role to:', newRole);
         
         // Validate user has this role
         if (!user?.roles?.includes(newRole)) {
             console.error('❌ User does not have role:', newRole, 'Available roles:', user?.roles);
-            return false;
+            return { success: false, error: 'User does not have this role' };
         }
         
         try {
             // Call backend to update active_role in database
             console.log('📡 Calling backend to switch role...');
-            const response = await authService.switchRole(newRole);
+            const response = await authService.switchRole(newRole, otp, hash);
             console.log('📨 Backend response:', response);
+            
+            // Check if OTP is required (for ADMIN role)
+            if (response.requiresOtp) {
+                console.log('🔐 OTP required for ADMIN role');
+                return { success: false, requiresOtp: true };
+            }
             
             if (response.success) {
                 console.log('✅ Role switched in database');
@@ -144,10 +150,10 @@ export const AuthProvider = ({ children }) => {
                 localStorage.setItem('edusync_user', JSON.stringify(updatedUser));
                 sessionStorage.setItem('edusync_temp_role', newRole);
                 
-                return true;
+                return { success: true };
             } else {
                 console.error('❌ Backend failed to switch role:', response.error);
-                // Still update locally for UI consistency
+                return { success: false, error: response.error || 'Failed to switch role' };
                 const updatedUser = { ...user, role: newRole, activeRole: newRole };
                 setUser(updatedUser);
                 sessionStorage.setItem('edusync_temp_role', newRole);
@@ -158,12 +164,15 @@ export const AuthProvider = ({ children }) => {
             if (error.response) {
                 console.error('Response status:', error.response.status);
                 console.error('Response data:', error.response.data);
+                
+                // Check if OTP is required
+                if (error.response.data?.requiresOtp) {
+                    return { success: false, requiresOtp: true };
+                }
+                
+                return { success: false, error: error.response.data?.error || 'Failed to switch role' };
             }
-            // Still update locally for UI consistency
-            const updatedUser = { ...user, role: newRole, activeRole: newRole };
-            setUser(updatedUser);
-            sessionStorage.setItem('edusync_temp_role', newRole);
-            return false;
+            return { success: false, error: error.message || 'Failed to switch role' };
         }
     };
 

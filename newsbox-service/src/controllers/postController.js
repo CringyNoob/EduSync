@@ -5,6 +5,7 @@ const { detectSchema } = require('../config/schemaDetector');
 /**
  * Create a new post
  * POST /posts
+ * - If Admin: Creates an official announcement with special author info
  */
 const createPost = async (req, res) => {
     const client = await pool.connect();
@@ -15,7 +16,21 @@ const createPost = async (req, res) => {
         
         // Get author info from authenticated user
         const author_id = req.user.userId;
-        const author_name = req.user.name;
+        
+        // Check if user is Admin for special announcement handling
+        const isAdmin = req.user.activeRole === 'ADMIN' || req.user.role === 'Admin' || req.user.role === 'ADMIN';
+        
+        // Set author name and avatar based on role
+        let author_name = req.user.name;
+        let author_avatar = null;
+        let isAnnouncement = is_official;
+        
+        if (isAdmin) {
+            // Admin posts are official announcements
+            author_name = 'EduSync Admin';
+            author_avatar = '/admin-badge.png';
+            isAnnouncement = true;
+        }
 
         // --- Validation ---
         if (!title || !description) {
@@ -831,6 +846,92 @@ const getPostsByUser = async (req, res) => {
     }
 };
 
+/**
+ * Get admin statistics for newsbox service
+ * GET /admin/stats
+ */
+const getAdminStats = async (req, res) => {
+    const client = await pool.connect();
+    
+    try {
+        const schema = await detectSchema();
+
+        // Get post counts
+        let postStats;
+        if (schema.hasStatus) {
+            postStats = await client.query(`
+                SELECT 
+                    COUNT(*) as total_posts,
+                    COUNT(*) FILTER (WHERE status = 'PENDING') as pending_posts,
+                    COUNT(*) FILTER (WHERE status = 'APPROVED') as approved_posts,
+                    COUNT(*) FILTER (WHERE status = 'REJECTED') as rejected_posts,
+                    COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days') as new_posts_7d
+                FROM posts
+            `);
+        } else {
+            postStats = await client.query(`
+                SELECT 
+                    COUNT(*) as total_posts,
+                    0 as pending_posts,
+                    COUNT(*) as approved_posts,
+                    0 as rejected_posts,
+                    COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days') as new_posts_7d
+                FROM posts
+            `);
+        }
+
+        // Get comment counts
+        const commentStats = await client.query(`
+            SELECT COUNT(*) as total_comments
+            FROM comments
+        `);
+
+        // Get category breakdown
+        let categoryStats;
+        if (schema.isNewSchema) {
+            categoryStats = await client.query(`
+                SELECT c.name as category, COUNT(p.id) as count
+                FROM categories c
+                LEFT JOIN posts p ON p.category_id = c.id
+                GROUP BY c.name
+                ORDER BY count DESC
+            `);
+        } else {
+            categoryStats = await client.query(`
+                SELECT tag as category, COUNT(*) as count
+                FROM posts
+                GROUP BY tag
+                ORDER BY count DESC
+            `);
+        }
+
+        const stats = postStats.rows[0];
+
+        res.status(200).json({
+            success: true,
+            data: {
+                total_posts: parseInt(stats.total_posts) || 0,
+                pending_posts: parseInt(stats.pending_posts) || 0,
+                approved_posts: parseInt(stats.approved_posts) || 0,
+                rejected_posts: parseInt(stats.rejected_posts) || 0,
+                new_posts_7d: parseInt(stats.new_posts_7d) || 0,
+                total_comments: parseInt(commentStats.rows[0]?.total_comments) || 0,
+                by_category: categoryStats.rows
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching admin stats:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch admin statistics',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    } finally {
+        client.release();
+    }
+};
+
 module.exports = {
     createPost,
     getAllPosts,
@@ -840,5 +941,6 @@ module.exports = {
     getPendingPosts,
     updatePostStatus,
     togglePinPost,
-    getPostsByUser
+    getPostsByUser,
+    getAdminStats
 };

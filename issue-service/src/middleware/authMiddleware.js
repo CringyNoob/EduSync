@@ -2,11 +2,8 @@
 const jwt = require('jsonwebtoken');
 
 /**
- * JWT Authentication Middleware
+ * JWT Authentication Middleware for Issue Service
  * Verifies Bearer token and attaches user info to request
- * 
- * Usage: Add to any route that requires authentication
- * Example: router.get('/profile', authMiddleware, controller.getProfile)
  */
 function authMiddleware(req, res, next) {
     try {
@@ -16,7 +13,7 @@ function authMiddleware(req, res, next) {
         if (!authHeader) {
             return res.status(401).json({
                 success: false,
-                error: 'Access denied. No token provided.'
+                message: 'Access denied. No token provided.'
             });
         }
 
@@ -25,23 +22,25 @@ function authMiddleware(req, res, next) {
         if (parts.length !== 2 || parts[0] !== 'Bearer') {
             return res.status(401).json({
                 success: false,
-                error: 'Invalid token format. Use: Bearer <token>'
+                message: 'Invalid token format. Use: Bearer <token>'
             });
         }
 
         const token = parts[1];
 
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        // Verify token (use same JWT_SECRET as auth-service)
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-in-production');
 
         // Attach user info to request
-        // Note: Token uses 'id' not 'userId' (from login/register)
         req.user = {
             userId: decoded.id || decoded.userId,
             email: decoded.email,
-            role: decoded.role || decoded.activeRole, // Legacy support
-            roles: decoded.roles, // Modern array format
-            activeRole: decoded.activeRole // Current active role
+            name: decoded.name || decoded.email?.split('@')[0],
+            role: decoded.role,
+            roles: decoded.roles || [],
+            activeRole: decoded.activeRole || decoded.role || 'STUDENT',
+            department: decoded.department,
+            batch: decoded.batch
         };
 
         next();
@@ -50,21 +49,21 @@ function authMiddleware(req, res, next) {
         if (error.name === 'TokenExpiredError') {
             return res.status(401).json({
                 success: false,
-                error: 'Token expired. Please login again.'
+                message: 'Token expired. Please login again.'
             });
         }
         
         if (error.name === 'JsonWebTokenError') {
             return res.status(401).json({
                 success: false,
-                error: 'Invalid token.'
+                message: 'Invalid token.'
             });
         }
 
         console.error('Auth middleware error:', error);
         return res.status(500).json({
             success: false,
-            error: 'Authentication failed.'
+            message: 'Authentication failed.'
         });
     }
 }
@@ -72,7 +71,6 @@ function authMiddleware(req, res, next) {
 /**
  * Optional Auth Middleware
  * Attaches user info if token is present, but doesn't block if absent
- * Useful for routes that have different behavior for logged-in vs anonymous users
  */
 function optionalAuthMiddleware(req, res, next) {
     try {
@@ -90,52 +88,52 @@ function optionalAuthMiddleware(req, res, next) {
         }
 
         const token = parts[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-in-production');
 
         req.user = {
-            userId: decoded.userId,
+            userId: decoded.id || decoded.userId,
             email: decoded.email,
-            role: decoded.role
+            name: decoded.name || decoded.email?.split('@')[0],
+            role: decoded.role,
+            roles: decoded.roles || [],
+            activeRole: decoded.activeRole || decoded.role || 'STUDENT',
+            department: decoded.department,
+            batch: decoded.batch
         };
 
         next();
 
     } catch (error) {
-        // Token invalid but we don't block - just set user to null
         req.user = null;
         next();
     }
 }
 
 /**
- * Role-based Access Control Middleware
- * Use after authMiddleware to restrict access to specific roles
- * 
- * Usage: router.get('/admin', authMiddleware, requireRole('admin'), controller.adminOnly)
- * 
- * @param {...string} allowedRoles - Roles that are allowed to access the route
+ * Admin Middleware
+ * Requires user to have ADMIN activeRole
  */
-function requireRole(...allowedRoles) {
-    return (req, res, next) => {
-        if (!req.user) {
-            return res.status(401).json({
-                success: false,
-                error: 'Authentication required'
-            });
-        }
+function adminMiddleware(req, res, next) {
+    if (!req.user) {
+        return res.status(401).json({
+            success: false,
+            message: 'Authentication required.'
+        });
+    }
 
-        if (!allowedRoles.includes(req.user.role)) {
-            return res.status(403).json({
-                success: false,
-                error: 'Access denied. Insufficient permissions.'
-            });
-        }
+    // Check if user's active role is ADMIN
+    if (req.user.activeRole !== 'ADMIN') {
+        return res.status(403).json({
+            success: false,
+            message: 'Admin access required.'
+        });
+    }
 
-        next();
-    };
+    next();
 }
 
-module.exports = authMiddleware;
-module.exports.authMiddleware = authMiddleware;
-module.exports.optionalAuthMiddleware = optionalAuthMiddleware;
-module.exports.requireRole = requireRole;
+module.exports = {
+    authMiddleware,
+    optionalAuthMiddleware,
+    adminMiddleware
+};

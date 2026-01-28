@@ -479,6 +479,194 @@ const completeRentalTransaction = async (req, res) => {
   }
 };
 
+// =====================================================
+// ADMIN - GET ALL RENTALS WITH FILTERS
+// =====================================================
+
+const getAdminAllListings = async (req, res) => {
+  try {
+    const { status, category, search, page = 1, limit = 20 } = req.query;
+    const offset = (page - 1) * limit;
+
+    let query = `
+      SELECT rl.*, 
+        (SELECT COUNT(*) FROM rental_transactions WHERE listing_id = rl.id) as rental_count
+      FROM rental_listings rl
+      WHERE 1=1
+    `;
+    const params = [];
+    let paramIndex = 1;
+
+    if (status) {
+      query += ` AND rl.status = $${paramIndex}`;
+      params.push(status);
+      paramIndex++;
+    }
+
+    if (category) {
+      query += ` AND rl.category = $${paramIndex}`;
+      params.push(category);
+      paramIndex++;
+    }
+
+    if (search) {
+      query += ` AND (rl.title ILIKE $${paramIndex} OR rl.description ILIKE $${paramIndex})`;
+      params.push(`%${search}%`);
+      paramIndex++;
+    }
+
+    query += ` ORDER BY rl.created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+    params.push(limit, offset);
+
+    const result = await pool.query(query, params);
+
+    // Get total count
+    let countQuery = 'SELECT COUNT(*) FROM rental_listings WHERE 1=1';
+    const countParams = [];
+    let countParamIndex = 1;
+
+    if (status) {
+      countQuery += ` AND status = $${countParamIndex}`;
+      countParams.push(status);
+      countParamIndex++;
+    }
+
+    if (category) {
+      countQuery += ` AND category = $${countParamIndex}`;
+      countParams.push(category);
+      countParamIndex++;
+    }
+
+    if (search) {
+      countQuery += ` AND (title ILIKE $${countParamIndex} OR description ILIKE $${countParamIndex})`;
+      countParams.push(`%${search}%`);
+    }
+
+    const countResult = await pool.query(countQuery, countParams);
+    const totalCount = parseInt(countResult.rows[0].count);
+
+    res.status(200).json({
+      success: true,
+      count: result.rows.length,
+      total: totalCount,
+      page: parseInt(page),
+      totalPages: Math.ceil(totalCount / limit),
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Error fetching admin rental listings:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch rental listings'
+    });
+  }
+};
+
+// =====================================================
+// ADMIN - DELETE RENTAL LISTING
+// =====================================================
+
+const adminDeleteListing = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if listing exists
+    const checkResult = await pool.query(
+      'SELECT * FROM rental_listings WHERE id = $1',
+      [id]
+    );
+
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Rental listing not found'
+      });
+    }
+
+    // Delete listing
+    await pool.query('DELETE FROM rental_listings WHERE id = $1', [id]);
+
+    res.status(200).json({
+      success: true,
+      message: 'Rental listing deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting rental listing:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete rental listing'
+    });
+  }
+};
+
+// =====================================================
+// ADMIN - GET RENTAL STATISTICS
+// =====================================================
+
+const getAdminStats = async (req, res) => {
+  try {
+    // Get listing counts by status
+    const listingStats = await pool.query(`
+      SELECT 
+        COUNT(*) as total_listings,
+        COUNT(*) FILTER (WHERE status = 'AVAILABLE') as available_listings,
+        COUNT(*) FILTER (WHERE status = 'RENTED') as rented_listings,
+        COUNT(*) FILTER (WHERE status = 'UNAVAILABLE') as unavailable_listings,
+        COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days') as new_listings_7d
+      FROM rental_listings
+    `);
+
+    // Get transaction counts
+    const transactionStats = await pool.query(`
+      SELECT 
+        COUNT(*) as total_transactions,
+        COUNT(*) FILTER (WHERE status = 'ACTIVE') as active_transactions,
+        COUNT(*) FILTER (WHERE status = 'COMPLETED') as completed_transactions,
+        COUNT(*) FILTER (WHERE status = 'CANCELLED') as cancelled_transactions
+      FROM rental_transactions
+    `);
+
+    // Get category breakdown
+    const categoryStats = await pool.query(`
+      SELECT category, COUNT(*) as count
+      FROM rental_listings
+      GROUP BY category
+      ORDER BY count DESC
+    `);
+
+    const listings = listingStats.rows[0];
+    const transactions = transactionStats.rows[0];
+
+    res.status(200).json({
+      success: true,
+      data: {
+        listings: {
+          total: parseInt(listings.total_listings) || 0,
+          available: parseInt(listings.available_listings) || 0,
+          rented: parseInt(listings.rented_listings) || 0,
+          unavailable: parseInt(listings.unavailable_listings) || 0,
+          new_7d: parseInt(listings.new_listings_7d) || 0
+        },
+        transactions: {
+          total: parseInt(transactions.total_transactions) || 0,
+          active: parseInt(transactions.active_transactions) || 0,
+          completed: parseInt(transactions.completed_transactions) || 0,
+          cancelled: parseInt(transactions.cancelled_transactions) || 0
+        },
+        by_category: categoryStats.rows
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching admin stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch admin statistics',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 module.exports = {
   getAllRentalListings,
   getListingById,
@@ -488,5 +676,8 @@ module.exports = {
   createRentalTransaction,
   getUserRentals,
   getUserListings,
-  completeRentalTransaction
+  completeRentalTransaction,
+  getAdminAllListings,
+  adminDeleteListing,
+  getAdminStats
 };
