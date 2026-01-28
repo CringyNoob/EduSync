@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
+import newsboxService from '../../services/newsboxService';
 import {
     ShoppingBag, MessageSquare, Bell, AlertCircle, TrendingUp, Clock, ArrowRight,
     Zap, Star, Shield, Search, User, Heart, Bookmark, Calendar, Users,
@@ -36,102 +37,6 @@ const Button = ({ children, variant = 'primary', size = 'md', className = '', ..
     );
 };
 
-// Personal Stat Card Component
-const PersonalStatCard = ({ title, value, icon: Icon, colorClass, onClick }) => (
-    <div
-        className="relative overflow-hidden rounded-2xl p-5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-white/60 dark:border-gray-700/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
-        onClick={onClick}
-    >
-        <div className="flex items-center justify-between">
-            <div className="flex-1">
-                <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">{title}</p>
-                <h3 className="text-2xl font-extrabold text-gray-900 dark:text-white">{value}</h3>
-            </div>
-            <div className={`rounded-xl p-2.5 ${colorClass} group-hover:scale-110 transition-transform duration-300`}>
-                <Icon className="h-5 w-5" />
-            </div>
-        </div>
-    </div>
-);
-
-// Priority Notification Component
-const PriorityNotification = ({ notification, onClick }) => {
-    const priorityStyles = {
-        urgent: 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900/40 text-red-900 dark:text-red-300',
-        high: 'bg-orange-50 dark:bg-orange-900/10 border-orange-100 dark:border-orange-900/40 text-orange-900 dark:text-orange-300',
-        normal: 'bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/40 text-blue-900 dark:text-blue-300',
-    };
-
-    const iconColors = {
-        urgent: 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/40',
-        high: 'text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/40',
-        normal: 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/40',
-    };
-
-    return (
-        <div
-            className={`p-4 rounded-xl border ${priorityStyles[notification.priority]} hover:shadow-md transition-all duration-300 cursor-pointer group`}
-            onClick={onClick}
-        >
-            <div className="flex items-start gap-3">
-                <div className={`rounded-lg p-2 ${iconColors[notification.priority]} group-hover:scale-110 transition-transform`}>
-                    <Bell className="h-4 w-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-bold text-sm truncate">{notification.title}</h4>
-                        <span className="text-xs font-medium opacity-70">{notification.time}</span>
-                    </div>
-                    <p className="text-xs opacity-80 line-clamp-2 font-medium">{notification.message}</p>
-                </div>
-                <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-        </div>
-    );
-};
-
-// Activity Feed Item Component
-const ActivityFeedItem = ({ activity, onClick }) => {
-    const typeIcons = {
-        marketplace: ShoppingBag,
-        chat: MessageCircle,
-        notice: Bell,
-        newsbox: Newspaper,
-        renthub: Repeat,
-        issues: AlertCircle,
-        user: User,
-    };
-
-    const typeColors = {
-        marketplace: 'bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-300',
-        chat: 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300',
-        notice: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-300',
-        newsbox: 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-300',
-        renthub: 'bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300',
-        issues: 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-300',
-        user: 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-300',
-    };
-
-    const Icon = typeIcons[activity.type] || Activity;
-
-    return (
-        <div
-            className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/60 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer group border border-transparent hover:border-gray-100 dark:hover:border-gray-700"
-            onClick={onClick}
-        >
-            <div className={`rounded-lg p-2 ${typeColors[activity.type]} group-hover:scale-110 transition-transform`}>
-                <Icon className="h-4 w-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-0.5">{activity.title}</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">{activity.description}</p>
-                <span className="text-xs text-gray-400 dark:text-gray-500 mt-1 inline-block">{activity.time}</span>
-            </div>
-            <ArrowRight className="h-4 w-4 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
-        </div>
-    );
-};
-
 // Quick Action Card Component
 const QuickActionCard = ({ title, description, icon: Icon, colorClass, onClick }) => (
     <div
@@ -157,16 +62,18 @@ const QuickActionCard = ({ title, description, icon: Icon, colorClass, onClick }
 const Home = () => {
     const navigate = useNavigate();
     const { unreadCount: unreadNotifications } = useNotifications();
-    const [searchQuery, setSearchQuery] = useState('');
-    const [activityFilter, setActivityFilter] = useState('all');
-    const [isNewListingOpen, setIsNewListingOpen] = useState(false);
     
     // UIU Notices state
     const [uiuNotices, setUiuNotices] = useState([]);
     const [noticesLoading, setNoticesLoading] = useState(true);
     const [selectedNotice, setSelectedNotice] = useState(null);
+    
+    // Featured Posts from Newsbox
+    const [featuredPosts, setFeaturedPosts] = useState([]);
+    const [postsLoading, setPostsLoading] = useState(true);
+    const [currentSliderIndex, setCurrentSliderIndex] = useState(0);
 
-    // Fetch latest UIU notices for Attention section
+    // Fetch latest UIU notices and featured posts
     useEffect(() => {
         const fetchLatestNotices = async () => {
             try {
@@ -182,8 +89,37 @@ const Home = () => {
                 setNoticesLoading(false);
             }
         };
+        
+        const fetchFeaturedPosts = async () => {
+            try {
+                setPostsLoading(true);
+                const response = await newsboxService.getPosts({ 
+                    sort: 'popular', 
+                    status: 'APPROVED' 
+                });
+                if (response.success) {
+                    setFeaturedPosts(response.data.slice(0, 10) || []);
+                }
+            } catch (error) {
+                console.error('Failed to fetch featured posts:', error);
+                setFeaturedPosts([]);
+            } finally {
+                setPostsLoading(false);
+            }
+        };
+        
         fetchLatestNotices();
+        fetchFeaturedPosts();
     }, []);
+
+    // Auto-advance featured posts slider
+    useEffect(() => {
+        if (featuredPosts.length === 0) return;
+        const timer = setInterval(() => {
+            setCurrentSliderIndex((prev) => (prev + 1) % featuredPosts.length);
+        }, 5000);
+        return () => clearInterval(timer);
+    }, [featuredPosts.length]);
 
     // Get current time-based greeting
     const getGreeting = () => {
@@ -197,65 +133,11 @@ const Home = () => {
     const { user } = useAuth();
     const userName = user?.name || "Student";
 
-    const personalStats = [
-        { title: "My Listings", value: "5", icon: Package, colorClass: "bg-orange-100 text-orange-600", onClick: () => navigate('/marketplace?filter=my-listings') },
-        { title: "Active Chats", value: "12", icon: MessageCircle, colorClass: "bg-blue-100 text-blue-600", onClick: () => navigate('/chat') },
-        { title: "Saved Items", value: "8", icon: Bookmark, colorClass: "bg-indigo-100 text-indigo-600", onClick: () => navigate('/saved') },
-        { title: "Messages", value: "4", icon: MessageSquare, colorClass: "bg-green-100 text-green-600", onClick: () => navigate('/chat') },
-    ];
-
-    const priorityNotifications = [
-        { id: 1, title: "Exam Tomorrow!", message: "Your Calculus final exam is scheduled for tomorrow at 9 AM", time: "1h ago", priority: "urgent", link: "/notices/1" },
-        { id: 2, title: "New Message", message: "Someone is interested in your Calculus textbook listing", time: "2h ago", priority: "high", link: "/chat/2" },
-        { id: 3, title: "Event Reminder", message: "Guest lecture on AI Ethics starts in 2 days", time: "5h ago", priority: "normal", link: "/notices/3" },
-    ];
-
-    const activityFeed = [
-        { id: 1, type: "marketplace", title: "Term End Feast", description: "Get 30% off on all meal preps today!", time: "5 min ago", link: "/marketplace/foods" },
-        { id: 2, type: "chat", title: "Study Group: Calculus II", description: "Alex: Hey, does anyone have the notes for yesterday?", time: "12 min ago", link: "/chat" },
-        { id: 3, type: "newsbox", title: "Major Campus Renovation", description: "University announced ৳1150M plan for student union renovation.", time: "1h ago", link: "/newsbox" },
-        { id: 4, type: "renthub", title: "New Academic Rental", description: "Texas Instruments TI-84 Plus available for rent.", time: "1.5h ago", link: "/renthub" },
-        { id: 5, type: "marketplace", title: "Tech Week Sale", description: "10% off on all student tech accessories this week.", time: "2h ago", link: "/marketplace/shops" },
-        { id: 6, type: "issues", title: "Broken Projector (RM 301)", description: "Issue reported: The projector won't turn on during lectures.", time: "2.5h ago", link: "/issues" },
-        { id: 7, type: "newsbox", title: "UIU Tigers Victory", description: "UIU Tigers win regional basketball finals in stunning upset!", time: "3h ago", link: "/newsbox" },
-        { id: 8, type: "chat", title: "General Lounge", description: "Sarah: Who's up for a coffee break at the Student Union?", time: "4h ago", link: "/chat" },
-        { id: 9, type: "renthub", title: "MacBook Pro Rental", description: "M2 MacBook Pro available for short-term rental.", time: "4.5h ago", link: "/renthub" },
-        { id: 10, type: "issues", title: "Wifi Connectivity Issues", description: "Reported in Library: Cannot connect to EduRoam in quiet area.", time: "5h ago", link: "/issues" },
-        { id: 11, type: "newsbox", title: "Tech Career Fair", description: "Over 50 top tech companies (Google, Microsoft) attending.", time: "5.5h ago", link: "/newsbox" },
-    ];
-
-    const filteredActivity = React.useMemo(() => {
-        let filtered = activityFeed;
-
-        // Filter by type
-        if (activityFilter !== 'all') {
-            filtered = filtered.filter(item => item.type === activityFilter);
-        }
-
-        // Filter by search query
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase();
-            filtered = filtered.filter(item =>
-                item.title.toLowerCase().includes(query) ||
-                item.description.toLowerCase().includes(query)
-            );
-        }
-
-        return filtered;
-    }, [activityFilter, searchQuery]);
-
     const quickActions = [
         { title: "Sell Item", description: "List on marketplace", icon: ShoppingBag, colorClass: "bg-gradient-to-br from-orange-400 to-pink-500", onClick: () => navigate('/marketplace/pre-owned') },
         { title: "My Orders", description: "Track your orders", icon: LayoutDashboard, colorClass: "bg-gradient-to-br from-blue-400 to-cyan-500", onClick: () => navigate('/my-orders') },
         { title: "My Rentals", description: "Manage your gear", icon: LayoutDashboard, colorClass: "bg-gradient-to-br from-emerald-400 to-teal-500", onClick: () => navigate('/renthub/my-rentals') },
         { title: "Report Issue", description: "Submit campus issue", icon: AlertCircle, colorClass: "bg-gradient-to-br from-red-400 to-rose-500", onClick: () => navigate('/issues/new') },
-    ];
-
-    const campusStats = [
-        { title: "Active Users", value: "1,234", icon: Users, trend: "+8%", colorClass: "bg-indigo-100 text-indigo-600" },
-        { title: "Total Listings", value: "456", icon: ShoppingBag, trend: "+12%", colorClass: "bg-orange-100 text-orange-600" },
-        { title: "Online Now", value: "89", icon: MessageCircle, trend: "+5%", colorClass: "bg-pink-100 text-pink-600" },
-        { title: "Events", value: "23", icon: Calendar, trend: "+3%", colorClass: "bg-cyan-100 text-cyan-600" },
     ];
 
     return (
@@ -292,20 +174,6 @@ const Home = () => {
                         </div>
                     </div>
 
-                    {/* Search Bar */}
-                    <div className="flex-1 max-w-xl">
-                        <div className="relative group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
-                            <input
-                                type="text"
-                                placeholder="Search marketplace, chat, notices..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-800 focus:border-primary dark:focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 placeholder:text-gray-400 font-medium shadow-sm dark:text-white"
-                            />
-                        </div>
-                    </div>
-
                     {/* Quick Action Buttons */}
                     <div className="flex gap-3">
                         <div className="relative">
@@ -318,85 +186,21 @@ const Home = () => {
                                 </div>
                             )}
                         </div>
-                        <Button size="icon" variant="outline" className="rounded-2xl h-14 w-14 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary hover:bg-white dark:hover:bg-gray-700 hover:shadow-md bg-white dark:bg-gray-800 overflow-visible" onClick={() => navigate('/settings')}>
-                            <Settings className="h-6 w-6 text-gray-500 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-primary" />
-                        </Button>
-
-                        {/* New Listing Dropdown */}
-                        <div className="relative">
-                            <Button
-                                className="rounded-2xl h-14 px-6 shadow-lg shadow-primary/20 hover:shadow-primary/30"
-                                onClick={() => setIsNewListingOpen(!isNewListingOpen)}
-                            >
-                                <Plus className="mr-2 h-5 w-5" />
-                                <span className="hidden sm:inline text-lg">New Listing</span>
-                                <ChevronRight className={`ml-2 h-4 w-4 transition-transform ${isNewListingOpen ? 'rotate-90' : ''}`} />
-                            </Button>
-
-                            {isNewListingOpen && (
-                                <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden z-50 animate-in slide-in-from-top-2 fade-in">
-                                    <div className="p-2 space-y-1">
-
-                                        <button
-                                            onClick={() => {
-                                                navigate('/renthub/new');
-                                                setIsNewListingOpen(false);
-                                            }}
-                                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors group"
-                                        >
-                                            <div className="p-2 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-lg group-hover:scale-110 transition-transform">
-                                                <Package className="h-5 w-5" />
-                                            </div>
-                                            <div className="flex-1 text-left">
-                                                <div className="font-bold text-gray-900 dark:text-white text-sm">Rent Out Item</div>
-                                                <div className="text-xs text-gray-500 dark:text-gray-400">List on RentHub</div>
-                                            </div>
-                                        </button>
-
-                                        <button
-                                            onClick={() => {
-                                                navigate('/newsbox', { state: { create: true } });
-                                                setIsNewListingOpen(false);
-                                            }}
-                                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors group"
-                                        >
-                                            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-lg group-hover:scale-110 transition-transform">
-                                                <Newspaper className="h-5 w-5" />
-                                            </div>
-                                            <div className="flex-1 text-left">
-                                                <div className="font-bold text-gray-900 dark:text-white text-sm">Create Post</div>
-                                                <div className="text-xs text-gray-500 dark:text-gray-400">Broadcast news</div>
-                                            </div>
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Personal Stats Section */}
+            {/* Quick Actions Grid - Moved to Top */}
             <div>
                 <div className="flex items-center justify-between mb-5 px-1">
-                    <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                        <div className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg"><Target className="h-5 w-5 text-primary" /></div>
-                        My Activity
+                    <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                        <Zap className="h-5 w-5 text-primary" />
+                        Quick Actions
                     </h2>
                 </div>
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                    {personalStats.map((stat, i) => (
-                        <div key={i} className="bg-white dark:bg-gray-800 rounded-[2rem] p-5 border border-white/50 dark:border-gray-700/50 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 cursor-pointer group hover:-translate-y-1">
-                            <div className="flex items-center justify-between">
-                                <div className="flex-1">
-                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{stat.title}</p>
-                                    <h3 className="text-3xl font-extrabold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{stat.value}</h3>
-                                </div>
-                                <div className={`h-12 w-12 rounded-2xl flex items-center justify-center ${stat.colorClass} shadow-sm group-hover:scale-110 transition-transform`}>
-                                    <stat.icon className="h-6 w-6" />
-                                </div>
-                            </div>
-                        </div>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {quickActions.map((action, i) => (
+                        <QuickActionCard key={i} {...action} />
                     ))}
                 </div>
             </div>
@@ -454,95 +258,98 @@ const Home = () => {
                     </div>
                 </div>
 
-                {/* Activity Feed */}
-                <div className="lg:col-span-2 rounded-[2.5rem] bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 flex flex-col h-full hover:shadow-[0_15px_40px_rgb(0,0,0,0.08)] transition-shadow">
-                    <div className="flex items-center justify-between mb-8">
+                {/* Featured Posts from Newsbox */}
+                <div className="lg:col-span-2 rounded-[2.5rem] bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex flex-col h-full hover:shadow-[0_15px_40px_rgb(0,0,0,0.08)] transition-shadow">
+                    <div className="flex items-center justify-between p-6 pb-4 border-b border-gray-100 dark:border-gray-700">
                         <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                            <div className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg"><Activity className="h-5 w-5 text-primary" /></div>
-                            Live Feed
+                            <div className="p-2 bg-emerald-100/50 dark:bg-emerald-900/20 rounded-lg"><Newspaper className="h-5 w-5 text-emerald-600 dark:text-emerald-400" /></div>
+                            Featured Posts
                         </h2>
-                        <div className="flex bg-gray-50 dark:bg-gray-700/50 p-1.5 rounded-xl border border-gray-100 dark:border-gray-600 overflow-x-auto no-scrollbar">
-                            {['all', 'marketplace', 'newsbox', 'chat', 'renthub', 'issues'].map((filter) => (
-                                <button
-                                    key={filter}
-                                    onClick={() => setActivityFilter(filter)}
-                                    className={`px-4 py-2 rounded-lg text-xs font-bold capitalize transition-all whitespace-nowrap ${activityFilter === filter ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm ring-1 ring-gray-100 dark:ring-gray-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-600/50'}`}
-                                >
-                                    {filter}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar flex-1 text-left">
-                        {filteredActivity.length > 0 ? (
-                            filteredActivity.map((activity) => (
-                                <ActivityFeedItem
-                                    key={activity.id}
-                                    activity={activity}
-                                    onClick={() => navigate(activity.link)}
-                                />
-                            ))
-                        ) : (
-                            <div className="flex flex-col items-center justify-center h-48 text-gray-400">
-                                <Activity size={32} className="mb-2 opacity-20" />
-                                <p className="text-sm font-medium">No activity in this category</p>
-                            </div>
-                        )}
-                    </div>
-                    <div className="mt-6 pt-4 border-t border-gray-50 dark:border-gray-700 text-center">
-                        <Button variant="ghost" size="sm" className="text-primary font-bold hover:bg-primary/5 w-full h-10 rounded-xl">
-                            View More Updates <ChevronRight className="ml-1 h-4 w-4" />
+                        <Button variant="ghost" size="sm" className="text-xs font-bold h-8 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-lg px-3" onClick={() => navigate('/newsbox')}>
+                            View All
                         </Button>
                     </div>
-                </div>
-            </div>
-
-            {/* Quick Actions Grid */}
-            <div>
-                <div className="flex items-center justify-between mb-5 px-1">
-                    <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                        <Zap className="h-5 w-5 text-primary" />
-                        Quick Actions
-                    </h2>
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    {quickActions.map((action, i) => (
-                        <QuickActionCard key={i} {...action} />
-                    ))}
-                </div>
-            </div>
-
-            {/* Campus Overview Stats */}
-            <div>
-                <div className="flex items-center justify-between mb-4 px-2">
-                    <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                        <Award className="h-5 w-5 text-primary" />
-                        Campus Overview
-                    </h2>
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    {campusStats.map((stat, i) => (
-                        <div
-                            key={i}
-                            className="relative overflow-hidden rounded-2xl p-5 bg-white dark:bg-gray-800 backdrop-blur-xl border border-white/60 dark:border-gray-700/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
-                        >
-                            <div className="flex items-center justify-between mb-3">
-                                <div className={`rounded-xl p-2.5 ${stat.colorClass} shadow-sm`}>
-                                    <stat.icon className="h-5 w-5" />
-                                </div>
-                                <span className={`text-xs font-bold ${stat.trend.includes('+') ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'} px-2 py-1 rounded-lg border border-transparent`}>
-                                    {stat.trend}
-                                </span>
+                    
+                    {/* Slideshow Area */}
+                    <div className="flex-1 relative overflow-hidden">
+                        {postsLoading ? (
+                            <div className="flex items-center justify-center h-full">
+                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
                             </div>
-                            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{stat.title}</p>
-                            <h3 className="text-2xl font-extrabold text-gray-900 dark:text-white mt-1">{stat.value}</h3>
-                        </div>
-                    ))}
+                        ) : featuredPosts.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                                <Newspaper className="h-12 w-12 mb-3 opacity-50" />
+                                <p className="text-sm">No posts available</p>
+                            </div>
+                        ) : (
+                            <>
+                                {featuredPosts.map((post, idx) => (
+                                    <div
+                                        key={post.id}
+                                        onClick={() => navigate('/newsbox')}
+                                        className={`absolute inset-0 transition-all duration-700 ease-in-out cursor-pointer ${
+                                            idx === currentSliderIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-110 pointer-events-none'
+                                        }`}
+                                    >
+                                        {post.images && post.images.length > 0 ? (
+                                            <img src={post.images[0]} alt={post.title} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
+                                                <Newspaper size={64} className="text-emerald-600/30" />
+                                            </div>
+                                        )}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                        <div className="absolute bottom-0 left-0 right-0 p-6 space-y-2">
+                                            <span className="px-3 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest">
+                                                Featured • {post.category_name || 'News'}
+                                            </span>
+                                            <h3 className="text-xl md:text-2xl font-black text-white leading-tight drop-shadow-md line-clamp-2">
+                                                {post.title}
+                                            </h3>
+                                            {post.description && (
+                                                <p className="text-sm text-white/80 line-clamp-2">
+                                                    {post.description.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                                                </p>
+                                            )}
+                                            <div className="flex items-center gap-4 pt-2">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-7 w-7 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">
+                                                        {post.author_name?.[0] || 'U'}
+                                                    </div>
+                                                    <span className="text-white/80 text-sm font-medium">{post.author_name || 'Anonymous'}</span>
+                                                </div>
+                                                <span className="text-white/40 text-sm">•</span>
+                                                <span className="text-white/80 text-sm font-medium">{new Date(post.created_at).toLocaleDateString()}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                                
+                                {/* Slider Nav Dots */}
+                                {featuredPosts.length > 1 && (
+                                    <div className="absolute bottom-6 right-6 flex gap-2 z-10">
+                                        {featuredPosts.map((_, idx) => (
+                                            <button
+                                                key={idx}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setCurrentSliderIndex(idx);
+                                                }}
+                                                className={`h-2 rounded-full transition-all duration-300 ${
+                                                    idx === currentSliderIndex ? 'w-8 bg-emerald-500' : 'w-2 bg-white/50 hover:bg-white'
+                                                }`}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
 
-            {/* Bottom CTA Cards */}
-            <div className="grid gap-6 md:grid-cols-2">
+            {/* Bottom CTA Cards - REMOVED */}
+            {/* <div className="grid gap-6 md:grid-cols-2">
                 <div
                     className="relative overflow-hidden p-8 rounded-[2rem] bg-gradient-to-br from-primary to-indigo-600 text-white shadow-xl shadow-primary/25 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
                     onClick={() => navigate('/marketplace')}

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Dependencies
 node_modules/
 
@@ -9,15 +8,10 @@ node_modules/
 
 # Logs
 logs/
-=======
-# Logs
-logs
->>>>>>> a27538f (First Commit V1(Dashboard , Marketplace))
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-<<<<<<< HEAD
 
 # OS files
 .DS_Store
@@ -40,23 +34,3 @@ build/
 .cache/
 temp/
 tmp/
-=======
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
->>>>>>> a27538f (First Commit V1(Dashboard , Marketplace))

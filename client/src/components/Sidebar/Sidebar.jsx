@@ -185,6 +185,7 @@ const Sidebar = () => {
                     { icon: Repeat, label: 'RentHub', path: '/renthub', activeClass: 'text-emerald-600 bg-emerald-50 border-emerald-600' },
                     { icon: MessageCircle, label: 'Chat', path: '/chat', activeClass: 'text-green-600 bg-green-50 border-green-600', badge: 5 },
                     { icon: AlertCircle, label: 'Issues', path: '/issues', activeClass: 'text-red-600 bg-red-50 border-red-600' },
+                    { icon: User, label: 'Profile', path: '/profile/me', activeClass: 'text-purple-600 bg-purple-50 border-purple-600' },
                 ];
         }
     };
@@ -302,9 +303,6 @@ const Sidebar = () => {
                                         {userData.role === profile.role && <div className="h-1.5 w-1.5 rounded-full bg-green-500" />}
                                     </button>
                                 ))}
-                                <NavLink to="/profile/me" className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-gray-500 hover:bg-white hover:text-primary transition-all mt-1">
-                                    <Settings size={12} /> Account Settings
-                                </NavLink>
                             </div>
                         </div>
                     )}
