@@ -305,5 +305,5 @@ To add more mock data:
 
 ---
 
-**Last Updated:** 2024
+**Last Updated:** February 2026
 **Maintained By:** EduSync Development Team

@@ -69,8 +69,8 @@ DB_NAME=auth_db
 PORT=3001
 JWT_SECRET=your-jwt-secret
 
-# OTP Secret (IMPORTANT: Change in production)
-OTP_SECRET=your-super-secret-otp-key-change-this-in-production-12345
+# OTP Secret (use a strong 64-character random value in production)
+OTP_SECRET=4f9c1d8a7b3e2c6d9f0a1b2c3d4e5f60718293a4b5c6d7e8f9a0b1c2d3e4f5a6
 
 # Email (Gmail)
 EMAIL_SERVICE=gmail

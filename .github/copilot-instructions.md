@@ -9,7 +9,7 @@
 - **auth-service** (Port 3001): JWT authentication, user management, OTP-based registration
 - **marketplace-service** (Port 3002): Hybrid shop-first (vendors) + product-first (preowned) architecture
 - **renthub-service** (Port 3003): Rental listings and transactions
-- **notices-service** (Port 3005): Scrapes UIU notices from uiu.ac.bd/notice/ (no database, in-memory cache)
+- **notices-service** (Port 3005): Scrapes UIU notices from uiu.ac.bd/notice/ (no database, in-memory cache) - see `notices-service/` directory
 - **client** (Port 5173): Vite + React SPA with React Router
 
 All services use **PostgreSQL (Aiven)** with separate databases (`auth_db`, `market_db`, `rent_db`), except notices-service which uses in-memory caching.
