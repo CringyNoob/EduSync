@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # Gateway Service
+  gateway:
+    build: ./gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth-service
+      - marketplace-service
+      - renthub-service
+      - newsbox-service
+    environment:
+      - NODE_ENV=production
+
+  # Auth Service
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./auth-service/.env
+    environment:
+      - NODE_ENV=production
+
+  # Marketplace Service
+  marketplace-service:
+    build: ./marketplace-service
+    ports:
+      - "3002:3002"
+    env_file:
+      - ./marketplace-service/.env
+    environment:
+      - NODE_ENV=production
+
+  # RentHub Service
+  renthub-service:
+    build: ./renthub-service
+    ports:
+      - "3003:3003"
+    env_file:
+      - ./renthub-service/.env
+    environment:
+      - NODE_ENV=production
+
+  # NewsBox Service
+  newsbox-service:
+    build: ./newsbox-service
+    ports:
+      - "3004:3004"
+    env_file:
+      - ./newsbox-service/.env
+    environment:
+      - NODE_ENV=production
+
+  # Client (Frontend)
+  client:
+    build: ./client
+    ports:
+      - "5173:5173"
+    depends_on:
+      - gateway
+    environment:
+      - VITE_API_URL=http://localhost:8000/api

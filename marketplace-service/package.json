@@ -1,0 +1,30 @@
+{
+  "name": "marketplace-service",
+  "version": "1.0.0",
+  "description": "Marketplace service for EduSync - Hybrid architecture for Startups, Food Vendors, and Pre-owned listings",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "marketplace",
+    "vendors",
+    "preowned"
+  ],
+  "author": "EduSync Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3",
+    "sslcommerz-lts": "^1.2.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

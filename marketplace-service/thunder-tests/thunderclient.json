@@ -1,0 +1,156 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Marketplace Service Tests",
+  "dateExported": "2026-01-06",
+  "version": "1.1",
+  "folders": [
+    {
+      "id": "vendor-tests",
+      "name": "Vendor APIs",
+      "containerId": "",
+      "created": "2026-01-06",
+      "sortNum": 10000
+    },
+    {
+      "id": "product-tests",
+      "name": "Product APIs",
+      "containerId": "",
+      "created": "2026-01-06",
+      "sortNum": 20000
+    },
+    {
+      "id": "preowned-tests",
+      "name": "Pre-Owned APIs",
+      "containerId": "",
+      "created": "2026-01-06",
+      "sortNum": 30000
+    }
+  ],
+  "requests": [
+    {
+      "id": "health-check",
+      "name": "Health Check",
+      "url": "http://localhost:3002/",
+      "method": "GET",
+      "sortNum": 5000,
+      "created": "2026-01-06",
+      "headers": [],
+      "tests": [
+        {
+          "type": "json-query",
+          "value": "$.status",
+          "expected": "OK"
+        }
+      ]
+    },
+    {
+      "id": "get-startups",
+      "name": "Get All Startups",
+      "url": "http://localhost:3002/vendors?type=STARTUP",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2026-01-06",
+      "containerId": "vendor-tests",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "id": "get-food-vendors",
+      "name": "Get All Food Vendors",
+      "url": "http://localhost:3002/vendors?type=FOOD_VENDOR",
+      "method": "GET",
+      "sortNum": 20000,
+      "created": "2026-01-06",
+      "containerId": "vendor-tests",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "id": "get-vendor-by-id",
+      "name": "Get Vendor by ID",
+      "url": "http://localhost:3002/vendors/1",
+      "method": "GET",
+      "sortNum": 30000,
+      "created": "2026-01-06",
+      "containerId": "vendor-tests",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "id": "get-product-by-id",
+      "name": "Get Product by ID",
+      "url": "http://localhost:3002/products/1",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2026-01-06",
+      "containerId": "product-tests",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "id": "get-all-preowned",
+      "name": "Get All Pre-Owned Listings",
+      "url": "http://localhost:3002/preowned",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2026-01-06",
+      "containerId": "preowned-tests",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "id": "get-preowned-electronics",
+      "name": "Get Pre-Owned Electronics",
+      "url": "http://localhost:3002/preowned?category=ELECTRONICS",
+      "method": "GET",
+      "sortNum": 20000,
+      "created": "2026-01-06",
+      "containerId": "preowned-tests",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "id": "create-preowned",
+      "name": "Create Pre-Owned Listing",
+      "url": "http://localhost:3002/preowned",
+      "method": "POST",
+      "sortNum": 30000,
+      "created": "2026-01-06",
+      "containerId": "preowned-tests",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"seller_id\": 1,\n  \"seller_name\": \"John Doe\",\n  \"title\": \"Used Calculus Textbook\",\n  \"description\": \"Great condition, minimal highlighting\",\n  \"price\": 45.00,\n  \"category\": \"TEXTBOOKS\",\n  \"images\": [\"https://example.com/book.jpg\"]\n}",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "id": "get-preowned-by-id",
+      "name": "Get Pre-Owned by ID",
+      "url": "http://localhost:3002/preowned/1",
+      "method": "GET",
+      "sortNum": 40000,
+      "created": "2026-01-06",
+      "containerId": "preowned-tests",
+      "headers": [],
+      "tests": []
+    },
+    {
+      "id": "mark-preowned-sold",
+      "name": "Mark Pre-Owned as Sold",
+      "url": "http://localhost:3002/preowned/1/sold",
+      "method": "PUT",
+      "sortNum": 50000,
+      "created": "2026-01-06",
+      "containerId": "preowned-tests",
+      "headers": [],
+      "tests": []
+    }
+  ]
+}
