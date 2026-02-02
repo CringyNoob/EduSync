@@ -15,12 +15,13 @@ import {
     CheckCircle,
     X as CloseIcon,
     Utensils,
-    BookOpen
+    BookOpen,
+    Store
 } from 'lucide-react';
 import Button from '../../components/Button';
 import { useCart } from '../../context/CartContext';
 
-const CartPage = () => {
+const CartPage = ({ section }) => {
     const navigate = useNavigate();
     const { cartItems, removeFromCart, updateQuantity, getCartTotal, clearCart, clearSectionItems, placeOrder } = useCart();
     const [couponInputs, setCouponInputs] = useState({}); // { section: input }
@@ -33,15 +34,41 @@ const CartPage = () => {
         specialNotes: ''
     });
 
+    // Filter items by section if provided
+    const filteredCartItems = section
+        ? cartItems.filter(item => {
+            const itemSection = item.section?.toLowerCase();
+            const targetSection = section.toLowerCase();
+            return itemSection === targetSection || 
+                   (targetSection === 'foods' && itemSection === 'foods') ||
+                   (targetSection === 'shops' && itemSection === 'shops');
+          })
+        : cartItems;
+
     // Group items by section
-    const groupedItems = cartItems.reduce((acc, item) => {
-        const section = item.section || 'General';
-        if (!acc[section]) acc[section] = [];
-        acc[section].push(item);
+    const groupedItems = filteredCartItems.reduce((acc, item) => {
+        const sectionName = item.section || 'General';
+        if (!acc[sectionName]) acc[sectionName] = [];
+        acc[sectionName].push(item);
         return acc;
     }, {});
 
     const sectionNames = Object.keys(groupedItems);
+
+    // Get section title and back path
+    const getSectionInfo = () => {
+        if (!section) return { title: 'Shopping Cart', backPath: '/marketplace', icon: ShoppingBag };
+        switch (section.toLowerCase()) {
+            case 'foods':
+                return { title: 'Food Cart', backPath: '/marketplace/foods', icon: Utensils, color: 'orange' };
+            case 'shops':
+                return { title: 'Shop Cart', backPath: '/marketplace/shops', icon: Store, color: 'indigo' };
+            default:
+                return { title: 'Shopping Cart', backPath: '/marketplace', icon: ShoppingBag };
+        }
+    };
+
+    const sectionInfo = getSectionInfo();
 
     const calculateSectionSummary = (sectionItems, sectionName) => {
         const subtotal = sectionItems.reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0);
@@ -84,15 +111,35 @@ const CartPage = () => {
         }
     };
 
-    const handleOrderConfirm = (e) => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [orderError, setOrderError] = useState(null);
+
+    const handleOrderConfirm = async (e) => {
         e.preventDefault();
-        setIsOrdered(true);
+        setIsSubmitting(true);
+        setOrderError(null);
+        
         const sectionToPlace = sectionCheckingOut;
         const itemsToPlace = groupedItems[sectionToPlace];
         const summary = calculateSectionSummary(itemsToPlace, sectionToPlace);
 
-        // Removed automatic navigation timeout
-        placeOrder(sectionToPlace, itemsToPlace, summary.total, deliveryInfo);
+        try {
+            const result = await placeOrder(sectionToPlace, itemsToPlace, summary.total, {
+                ...deliveryInfo,
+                name: deliveryInfo.location // Use location as name for now
+            });
+            
+            if (result.success) {
+                setIsOrdered(true);
+            } else {
+                setOrderError(result.errors?.[0]?.error || 'Failed to place order');
+            }
+        } catch (error) {
+            console.error('Error placing order:', error);
+            setOrderError(error.message || 'Failed to place order');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (isOrdered) {
@@ -104,21 +151,21 @@ const CartPage = () => {
                     </div>
                     <div>
                         <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Order Placed!</h2>
-                        <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">Your items are being prepared. What would you like to do next?</p>
+                        <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">Your order has been sent to the vendor. Track it from your orders page.</p>
                     </div>
                     <div className="flex flex-col gap-3">
                         <Button
                             className="w-full py-4 rounded-2xl shadow-lg"
-                            onClick={() => navigate(`/marketplace/${sectionCheckingOut?.toLowerCase() || 'foods'}`)}
+                            onClick={() => navigate('/my-orders')}
                         >
-                            Return to {sectionCheckingOut || 'Marketplace'}
+                            View My Orders
                         </Button>
                         <Button
                             variant="outline"
                             className="w-full py-4 rounded-2xl"
-                            onClick={() => navigate(`/marketplace/${sectionCheckingOut?.toLowerCase() || 'foods'}`, { state: { viewOrders: true, section: sectionCheckingOut } })}
+                            onClick={() => navigate(sectionInfo.backPath)}
                         >
-                            View My Orders
+                            Continue Shopping
                         </Button>
                     </div>
                 </div>
@@ -126,77 +173,92 @@ const CartPage = () => {
         );
     }
 
-    if (cartItems.length === 0) {
+    if (filteredCartItems.length === 0) {
         return (
             <div className="min-h-screen p-6 flex flex-col items-center justify-center space-y-8 bg-white dark:bg-gray-900">
                 <div className="w-32 h-32 bg-gray-50 dark:bg-gray-800 text-gray-200 dark:text-gray-700 rounded-full flex items-center justify-center shadow-inner">
-                    <ShoppingBag size={64} />
+                    <sectionInfo.icon size={64} />
                 </div>
                 <div className="text-center space-y-2">
-                    <h2 className="text-2xl font-black text-gray-900 dark:text-white">Your cart is empty</h2>
-                    <p className="text-gray-500 dark:text-gray-400 font-medium max-w-xs mx-auto">Looks like you haven't added anything to your cart yet.</p>
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white">Your {section ? sectionInfo.title.toLowerCase() : 'cart'} is empty</h2>
+                    <p className="text-gray-500 dark:text-gray-400 font-medium max-w-xs mx-auto">Looks like you haven't added anything yet.</p>
                 </div>
 
                 <div className="w-full max-w-2xl">
-                    <p className="text-center text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Where would you like to shop?</p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Foods Card */}
-                        <button
-                            onClick={() => navigate('/marketplace/foods')}
-                            className="group relative bg-white dark:bg-gray-800 hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 dark:hover:from-orange-950/20 dark:hover:to-red-950/20 border-2 border-gray-100 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-800 rounded-3xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                        >
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="p-4 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-2xl group-hover:scale-110 transition-transform">
-                                    <Utensils size={32} />
-                                </div>
-                                <div className="text-center">
-                                    <h3 className="text-lg font-black text-gray-900 dark:text-white">Foods</h3>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">Fresh meals & snacks</p>
-                                </div>
-                                <div className="flex items-center gap-1 text-xs font-bold text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Browse Now <ChevronRight size={14} />
-                                </div>
-                            </div>
-                        </button>
+                    {section ? (
+                        // Single section back button
+                        <div className="flex justify-center">
+                            <Button
+                                onClick={() => navigate(sectionInfo.backPath)}
+                                className="px-8 py-4 rounded-2xl shadow-lg"
+                            >
+                                Continue Shopping
+                            </Button>
+                        </div>
+                    ) : (
+                        // All sections view
+                        <>
+                            <p className="text-center text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Where would you like to shop?</p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {/* Foods Card */}
+                                <button
+                                    onClick={() => navigate('/marketplace/foods')}
+                                    className="group relative bg-white dark:bg-gray-800 hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 dark:hover:from-orange-950/20 dark:hover:to-red-950/20 border-2 border-gray-100 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-800 rounded-3xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                                >
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div className="p-4 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                            <Utensils size={32} />
+                                        </div>
+                                        <div className="text-center">
+                                            <h3 className="text-lg font-black text-gray-900 dark:text-white">Foods</h3>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">Fresh meals & snacks</p>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-xs font-bold text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            Browse Now <ChevronRight size={14} />
+                                        </div>
+                                    </div>
+                                </button>
 
-                        {/* Pre-Owned Card */}
-                        <button
-                            onClick={() => navigate('/marketplace/pre-owned')}
-                            className="group relative bg-white dark:bg-gray-800 hover:bg-gradient-to-br hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-950/20 dark:hover:to-purple-950/20 border-2 border-gray-100 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-800 rounded-3xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                        >
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="p-4 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl group-hover:scale-110 transition-transform">
-                                    <ShoppingBag size={32} />
-                                </div>
-                                <div className="text-center">
-                                    <h3 className="text-lg font-black text-gray-900 dark:text-white">Pre-Owned</h3>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">Student marketplace</p>
-                                </div>
-                                <div className="flex items-center gap-1 text-xs font-bold text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Browse Now <ChevronRight size={14} />
-                                </div>
-                            </div>
-                        </button>
+                                {/* Shops Card */}
+                                <button
+                                    onClick={() => navigate('/marketplace/shops')}
+                                    className="group relative bg-white dark:bg-gray-800 hover:bg-gradient-to-br hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-950/20 dark:hover:to-purple-950/20 border-2 border-gray-100 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-800 rounded-3xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                                >
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div className="p-4 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                            <Store size={32} />
+                                        </div>
+                                        <div className="text-center">
+                                            <h3 className="text-lg font-black text-gray-900 dark:text-white">Shops</h3>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">Campus stores</p>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-xs font-bold text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            Browse Now <ChevronRight size={14} />
+                                        </div>
+                                    </div>
+                                </button>
 
-                        {/* Shops Card */}
-                        <button
-                            onClick={() => navigate('/marketplace/shops')}
-                            className="group relative bg-white dark:bg-gray-800 hover:bg-gradient-to-br hover:from-blue-50 hover:to-cyan-50 dark:hover:from-blue-950/20 dark:hover:to-cyan-950/20 border-2 border-gray-100 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-800 rounded-3xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                        >
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="p-4 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl group-hover:scale-110 transition-transform">
-                                    <BookOpen size={32} />
-                                </div>
-                                <div className="text-center">
-                                    <h3 className="text-lg font-black text-gray-900 dark:text-white">Shops</h3>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">Campus stores</p>
-                                </div>
-                                <div className="flex items-center gap-1 text-xs font-bold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Browse Now <ChevronRight size={14} />
-                                </div>
+                                {/* Pre-Owned Card */}
+                                <button
+                                    onClick={() => navigate('/marketplace/pre-owned')}
+                                    className="group relative bg-white dark:bg-gray-800 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-950/20 dark:hover:to-pink-950/20 border-2 border-gray-100 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-800 rounded-3xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                                >
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div className="p-4 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-2xl group-hover:scale-110 transition-transform">
+                                            <ShoppingBag size={32} />
+                                        </div>
+                                        <div className="text-center">
+                                            <h3 className="text-lg font-black text-gray-900 dark:text-white">Pre-Owned</h3>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">Student marketplace</p>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-xs font-bold text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            Browse Now <ChevronRight size={14} />
+                                        </div>
+                                    </div>
+                                </button>
                             </div>
-                        </button>
-                    </div>
+                        </>
+                    )}
                 </div>
             </div>
         );
@@ -214,15 +276,15 @@ const CartPage = () => {
                 {/* Header */}
                 <div className="flex items-center gap-4">
                     <button
-                        onClick={() => navigate(-1)}
+                        onClick={() => navigate(sectionInfo.backPath)}
                         className="p-3 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm hover:border-primary transition-all group"
                     >
                         <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform text-gray-900 dark:text-white" />
                     </button>
                     <div>
-                        <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Shopping Cart</h1>
+                        <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{sectionInfo.title}</h1>
                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
-                            {cartItems.length} {cartItems.length === 1 ? 'Item' : 'Items'} in your bag
+                            {filteredCartItems.length} {filteredCartItems.length === 1 ? 'Item' : 'Items'} in your bag
                         </p>
                     </div>
                 </div>
@@ -234,9 +296,13 @@ const CartPage = () => {
 
                         return (
                             <div key={sectionName} className="space-y-6">
-                                <div className="flex items-center gap-3 pb-2 border-b border-gray-100 dark:border-gray-800">
-                                    <div className={`p-2 rounded-xl bg-primary/10 text-primary`}>
-                                        {sectionName === 'Foods' ? <Utensils size={20} /> : sectionName === 'Shops' ? <ShoppingBag size={20} /> : <BookOpen size={20} />}
+                            <div className="flex items-center gap-3 pb-2 border-b border-gray-100 dark:border-gray-800">
+                                    <div className={`p-2 rounded-xl ${
+                                        sectionName === 'Foods' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400' :
+                                        sectionName === 'Shops' ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' :
+                                        'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                                    }`}>
+                                        {sectionName === 'Foods' ? <Utensils size={20} /> : sectionName === 'Shops' ? <Store size={20} /> : <ShoppingBag size={20} />}
                                     </div>
                                     <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">{sectionName} Order</h2>
                                 </div>
@@ -441,11 +507,21 @@ const CartPage = () => {
                                     ৳{calculateSectionSummary(groupedItems[sectionCheckingOut], sectionCheckingOut).total.toFixed(2)}
                                 </div>
                             </div>
+
+                            {orderError && (
+                                <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-2xl text-red-600 dark:text-red-400 text-sm">
+                                    {orderError}
+                                </div>
+                            )}
                         </div>
 
                         <div className="mt-4 pt-6 border-t border-gray-100 dark:border-gray-700">
-                            <Button type="submit" className="w-full py-5 rounded-[1.5rem] shadow-xl shadow-primary/20 font-black uppercase tracking-widest text-xs">
-                                Confirm {sectionCheckingOut} Order
+                            <Button 
+                                type="submit" 
+                                disabled={isSubmitting}
+                                className="w-full py-5 rounded-[1.5rem] shadow-xl shadow-primary/20 font-black uppercase tracking-widest text-xs disabled:opacity-50"
+                            >
+                                {isSubmitting ? 'Processing...' : `Confirm ${sectionCheckingOut} Order`}
                             </Button>
                         </div>
                     </form>

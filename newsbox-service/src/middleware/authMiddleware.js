@@ -35,7 +35,9 @@ function authMiddleware(req, res, next) {
             userId: decoded.id || decoded.userId, // Support both field names
             email: decoded.email,
             name: decoded.name || decoded.email.split('@')[0],
-            role: decoded.role,
+            role: decoded.role || decoded.activeRole, // Legacy support
+            roles: decoded.roles || ['STUDENT'], // Modern array format
+            activeRole: decoded.activeRole || 'STUDENT', // Current active role
             department: decoded.department,
             batch: decoded.batch
         };
@@ -92,6 +94,8 @@ function optionalAuthMiddleware(req, res, next) {
             email: decoded.email,
             name: decoded.name || decoded.email.split('@')[0],
             role: decoded.role,
+            roles: decoded.roles || [],
+            activeRole: decoded.activeRole || decoded.role || 'STUDENT',
             department: decoded.department,
             batch: decoded.batch
         };
@@ -107,7 +111,7 @@ function optionalAuthMiddleware(req, res, next) {
 
 /**
  * Admin Only Middleware
- * Requires user to be authenticated and have Admin role
+ * Requires user to be authenticated and have Admin activeRole
  */
 function adminMiddleware(req, res, next) {
     // First ensure user is authenticated
@@ -118,8 +122,9 @@ function adminMiddleware(req, res, next) {
         });
     }
 
-    // Check for Admin role
-    if (req.user.role !== 'Admin') {
+    // Check for Admin activeRole (support both legacy 'role' and new 'activeRole')
+    const isAdmin = req.user.activeRole === 'ADMIN' || req.user.role === 'Admin' || req.user.role === 'ADMIN';
+    if (!isAdmin) {
         return res.status(403).json({
             success: false,
             message: 'Admin access required'

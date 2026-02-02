@@ -39,7 +39,9 @@ function authMiddleware(req, res, next) {
         req.user = {
             userId: decoded.id || decoded.userId,
             email: decoded.email,
-            role: decoded.role
+            role: decoded.role || decoded.activeRole, // Legacy support
+            roles: decoded.roles, // Modern array format
+            activeRole: decoded.activeRole // Current active role
         };
 
         next();

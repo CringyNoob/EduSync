@@ -27,7 +27,9 @@ pool.on('error', (err) => {
     process.exit(-1);
 });
 
-// Export query helper function
+// Export query helper function and pool
 module.exports = {
     query: (text, params) => pool.query(text, params),
+    pool: pool, // Export the pool for direct access
+    getClient: () => pool.connect(), // Helper to get a client from pool
 };

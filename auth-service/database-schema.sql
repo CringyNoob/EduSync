@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    role VARCHAR(20) DEFAULT 'STUDENT',
+    role VARCHAR(20) DEFAULT 'STUDENT', -- Deprecated: use roles and active_role instead
+    roles TEXT[] DEFAULT ARRAY['STUDENT'], -- New: Array of roles a user can have
+    active_role TEXT DEFAULT 'STUDENT', -- New: Currently active role
     is_verified BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

@@ -9,7 +9,10 @@ const {
   createRentalTransaction,
   getUserRentals,
   getUserListings,
-  completeRentalTransaction
+  completeRentalTransaction,
+  getAdminAllListings,
+  adminDeleteListing,
+  getAdminStats
 } = require('../controllers/rentalController');
 
 // =====================================================
@@ -46,5 +49,18 @@ router.get('/user/:user_id/rentals', getUserRentals);
 
 // Complete rental transaction
 router.put('/transactions/:id/complete', completeRentalTransaction);
+
+// =====================================================
+// ADMIN ROUTES
+// =====================================================
+
+// Get admin statistics
+router.get('/admin/stats', getAdminStats);
+
+// Get all listings for admin (with pagination and filters)
+router.get('/admin/listings', getAdminAllListings);
+
+// Delete any listing (admin only)
+router.delete('/admin/listings/:id', adminDeleteListing);
 
 module.exports = router;

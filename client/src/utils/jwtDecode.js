@@ -59,12 +59,14 @@ export const getUserFromToken = () => {
   }
 
   // Extract user info from token payload and merge with stored data
-  // Token structure from auth-service: { id, name, email, department, batch }
+  // Token structure from auth-service: { id, name, email, department, batch, roles, activeRole }
   return {
     id: decoded.id,
     name: decoded.name,
     email: decoded.email,
-    role: 'Student', // Default role, can be added to token later
+    role: decoded.activeRole || 'Student', // For backward compatibility
+    roles: decoded.roles || ['STUDENT'],
+    activeRole: decoded.activeRole || 'STUDENT',
     department: decoded.department,
     batch: decoded.batch,
     // Merge additional data from localStorage (avatarUrl, phone, bio, etc.)

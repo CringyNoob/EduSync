@@ -330,12 +330,30 @@ const Profile = () => {
                                     </div>
                                 )}
 
-                                {/* Role Badge */}
+                                {/* Role Badges - Display all roles except ADMIN */}
                                 <div className="flex flex-wrap gap-2">
-                                    <span className="px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-bold border border-indigo-100 dark:border-indigo-800 flex items-center gap-2">
-                                        <GraduationCap size={16} />
-                                        Student
-                                    </span>
+                                    {profileUser.roles && profileUser.roles.length > 0 ? (
+                                        profileUser.roles
+                                            .filter(role => role !== 'ADMIN') // Exclude ADMIN from display
+                                            .map(role => {
+                                                const roleDisplay = role === 'STUDENT' ? 'Student' : role === 'TEACHER' ? 'Teacher' : role;
+                                                const roleColor = role === 'STUDENT' 
+                                                    ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border-indigo-100 dark:border-indigo-800'
+                                                    : 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-100 dark:border-purple-800';
+                                                
+                                                return (
+                                                    <span key={role} className={`px-4 py-2 rounded-full text-sm font-bold border flex items-center gap-2 ${roleColor}`}>
+                                                        <GraduationCap size={16} />
+                                                        {roleDisplay}
+                                                    </span>
+                                                );
+                                            })
+                                    ) : (
+                                        <span className="px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-bold border border-indigo-100 dark:border-indigo-800 flex items-center gap-2">
+                                            <GraduationCap size={16} />
+                                            Student
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 

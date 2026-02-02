@@ -4,6 +4,7 @@
 const express = require('express');
 const cors = require('cors');
 const marketRoutes = require('./src/routes/marketRoutes');
+const paymentRoutes = require('./src/routes/paymentRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -14,13 +15,15 @@ const PORT = process.env.PORT || 3002;
 // ========================================
 app.use(cors());           // Enable CORS for frontend/gateway communication
 app.use(express.json({ limit: '50mb' }));   // Parse JSON request bodies with 50MB limit
-app.use(express.urlencoded({ limit: '50mb', extended: true })); // Parse URL-encoded bodies
+app.use(express.urlencoded({ limit: '50mb', extended: true })); // Parse URL-encoded bodies (Required for SSLCommerz POST data)
 
 // ========================================
 // ROUTES
 // ========================================
 // Mount at root - Gateway handles the /api/marketplace prefix
 app.use('/', marketRoutes);
+// Payment routes - Gateway handles /api/market/payment prefix
+app.use('/payment', paymentRoutes);
 
 // ========================================
 // HEALTH CHECK

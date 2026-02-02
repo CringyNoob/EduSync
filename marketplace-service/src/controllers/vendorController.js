@@ -1,6 +1,7 @@
 // src/controllers/vendorController.js
 // Controller for Shop-First Architecture (Startups & Food Vendors)
 const db = require('../config/db');
+const axios = require('axios');
 
 /**
  * Get all vendors by type (STARTUP or FOOD_VENDOR)
@@ -127,7 +128,208 @@ async function getVendorById(req, res) {
     }
 }
 
+/**
+ * Register a new vendor (Shop registration)
+ * POST /vendors/register
+ * 
+ * Business Logic:
+ * - One shop per user rule: Check if user already owns a vendor
+ * - New vendors start with status = 'PENDING_PAYMENT'
+ * - New vendors start with is_active = false
+ * - Returns vendorId on successful registration
+ * 
+ * Required: req.user.id (from auth middleware)
+ * Body: { name, description, type }
+ */
+async function registerVendor(req, res) {
+    try {
+        const { 
+            name, 
+            description, 
+            type, 
+            logoUrl, 
+            businessAddress, 
+            contactEmail, 
+            contactPhone 
+        } = req.body;
+        const ownerId = req.user?.id;
+
+        // Validate required fields
+        if (!ownerId) {
+            return res.status(401).json({
+                success: false,
+                error: 'Authentication required. User ID not found.'
+            });
+        }
+
+        if (!name || !type) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required fields: name and type are required.'
+            });
+        }
+
+        if (!businessAddress || !contactEmail || !contactPhone || !description) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required fields: businessAddress, contactEmail, contactPhone, and description are required.'
+            });
+        }
+
+        // Validate vendor type
+        if (!['STARTUP', 'FOOD_VENDOR'].includes(type)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid vendor type. Must be STARTUP or FOOD_VENDOR.'
+            });
+        }
+
+        // Check if user already owns a vendor (One shop per user rule)
+        const existingVendorQuery = `
+            SELECT id FROM vendors WHERE owner_id = $1 LIMIT 1
+        `;
+        const existingVendor = await db.query(existingVendorQuery, [ownerId]);
+
+        if (existingVendor.rows.length > 0) {
+            return res.status(409).json({
+                success: false,
+                error: 'You already own a shop. Only one shop per user is allowed.'
+            });
+        }
+
+        // Insert new vendor with all fields
+        const insertQuery = `
+            INSERT INTO vendors (
+                owner_id, name, type, description, logo_url, 
+                business_address, contact_email, contact_phone,
+                status, is_active, is_verified_merchant
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'PENDING_PAYMENT', false, false)
+            RETURNING id
+        `;
+        const insertResult = await db.query(insertQuery, [
+            ownerId,
+            name,
+            type,
+            description,
+            logoUrl || null,
+            businessAddress,
+            contactEmail,
+            contactPhone
+        ]);
+
+        const newVendorId = insertResult.rows[0].id;
+
+        // Call auth-service to add VENDOR role to user
+        try {
+            const authToken = req.headers.authorization; // Forward the JWT token
+            const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:3001';
+            
+            // Auth service routes are mounted at root level, not /api/auth
+            const addRoleUrl = `${authServiceUrl}/add-vendor-role`;
+            console.log('🔄 Calling auth-service to add VENDOR role:', addRoleUrl);
+            console.log('🔑 Token present:', !!authToken);
+            
+            const authResponse = await axios.post(
+                addRoleUrl,
+                {},
+                {
+                    headers: {
+                        'Authorization': authToken,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            if (authResponse.data.success) {
+                console.log('✅ VENDOR role added successfully:', authResponse.data);
+            } else {
+                console.warn('⚠️ Unexpected response from auth-service:', authResponse.data);
+            }
+        } catch (authError) {
+            console.error('❌ Error calling auth-service to add VENDOR role:', authError.message);
+            if (authError.response) {
+                console.error('Response status:', authError.response.status);
+                console.error('Response data:', authError.response.data);
+            }
+            // Continue - vendor is created even if role update fails
+        }
+
+        return res.status(201).json({
+            success: true,
+            vendorId: newVendorId,
+            message: 'Vendor registered successfully. Payment pending.'
+        });
+
+    } catch (error) {
+        console.error('Error in registerVendor:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to register vendor'
+        });
+    }
+}
+
+/**
+ * Increment vendor profile views (for public marketplace visits)
+ * POST /vendors/:id/increment-views
+ * 
+ * Business Logic:
+ * - Increments visitor count in vendor_stats for today's date
+ * - Used when users visit vendor profile from marketplace
+ * - Does NOT require authentication (public endpoint)
+ */
+async function incrementVendorViews(req, res) {
+    try {
+        const { id } = req.params;
+
+        // Validate UUID
+        if (!id || id.length < 36) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid vendor ID format'
+            });
+        }
+
+        // Check if vendor exists
+        const vendorQuery = `SELECT id FROM vendors WHERE id = $1`;
+        const vendorResult = await db.query(vendorQuery, [id]);
+
+        if (vendorResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Vendor not found'
+            });
+        }
+
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Increment visitor count for today
+        const incrementQuery = `
+            INSERT INTO vendor_stats (vendor_id, date, visitors)
+            VALUES ($1, $2, 1)
+            ON CONFLICT (vendor_id, date)
+            DO UPDATE SET visitors = vendor_stats.visitors + 1
+        `;
+        await db.query(incrementQuery, [id, today]);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Profile view incremented'
+        });
+
+    } catch (error) {
+        console.error('Error in incrementVendorViews:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to increment profile views'
+        });
+    }
+}
+
 module.exports = {
     getVendors,
-    getVendorById
+    getVendorById,
+    incrementVendorViews,
+    registerVendor
 };

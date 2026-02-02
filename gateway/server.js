@@ -27,8 +27,13 @@ app.use((req, res, next) => {
 });
 
 // 1. CORS Setup: Allow both localhost and 127.0.0.1
+// app.use(cors({
+//     origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+//     credentials: true
+// }));
+
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: true, // or '*'
     credentials: true
 }));
 
@@ -99,6 +104,54 @@ app.use('/api/newsbox', createProxyMiddleware({
     onError: (err, req, res) => {
         console.error('❌ NewsBox Proxy Error:', err.message);
         res.status(500).json({ error: 'Could not reach NewsBox Service' });
+    },
+}));
+
+// 5. Notices Proxy (Port 3005) - UIU Notice Scraper
+app.use('/api/notices', createProxyMiddleware({
+    target: 'http://localhost:3005/notices',
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api/notices': '',
+    },
+    onProxyReq: (proxyReq, req, res) => {
+        log('→ Proxying to Notices Service: ' + req.method + ' ' + req.originalUrl);
+    },
+    onError: (err, req, res) => {
+        log('❌ Notices Proxy Error: ' + err.message);
+        res.status(500).json({ error: 'Could not reach Notices Service', details: err.message });
+    },
+}));
+
+// 6. Chat Service Proxy (Port 3006) - Real-time Chat
+app.use('/api/chat', createProxyMiddleware({
+    target: 'http://localhost:3006',
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api/chat': '',
+    },
+    onProxyReq: (proxyReq, req, res) => {
+        log('→ Proxying to Chat Service: ' + req.method + ' ' + req.originalUrl);
+    },
+    onError: (err, req, res) => {
+        log('❌ Chat Proxy Error: ' + err.message);
+        res.status(500).json({ error: 'Could not reach Chat Service', details: err.message });
+    },
+}));
+
+// 7. Issue Service Proxy (Port 3007) - Issue Reporting
+app.use('/api/issues', createProxyMiddleware({
+    target: 'http://localhost:3007',
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api/issues': '',
+    },
+    onProxyReq: (proxyReq, req, res) => {
+        log('→ Proxying to Issue Service: ' + req.method + ' ' + req.originalUrl);
+    },
+    onError: (err, req, res) => {
+        log('❌ Issue Proxy Error: ' + err.message);
+        res.status(500).json({ error: 'Could not reach Issue Service', details: err.message });
     },
 }));
 
